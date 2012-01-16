@@ -1,0 +1,101 @@
+
+@import-less url("theme.less");
+#left-panel {
+  position: fixed;
+  overflow: auto;
+  padding: 0px;
+  padding-top: @padding_tight;
+  font-size: 1.3em;
+  background: @chrome_secondary;  
+  }
+  
+#left-panel  .ui-tabs .ui-tabs-panel {
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  padding: 0;
+  }
+
+#right-panel {
+  position: fixed;
+  overflow: auto;
+  padding: 0px;
+  padding-left: @padding_tight;
+  background: @chrome_primary;
+  }
+
+
+#project-title {
+  left: 140px;
+  height: 40px;
+  padding: 4px 0 0 0;
+  font-size: 1.6em;
+  position:absolute;
+  top:0;
+  }
+  
+#summary-bar {
+  position: relative;
+  top: @padding_normal;
+  left: @padding_normal;
+  font-size: 1.8em;
+  font-weight: bold;
+  height:32px;
+  }
+  
+.viewpanel-pagesize{
+  left:280px;
+  top:0px;
+  position:absolute;
+  font-weight:normal;
+}
+.viewpanel-paging{
+  right:10px;
+  top:0px;
+  position:absolute;
+  font-weight:normal;
+}
+
+div.datasets-container{
+	overflow:auto;
+}
+.dataset-container{
+	border:solid 1px #CCCCCC;
+	padding:10px;
+	margin:10px;
+	background-color:#F4F7FA;
+}
+.dataset-title{
+	font-weight:bold;
+	font-size:125%;
+	color:#333333;
+}
+.dataset-theme{
+	padding:5px;
+	font-weight:bold;
+}
+
+.dataset-description{
+	padding:5px;
+	color:#333333;
+}
+
+.dataset-subtitle{
+	color:#1C94C4;
+	font-weight:bold;
+	}
+a.gridworks-link{
+	color:#fff;
+	background-color:#FA7C0A;
+	font-weight:bold;
+	border:1px solid #DC5800;
+	padding:2px 5px;
+}
+
+div.distribution{
+	padding:5px;
+}
+
+div.dataset-distributions, div.dataset-distributions div{
+	padding:3px;
+}
