@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.deri.rdf.browser.model.AnnotatedString;
-import org.deri.rdf.browser.model.RdfConfigurations;
 import org.deri.rdf.browser.model.RdfResource;
 
 import com.google.common.collect.SetMultimap;
@@ -49,33 +48,15 @@ public class QueryEngine {
 			return new HashSet<RdfResource>();
 		}
 		//get properties of resources
-		if(RdfConfigurations.labelProperties==null){
-			//get *all* properties
-			sparql = "SELECT ?x ?p ?o WHERE { ?x ?p ?o. " + filter + getOrClause("x",resources) + " }";
-			query = QueryFactory.create(sparql);
-			qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
-			results = qe.execSelect();
-			while(results.hasNext()){
-				QuerySolution sol = results.next();
-				resourcesMap.get(sol.getResource("x").getURI()).getProperties().put(sol.getResource("p").getURI(),getString(sol.get("o")));
-			}
-		}else{
-			//build the query
-			sparql = "SELECT ?x " + getVarnames(RdfConfigurations.labelProperties.length) + " WHERE {" + filter + 
-						getTriplePatterns("x",RdfConfigurations.labelProperties) + getOrClause("x", resources) + "}";
-			query = QueryFactory.create(sparql);
-			qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
-			results = qe.execSelect();
-			while(results.hasNext()){
-				QuerySolution sol = results.next();
-				String uri = sol.getResource("x").getURI();
-				//get Label props
-				for(int i=0;i<RdfConfigurations.labelProperties.length;i++){
-					resourcesMap.get(uri).getProperties().put(RdfConfigurations.labelProperties[i],sol.getLiteral("?o" + String.valueOf(i)).getString());
-				}
-			}
+		//TODO make this configurable.... currently get *all* properties
+		sparql = "SELECT ?x ?p ?o WHERE { ?x ?p ?o. " + filter + getOrClause("x",resources) + " }";
+		query = QueryFactory.create(sparql);
+		qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
+		results = qe.execSelect();
+		while(results.hasNext()){
+			QuerySolution sol = results.next();
+			resourcesMap.get(sol.getResource("x").getURI()).getProperties().put(sol.getResource("p").getURI(),getString(sol.get("o")));
 		}
-		
 		return resourcesMap.values();
 	}
 	
@@ -141,7 +122,15 @@ public class QueryEngine {
 					//FIXME if two blanks are selected we are screwed... variable name will be used twice
 					builder.append("{").append(mainFilter).append(" OPTIONAL{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?vvv . } FILTER(! bound(?vvv)). } UNION ");
 				}else{
-					builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ").append(val).append(" . } UNION ");
+					
+					//literals should be handled different than resources
+					if(val.startsWith("<")){
+						builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ").append(val).append(" . } UNION ");
+					}else{
+						builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?").append(varname+"_lit").append(" . FILTER(str(?")
+						.append(varname+"_lit").append(")=").append(val)
+						.append(") } UNION ");
+					}
 				}
 				i+=1;
 			}
@@ -152,7 +141,14 @@ public class QueryEngine {
 				//FIXME if two blanks are selected we are screwed... variable name will be used twice
 				builder.append("{").append(mainFilter).append(" OPTIONAL{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?vvv . } FILTER(! bound(?vvv)). } ");
 			}else{
-				builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ").append(val).append(" . } ");
+				//literals should be handled different than resources
+				if(val.startsWith("<")){
+					builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ").append(val).append(" . } ");
+				}else{
+					builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?").append(varname+"_lit").append(" . FILTER(str(?")
+					.append(varname+"_lit").append(")=").append(val)
+					.append(") } ");
+				}
 			}
 			builder.append("}");
 		}

@@ -1,0 +1,18 @@
+[
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"continent",
+  		"property": "<http://dbpedia.org/property/continent> ",
+  		"expression": "value"
+  	}
+  },
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"type",
+   		"property": "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ",
+   		"expression": "value"
+   	}
+   }
+]

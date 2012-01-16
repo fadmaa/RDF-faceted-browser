@@ -1,0 +1,7 @@
+{
+  "namespaces":[
+  	["dcat","http://www.w3.org/ns/dcat#"],
+  	["dct","http://purl.org/dc/terms/"]
+  ],
+  "template":"<div class=\"dataset-container\"><span class=\"dataset-title\" sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></span></div>"
+}

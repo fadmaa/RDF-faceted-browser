@@ -1,6 +1,7 @@
 var rdf_engine = {};
 
 var RdfBrowser = {
+	facets_URL : "facets.json",
 	initialize:function(endpointUrl,mainResourcesSelector){
 		var rightPanelDiv = $('#right-panel');
 		var leftPanelDiv = $('#left-panel');
@@ -11,36 +12,13 @@ var RdfBrowser = {
 		this._engine = new RdfBrowsingEngine(endpointUrl,mainResourcesSelector,viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv);
 		rdf_engine = this._engine;
 		resize(rightPanelDiv,leftPanelDiv,viewPanelDiv);
-		
-		this._engine.addFacets(
-                [
-                 {
-                	type:"list",
-                	config:{
-                		"name":"publisher",
-                		"property": "<http://purl.org/dc/terms/publisher> ?pub. ?pub <http://www.w3.org/2000/01/rdf-schema#label> ",
-                		"expression": "value"
-                	}
-                 },
-                 {	
-                	 type:"list",
-                   	 config:{
-                		 "name": "distribution format",
-                		 "property": "<http://www.w3.org/ns/dcat#distribution> ?dist. ?dist <http://purl.org/dc/terms/format> ?f. " +
-                    			"?f <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> ",
-                    	 "expression": "value"
-                   	 }
-                 },
-                 {
-                	 type:"list",
-                	 config:{
-                		 "name": "dataset tag",
-                		 "property": "<http://www.w3.org/ns/dcat#keyword> ",
-                		 "expression": "value"
-                	 }
-                 }
-                ]
-            );
+		var self = this;
+		$.ajax({
+				url:self.facets_URL,
+				success:function(facets_data){
+					self._engine.addFacets(jQuery.parseJSON(facets_data));
+				}
+				});
 	}
 };
 

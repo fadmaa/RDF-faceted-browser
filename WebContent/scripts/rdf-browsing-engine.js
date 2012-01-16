@@ -26,23 +26,6 @@ RdfBrowsingEngine.prototype.getJSON = function() {
     return a;
 };
 
-RdfBrowsingEngine.prototype.viewDistributions = function(r,dataset_uri){
-	var self = this;
-	if(r["http://www.w3.org/ns/dcat#distribution"]){
-		var div = $('<div></div>').addClass('dataset-distributions');
-		var distributions = r["http://www.w3.org/ns/dcat#distribution"];
-		for(var i=0;i<distributions.length;i++){
-			var format = distributions[i]["http://purl.org/dc/terms/format"];
-			var url = distributions[i]["http://www.w3.org/ns/dcat#accessURL"];
-			var lbl = distributions[i]["http://www.w3.org/2000/01/rdf-schema#label"];
-			var span = $('<div></div>').append($('<a></a>').attr('href',url).text('(' + format + ')'+ lbl)).appendTo(div);
-		}
-		return div;
-	}else{
-		return $('<div></div>').text('No distribution available');
-	}
-};
-
 RdfBrowsingEngine.prototype.viewResources = function(resources){
 	var getValue = function(obj, key){
 		if(obj[key]){
@@ -55,11 +38,7 @@ RdfBrowsingEngine.prototype.viewResources = function(resources){
 	this._resourcesDiv.empty();
 	for(var i=0;i<resources.length;i++){
 		var r = resources[i];
-		var div = $('<div></div>').addClass('dataset-container').appendTo(this._resourcesDiv);
-		div.append($('<div></div>').text(r["@"]));
-		div.append($('<span></span>').addClass('dataset-title').text(getValue(r,"http://purl.org/dc/terms/title")));
-		div.append($('<div></div>').addClass('dataset-description').text(getValue(r,"http://purl.org/dc/terms/description")));
-		div.append(self.viewDistributions(r,r["@"]));
+		TemplateEngine.viewResource(r,this._resourcesDiv);
 	}
 	
 	self._pageSizeControls.empty().append($('<span></span>').html('Show: '));
@@ -190,7 +169,7 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 	$.post("get-resources?limit=" + this._limit + "&offset=" + start,{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
 		self._limit = data.limit;
     	self._offset = data.offset;
-		self.viewResources(data.resources, $('#view-panel'));
+    	TemplateEngine.__loadConfig(function(){self.viewResources(data.resources, $('#view-panel'));});
 		dismissBusy();
 	},"json");
 };
