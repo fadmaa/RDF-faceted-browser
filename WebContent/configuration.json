@@ -1,7 +1,10 @@
 {
+  "endpoint_url":"http://dbpedia.org/sparql",
+  "main_resource_selector":"?x a <http://www.w3.org/ns/dcat#Dataset> ",
   "namespaces":[
   	["dcat","http://www.w3.org/ns/dcat#"],
   	["dct","http://purl.org/dc/terms/"]
   ],
-  "template":"<div class=\"dataset-container\"><span class=\"dataset-title\" sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></span></div>"
+  "template":
+  "<div class=\"dataset-container\"><h2 class=\"dataset-title\" sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2><div sparql_content=\"http://purl.org/dc/terms/description\"> </div> </div>"
 }

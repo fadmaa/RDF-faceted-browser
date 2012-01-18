@@ -2,17 +2,26 @@
   {
   	"type":"list",
   	"config":{
-  		"name":"continent",
-  		"property": "<http://dbpedia.org/property/continent> ",
+  		"name":"publisher",
+  		"property": "<http://purl.org/dc/terms/publisher> ",
   		"expression": "value"
   	}
   },
   {
   	"type":"list",
   	"config":{
-  		"name":"type",
-   		"property": "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ",
+  		"name":"theme",
+   		"property": "<http://www.w3.org/ns/dcat#theme> ?th. ?th <http://www.w3.org/2004/02/skos/core#prefLabel> ",
+   		"expression": "value"
+   	}
+   },
+   {
+  	"type":"list",
+  	"config":{
+  		"name":"available formats",
+   		"property": "<http://www.w3.org/ns/dcat#distribution> ?dist. ?dist <http://purl.org/dc/terms/format> ?f. ?f <http://www.w3.org/2000/01/rdf-schema#label> ",
    		"expression": "value"
    	}
    }
+   
 ]

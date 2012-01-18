@@ -10,6 +10,14 @@ function RdfBrowsingEngine(sparqlEndpointUrl,mainResourcesSelector,resourcesDiv,
     this._facets = [];
     this._limit = 10; this._offset = 0;
     this._filtered = 0;
+    
+    var dismissBusy = DialogSystem.showBusy();
+	this.configuration_URL = "configuration.json";
+	var self = this;
+    this.__loadConfig(function(){
+    	self.templateEngine = new TemplateEngine(self.config.template);
+    	dismissBusy();
+    });
 }
 
 RdfBrowsingEngine.prototype.getJSON = function() {
@@ -38,7 +46,7 @@ RdfBrowsingEngine.prototype.viewResources = function(resources){
 	this._resourcesDiv.empty();
 	for(var i=0;i<resources.length;i++){
 		var r = resources[i];
-		TemplateEngine.viewResource(r,this._resourcesDiv);
+		self.templateEngine.viewResource(r,this._resourcesDiv);
 	}
 	
 	self._pageSizeControls.empty().append($('<span></span>').html('Show: '));
@@ -169,7 +177,19 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 	$.post("get-resources?limit=" + this._limit + "&offset=" + start,{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
 		self._limit = data.limit;
     	self._offset = data.offset;
-    	TemplateEngine.__loadConfig(function(){self.viewResources(data.resources, $('#view-panel'));});
+    	self.viewResources(data.resources, $('#view-panel'));
 		dismissBusy();
 	},"json");
+};
+
+RdfBrowsingEngine.prototype.__loadConfig = function(callback){
+	var self = this;
+	$.ajax({url:self.configuration_URL,
+			success:function(data){
+				self.config = jQuery.parseJSON( data );
+				if(callback){
+					callback();
+				}
+			}
+	});	
 };
