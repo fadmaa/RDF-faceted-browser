@@ -22,6 +22,7 @@ public class RdfEngine implements Jsonizable{
 	protected List<RdfFacet> _facets = new LinkedList<RdfFacet>();
 	protected String sparqlEndpointUrl;
 	protected String mainResourcesSelector;
+	protected String template;
 
 	public void initializeFromJSON(JSONObject o) throws JSONException {
         if (o == null) {
@@ -29,6 +30,7 @@ public class RdfEngine implements Jsonizable{
         }
         sparqlEndpointUrl = o.getString("sparqlEndpointUrl");
         mainResourcesSelector = o.getString("mainResourcesSelector");
+//        template = o.getString("template");
         if (o.has("facets") && !o.isNull("facets")) {
             JSONArray a = o.getJSONArray("facets");
             int length = a.length();

@@ -74,7 +74,7 @@ public class QueryEngine {
 	}
 	
 	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String property, String filter, SetMultimap<String, String> filters){
-		String sparql = "SELECT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + property + " ?v. " + filter + getFilter("x",filter,filters) + " } GROUP BY (?v)";
+		String sparql = "SELECT DISTINCT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + property + " ?v. " + filter + getFilter("x",filter,filters) + " } GROUP BY (?v)";
 		Query query = QueryFactory.create(sparql, Syntax.syntaxSPARQL_11);
 		QueryExecution qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
 		ResultSet results = qe.execSelect();
@@ -109,6 +109,7 @@ public class QueryEngine {
 			return "";
 		}
 		StringBuilder builder = new StringBuilder("");
+		int j = 1;
 		for(Entry<String, Collection<String>> pv:propertyFilters.asMap().entrySet()){
 			Collection<String> values = pv.getValue();
 			builder.append("{");
@@ -127,8 +128,8 @@ public class QueryEngine {
 					if(val.startsWith("<")){
 						builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ").append(val).append(" . } UNION ");
 					}else{
-						builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?").append(varname+"_lit").append(" . FILTER(str(?")
-						.append(varname+"_lit").append(")=").append(val)
+						builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?").append(varname+ i + "_"+j+ "_lit").append(" . FILTER(str(?")
+						.append(varname+ i + "_"+ j+ "_lit").append(")=").append(val)
 						.append(") } UNION ");
 					}
 				}
@@ -145,12 +146,13 @@ public class QueryEngine {
 				if(val.startsWith("<")){
 					builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ").append(val).append(" . } ");
 				}else{
-					builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?").append(varname+"_lit").append(" . FILTER(str(?")
-					.append(varname+"_lit").append(")=").append(val)
+					builder.append("{ ?").append(varname).append(" ").append(pv.getKey()).append(" ?").append(varname+i+"_"+j+"_lit").append(" . FILTER(str(?")
+					.append(varname+i+"_"+j+"_lit").append(")=").append(val)
 					.append(") } ");
 				}
 			}
 			builder.append("}");
+			j +=1;
 		}
 		return builder.toString();
 	}

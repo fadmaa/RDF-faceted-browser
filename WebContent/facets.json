@@ -2,26 +2,18 @@
   {
   	"type":"list",
   	"config":{
-  		"name":"publisher",
-  		"property": "<http://purl.org/dc/terms/publisher> ",
+  		"name":"genre",
+  		"property": "<http://dbpedia.org/ontology/genre> ?genre. ?genre <http://dbpedia.org/property/label> ",
   		"expression": "value"
   	}
   },
   {
   	"type":"list",
   	"config":{
-  		"name":"theme",
-   		"property": "<http://www.w3.org/ns/dcat#theme> ?th. ?th <http://www.w3.org/2004/02/skos/core#prefLabel> ",
-   		"expression": "value"
-   	}
-   },
-   {
-  	"type":"list",
-  	"config":{
-  		"name":"available formats",
-   		"property": "<http://www.w3.org/ns/dcat#distribution> ?dist. ?dist <http://purl.org/dc/terms/format> ?f. ?f <http://www.w3.org/2000/01/rdf-schema#label> ",
-   		"expression": "value"
-   	}
-   }
-   
+  		"name":"sex",
+  		"property": "<http://dbpedia.org/property/sex> ",
+  		"expression": "value"
+  	}
+  }
+  
 ]

@@ -2,14 +2,14 @@ var rdf_engine = {};
 
 var RdfBrowser = {
 	facets_URL : "facets.json",
-	initialize:function(endpointUrl,mainResourcesSelector){
+	initialize:function(){
 		var rightPanelDiv = $('#right-panel');
 		var leftPanelDiv = $('#left-panel');
 		var viewPanelDiv = $('#view-panel');
 		var summaryDiv = $('#summary-bar');
 		var pageSizeControlsDiv = $('.viewpanel-pagesize');
 		var pageControlsDiv = $('.viewpanel-paging');
-		this._engine = new RdfBrowsingEngine(endpointUrl,mainResourcesSelector,viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv);
+		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv);
 		rdf_engine = this._engine;
 		resize(rightPanelDiv,leftPanelDiv,viewPanelDiv);
 		var self = this;
@@ -23,26 +23,7 @@ var RdfBrowser = {
 };
 
 $(function(){
-	var params = window.location.search;
-	var r = {};
-	if (params.length > 1) {
-        params = params.substr(1).split("&");
-        $.each(params, function() {
-            pair = this.split("=");
-            r[pair[0]] = unescape(pair[1]).replace(/[\\+]/g," ");
-        });
-    }
-	var endpointUrl = r["endpointUrl"];
-	if(!endpointUrl){
-		//redirect
-		window.location.href = "configure.html";
-		return;
-	}
-	var mainResourcesSelector = r["mainResourcesSelector"];
-	if(!mainResourcesSelector){
-		mainResourcesSelector = "?x a <http://www.w3.org/ns/dcat#Dataset>. ";
-	}
-	RdfBrowser.initialize(endpointUrl,mainResourcesSelector);
+	RdfBrowser.initialize();
 });
 
 function resize(rightPanelDiv,leftPanelDiv,viewPanelDiv) {

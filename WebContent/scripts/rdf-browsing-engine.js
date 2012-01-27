@@ -1,6 +1,4 @@
-function RdfBrowsingEngine(sparqlEndpointUrl,mainResourcesSelector,resourcesDiv, facetsDiv, summaryDiv, pageSizeControlsDiv, pagingControlsDiv, facetConfigs) {
-	this._sparqlEndpointUrl = sparqlEndpointUrl;
-	this._mainResourcesSelector = mainResourcesSelector;
+function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControlsDiv, pagingControlsDiv, facetConfigs) {
     this._resourcesDiv = resourcesDiv;
     this._facetsDiv = facetsDiv;
     this._summaryDiv = summaryDiv;
@@ -25,6 +23,7 @@ RdfBrowsingEngine.prototype.getJSON = function() {
     var a = {
     	sparqlEndpointUrl: self._sparqlEndpointUrl,
     	mainResourcesSelector: unescape(self._mainResourcesSelector),
+    	template:self.configuration_URL.template,
         facets: []
     };
     for (var i = 0; i < this._facets.length; i++) {
@@ -101,7 +100,7 @@ RdfBrowsingEngine.prototype.viewResources = function(resources){
 
 RdfBrowsingEngine.prototype.viewHeader = function(){
 	var self = this;
-	$('<span></span>').text(self._filtered + ' matching datasets').prependTo(this._summaryDiv.empty());
+	$('<span></span>').text(self._filtered + ' matching item').prependTo(this._summaryDiv.empty());
 };
 
 RdfBrowsingEngine.prototype.addFacet = function(type, config, options) {
@@ -187,6 +186,8 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback){
 	$.ajax({url:self.configuration_URL,
 			success:function(data){
 				self.config = jQuery.parseJSON( data );
+				self._sparqlEndpointUrl = self.config.endpoint_url;
+				self._mainResourcesSelector = self.config.main_resource_selector;
 				if(callback){
 					callback();
 				}
