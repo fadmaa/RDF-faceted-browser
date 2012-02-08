@@ -1,0 +1,19 @@
+[
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"genre",
+  		"property": "<http://dbpedia.org/ontology/genre> ?genre. ?genre <http://dbpedia.org/property/label> ",
+  		"expression": "value"
+  	}
+  },
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"sex",
+  		"property": "<http://dbpedia.org/property/sex> ",
+  		"expression": "value"
+  	}
+  }
+  
+]

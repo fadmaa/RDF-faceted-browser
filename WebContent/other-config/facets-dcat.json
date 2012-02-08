@@ -3,7 +3,7 @@
   	"type":"list",
   	"config":{
   		"name":"publisher",
-  		"property": "<http://purl.org/dc/terms/publisher> ?pub. ?pub <http://www.w3.org/2000/01/rdf-schema#label> ",
+  		"property": "<http://purl.org/dc/terms/publisher> ",
   		"expression": "value"
   	}
   },

@@ -1,0 +1,18 @@
+[
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"area",
+  		"property": "<http://dbpedia.org/ontology/areaTotal> ",
+  		"expression": "value"
+  	}
+  },
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"leader name",
+   		"property": "<http://dbpedia.org/ontology/leaderName> ",
+   		"expression": "value"
+   	}
+   }
+]

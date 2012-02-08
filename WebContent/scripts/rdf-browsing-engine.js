@@ -189,7 +189,9 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback){
 				self._sparqlEndpointUrl = self.config.endpoint_url;
 				self._mainResourcesSelector = self.config.main_resource_selector;
 				//load CSS
-				RdfBrowsingEngine.__loadCSS(self.config.css);
+				if(self.config.css){
+					RdfBrowsingEngine.__loadCSS(self.config.css);
+				}
 				if(callback){
 					callback();
 				}
