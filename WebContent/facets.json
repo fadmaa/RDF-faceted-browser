@@ -2,18 +2,18 @@
   {
   	"type":"list",
   	"config":{
-  		"name":"genre",
-  		"property": "<http://dbpedia.org/ontology/genre> ?genre. ?genre <http://dbpedia.org/property/label> ",
+  		"name":"type",
+  		"property": " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ",
   		"expression": "value"
   	}
   },
   {
   	"type":"list",
   	"config":{
-  		"name":"sex",
-  		"property": "<http://dbpedia.org/property/sex> ",
-  		"expression": "value"
-  	}
-  }
-  
+  		"name":"user",
+   		"property": "<http://rdfs.org/sioc/ns#has_creator> ?creator. ?usr <http://xmlns.com/foaf/0.1/account> ?creator. ?usr <http://www.w3.org/2000/01/rdf-schema#label> ",
+   		"expression": "value"
+   	}
+   }
+   
 ]

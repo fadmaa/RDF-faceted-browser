@@ -188,9 +188,22 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback){
 				self.config = jQuery.parseJSON( data );
 				self._sparqlEndpointUrl = self.config.endpoint_url;
 				self._mainResourcesSelector = self.config.main_resource_selector;
+				//load CSS
+				RdfBrowsingEngine.__loadCSS(self.config.css);
 				if(callback){
 					callback();
 				}
 			}
 	});	
+};
+
+RdfBrowsingEngine.__loadCSS = function(cssFile) {
+	$("head").append("<link>");
+    css = $("head").children(":last");
+    css.attr({
+          id: "dynamic_css",
+          rel:  "stylesheet",
+          type: "text/css",
+          href: cssFile
+    });
 };

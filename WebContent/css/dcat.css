@@ -1,0 +1,36 @@
+div.datasets-container{
+	overflow:auto;
+}
+.dataset-container{
+	border:solid 1px #CCCCCC;
+	padding:10px;
+	margin:10px;
+	background-color:#F4F7FA;
+}
+.dataset-title{
+	font-weight:bold;
+	font-size:125%;
+	color:#333333;
+}
+.dataset-theme{
+	padding:5px;
+	font-weight:bold;
+}
+
+.dataset-description{
+	padding:5px;
+	color:#333333;
+}
+
+.dataset-subtitle{
+	color:#1C94C4;
+	font-weight:bold;
+	}
+
+div.distribution{
+	padding:5px;
+}
+
+div.dataset-distributions, div.dataset-distributions div{
+	padding:3px;
+}
