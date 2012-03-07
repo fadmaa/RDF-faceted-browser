@@ -11,7 +11,7 @@ import com.google.common.collect.SetMultimap;
 
 public interface RdfFacet {
 
-    public void computeChoices(String sparqlEndpoint,QueryEngine engine, String filter, SetMultimap<String, String> filters);
+    public void computeChoices(String sparqlEndpoint,QueryEngine engine, String filter, SetMultimap<RdfFacet, String> filters);
     
     public void initializeFromJSON(JSONObject o) throws JSONException;
     
@@ -21,7 +21,10 @@ public interface RdfFacet {
 
 	public List<String> getSelection();
 
-	public String getSparqlSelector();
+	public String getResourceSparqlSelector(String varname, String val);
+	public String getLiteralSparqlSelector(String varname, String auxVarName, String val);
 	
 	public boolean isBlankSelected();
+	
+	public String getName();
 }

@@ -9,10 +9,10 @@ public class FacetChoiceComputer implements Runnable{
 
 	private RdfFacet facet;
 	private QueryEngine engine;
-	private SetMultimap<String, String> filters;
+	private SetMultimap<RdfFacet, String> filters;
 	private String sparqlEndpoint;
 	private String mainResourcesSelector;
-	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String mainResourcesSelector, QueryEngine engine,SetMultimap<String, String> filters){
+	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, String> filters){
 		this.facet = facet;
 		this.engine = engine;
 		this.filters = filters;

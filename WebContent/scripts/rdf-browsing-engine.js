@@ -106,8 +106,15 @@ RdfBrowsingEngine.prototype.viewHeader = function(){
 RdfBrowsingEngine.prototype.addFacet = function(type, config, options) {
     var elmt = this._createFacetContainer();
     var facet;
-    facet = new RdfPropertyListFacet(elmt, config, options);
-    
+    if(type==="list"){
+		facet = new RdfPropertyListFacet(elmt, facets[i].config, options);
+	}else if (type==="search"){
+		facet = new RdfSearchFacet(elmt, facets[i].config, options);
+	}else{
+		//ignore
+		return;
+	}
+
     this._facets.push({ elmt: elmt, facet: facet });
     
     this.update();
@@ -116,8 +123,15 @@ RdfBrowsingEngine.prototype.addFacet = function(type, config, options) {
 RdfBrowsingEngine.prototype.addFacets = function(facets) {
 	for(var i=0;i<facets.length;i++){
     	var elmt = this._createFacetContainer();
-    	var facet;
-    	facet = new RdfPropertyListFacet(elmt, facets[i].config);
+    	var facet = facets[i];
+    	if(facet.type==="list"){
+    		facet = new RdfPropertyListFacet(elmt, facets[i].config);
+    	}else if (facet.type==="search"){
+    		facet = new RdfSearchFacet(elmt, facets[i].config);
+    	}else{
+    		//ignore
+    		continue;
+    	}
     
     	this._facets.push({ elmt: elmt, facet: facet });
 	}

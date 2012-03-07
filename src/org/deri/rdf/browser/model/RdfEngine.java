@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.deri.rdf.browser.facet.RdfFacet;
 import org.deri.rdf.browser.facet.RdfListFacet;
+import org.deri.rdf.browser.facet.RdfSearchFacet;
 import org.deri.rdf.browser.sparql.QueryEngine;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +43,9 @@ public class RdfEngine implements Jsonizable{
                 RdfFacet facet = null;
                 if ("rdf-property-list".equals(type)) {
                     facet = new RdfListFacet();
-                } 
+                }else if("rdf-search".equals(type)){
+                	facet = new RdfSearchFacet();
+                }
                 
                 if (facet != null) {
                     facet.initializeFromJSON(fo);
@@ -100,26 +103,26 @@ public class RdfEngine implements Jsonizable{
 		writer.endObject();
 	}
 	
-	protected SetMultimap<String, String> getFilters(RdfFacet except){
-		SetMultimap<String, String> filters = HashMultimap.create();
+	protected SetMultimap<RdfFacet, String> getFilters(RdfFacet except){
+		SetMultimap<RdfFacet, String> filters = HashMultimap.create();
 		for(RdfFacet f:_facets){
 			if(f.equals(except)){
 				continue;
 			}
 			if(f.hasSelection()){
 				for(String s:f.getSelection()){
-					filters.put(f.getSparqlSelector(), s);
+					filters.put(f, s);
 				}
 			}
 			if(f.isBlankSelected()){
-				filters.put(f.getSparqlSelector(), null);
+				filters.put(f, null);
 			}
 			
 		}
 		return filters;
 	}
 	
-	protected SetMultimap<String, String> getFilters(){
+	protected SetMultimap<RdfFacet, String> getFilters(){
 		return getFilters(null);
 	}
 }

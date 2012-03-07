@@ -46,7 +46,13 @@ public class RdfListFacet implements RdfFacet{
     protected int _blankCount;
     protected int _errorCount;
     
+    
     @Override
+	public String getName() {
+    	return _name;
+	}
+
+	@Override
     public void initializeFromJSON(JSONObject o) throws JSONException {
         _name = o.getString("name");
         _expression = o.getString("expression");
@@ -79,7 +85,7 @@ public class RdfListFacet implements RdfFacet{
     }
 
 	@Override
-	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<String, String> filters) {
+	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, String> filters) {
 		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
 		for(AnnotatedString cs:values){
 			if(cs.value==null){
@@ -102,10 +108,16 @@ public class RdfListFacet implements RdfFacet{
 		}
 	}
 
-	public String getSparqlSelector() {
-		return sparqlSelector;
+	@Override
+	public String getResourceSparqlSelector(String varname, String val) {
+		return "?" + varname + " " + sparqlSelector + " " + val;
 	}
 	
+	@Override
+	public String getLiteralSparqlSelector(String varname, String auxVarName, String val) {
+		return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(str(?" + auxVarName + ")=" + val + ") ";
+	}
+
 	public boolean hasSelection(){
 		return ! this._selection.isEmpty();
 	}

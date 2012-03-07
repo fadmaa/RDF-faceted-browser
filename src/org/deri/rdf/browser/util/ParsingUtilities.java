@@ -29,4 +29,8 @@ public class ParsingUtilities {
 	            throw new JSONException(s + " couldn't be parsed as JSON array");
 	        }
 	    }
+	    
+	    static public String varname(String s){
+	    	return s.toLowerCase().replaceAll("\\s+", "_").replaceAll("[^_a-zA-Z0-9]", "");
+	    }
 }
