@@ -3,3 +3,5 @@ This provides a faceted browser on top of SPARQL endpoint supporting COUNT/GROUP
 The interface looks similar to Google Refine as I am reusing their lovely interface code( JS & CSS) 
 
 Many details of the interface are easily configured in two JSON files (will soon make them one file): configuration.json and facets.json
+
+some more details at: http://sheeeer.wordpress.com/2012/02/08/a-faceted-browser-over-sparql-endpoints/
