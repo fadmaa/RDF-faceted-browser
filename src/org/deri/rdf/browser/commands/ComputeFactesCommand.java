@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.deri.rdf.browser.model.RdfEngine;
 import org.deri.rdf.browser.sparql.QueryEngine;
-import org.json.JSONException;
 
 public class ComputeFactesCommand extends RdfCommand{
 
@@ -18,7 +17,7 @@ public class ComputeFactesCommand extends RdfCommand{
 			RdfEngine engine = getRdfEngine(request);
 			engine.computeFacets(new QueryEngine());
 			respondJSON(response, engine);
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			respondException(response, e);
         }
 	}

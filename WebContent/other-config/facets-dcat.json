@@ -1,5 +1,13 @@
 [
   {
+  	"type":"search",
+  	"config":{
+  		"name":"search",
+   		"property": "<http://www.w3.org/2000/01/rdf-schema#label> ",
+   		"endpoint_vendor": "standard"
+   	}
+  },
+  {
   	"type":"list",
   	"config":{
   		"name":"publisher",

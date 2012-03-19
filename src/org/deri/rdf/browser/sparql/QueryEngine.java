@@ -16,15 +16,11 @@ import org.deri.rdf.browser.model.RdfResource;
 import org.deri.rdf.browser.util.ParsingUtilities;
 
 import com.google.common.collect.SetMultimap;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class QueryEngine {
 
@@ -33,9 +29,7 @@ public class QueryEngine {
 		//TODO support blank node
 		//FIXME support blank node. currently, silently ignored
 		String sparql = "SELECT DISTINCT ?x WHERE { ?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). } ORDER BY ?x LIMIT " + limit + " OFFSET " + offset;
-		Query query = QueryFactory.create(sparql);
-		QueryExecution qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
-		ResultSet results = qe.execSelect();
+		ResultSet results = execSparql(sparql,sparqlEndpoint);
 		Set<String> resources = new HashSet<String>(limit);
 		Map<String,RdfResource> resourcesMap = new HashMap<String, RdfResource>();
 		while(results.hasNext()){
@@ -52,9 +46,7 @@ public class QueryEngine {
 		//get properties of resources
 		//TODO make this configurable.... currently get *all* properties
 		sparql = "SELECT ?x ?p ?o WHERE { ?x ?p ?o. ?x " + filter + getOrClause("x",resources) + " }";
-		query = QueryFactory.create(sparql);
-		qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
-		results = qe.execSelect();
+		results = execSparql(sparql,sparqlEndpoint);
 		while(results.hasNext()){
 			QuerySolution sol = results.next();
 			resourcesMap.get(sol.getResource("x").getURI()).getProperties().put(sol.getResource("p").getURI(),getString(sol.get("o")));
@@ -64,9 +56,7 @@ public class QueryEngine {
 	
 	public int getResourcesCount(String sparqlEndpoint, String filter, SetMultimap<RdfFacet, String> filters){
 		String sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE { ?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). } ";
-		Query query = QueryFactory.create(sparql, Syntax.syntaxSPARQL_11);
-		QueryExecution qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
-		ResultSet results = qe.execSelect();
+		ResultSet results = execSparql(sparql, sparqlEndpoint);
 		if(results.hasNext()){
 			QuerySolution sol = results.next();
 			return sol.getLiteral("count").getInt();
@@ -77,9 +67,7 @@ public class QueryEngine {
 	
 	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String property, String filter, SetMultimap<RdfFacet, String> filters){
 		String sparql = "SELECT DISTINCT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + property + " ?v. ?x " + filter + getFilter("x",filter,filters) + " } GROUP BY (?v)";
-		Query query = QueryFactory.create(sparql, Syntax.syntaxSPARQL_11);
-		QueryExecution qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
-		ResultSet results = qe.execSelect();
+		ResultSet results = execSparql(sparql, sparqlEndpoint);
 		List<AnnotatedString> values = new ArrayList<AnnotatedString>(); 
 		while(results.hasNext()){
 			QuerySolution sol = results.next();
@@ -93,9 +81,7 @@ public class QueryEngine {
 		//now see if there are blank values
 		
 		sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + filter + "OPTIONAL{ ?x " + property + " ?v.}. FILTER(!bound(?v)). " + getFilter("x",filter,filters) + " }";
-		query = QueryFactory.create(sparql, Syntax.syntaxSPARQL_11);
-		qe = QueryExecutionFactory.sparqlService(sparqlEndpoint, query);
-		results = qe.execSelect();
+		results = execSparql(sparql, sparqlEndpoint);
 		if(results.hasNext()){
 			QuerySolution sol = results.next();
 			int count = sol.getLiteral("count").getInt();
@@ -149,7 +135,7 @@ public class QueryEngine {
 				if(val.startsWith("<")){
 					builder.append("{ ").append(pv.getKey().getResourceSparqlSelector(varname,val)).append(" . } ");
 				}else{
-					builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(varname,varname+ i + "_"+ j+ "_lit",val)).append(") } ");
+					builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(varname,varname+ i + "_"+ j+ "_lit",val)).append(" } ");
 				}
 			}
 			builder.append("}");
@@ -195,4 +181,15 @@ public class QueryEngine {
 		}
 		return patterns;
 	}
+	
+	private ResultSet execSparql(String sparql, String sparqlEndpointUrl) {
+		//we use QueryEngineHTTP to skip query validation as Virtuoso needs non-standardised extensions and will not pass ARQ validation
+		QueryEngineHTTP qExec = new QueryEngineHTTP(sparqlEndpointUrl, sparql);
+		/*if(defaultGraphUri!=null){
+			qExec.setDefaultGraphURIs(Collections.singletonList(defaultGraphUri));
+		}*/
+		ResultSet res = qExec.execSelect();
+		return res;
+	}
+	
 }

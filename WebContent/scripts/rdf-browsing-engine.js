@@ -188,6 +188,11 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 	if(!start){start=0;}
 	var dismissBusy = DialogSystem.showBusy();
 	$.post("get-resources?limit=" + this._limit + "&offset=" + start,{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
+		if(data.code==='error'){
+			alert(data.message);
+			dismissBusy();
+			return;
+		}
 		self._limit = data.limit;
     	self._offset = data.offset;
     	self.viewResources(data.resources, $('#view-panel'));

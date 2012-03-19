@@ -92,10 +92,8 @@ RdfSearchFacet.prototype._initializeUI = function() {
       '</tr></table></div>' +
       '</div>' +
       '<div class="facet-text-body"><div class="grid-layout layout-tightest layout-full"><table>' +
-      '<tr><td colspan="4"><div class="input-container"><input bind="input" /></div></td></tr>' +
-      '<tr>' +
-      '<td width="1%"><input type="checkbox" bind="caseSensitiveCheckbox" /></td><td>case sensitive</td>' +
-      '<td width="1%"><input type="checkbox" bind="regexCheckbox" /></td><td>regular expression</td>' +
+      '<tr><td><div class="input-container"><input bind="input" /></div></td>' +
+      '<td><div class="input-container"><input type="button" value="search" bind="search"/></div></td>' + 
       '</tr>' +
       '</table></div></div>'
   );
@@ -104,26 +102,13 @@ RdfSearchFacet.prototype._initializeUI = function() {
 
   elmts.removeButton.click(function() { self._remove(); });
 
-  elmts.caseSensitiveCheckbox.bind("change", function() {
-    self._config.caseSensitive = this.checked;
-    if (self._query !== null && self._query.length > 0) {
-      self._scheduleUpdate();
-    }
-  });
-  elmts.regexCheckbox.bind("change", function() {
-    self._config.mode = this.checked ? "regex" : "text";
-    if (self._query !== null && self._query.length > 0) {
-      self._scheduleUpdate();
-    }
-  });
-
   if (this._query) {
     elmts.input[0].value = this._query;
   }
-  elmts.input.keyup(function(evt) {
-    self._query = this.value;
-    self._scheduleUpdate();
-  }).focus();
+  elmts.search.bind('click',function(){
+	  self._query = elmts.input.val();
+	  RdfBrowser.update({ engineChanged: true });
+  });
 };
 
 RdfSearchFacet.prototype.updateState = function(data) {

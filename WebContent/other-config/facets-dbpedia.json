@@ -14,5 +14,13 @@
    		"property": "<http://dbpedia.org/ontology/leaderName> ",
    		"expression": "value"
    	}
-   }
+   },
+   {
+  	"type":"search",
+  	"config":{
+  		"name":"search",
+   		"property": "<http://www.w3.org/2000/01/rdf-schema#label> ",
+   		"endpoint_vendor": "Virtuoso"
+   	}
+   	}
 ]

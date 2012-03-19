@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.deri.rdf.browser.model.RdfEngine;
 import org.deri.rdf.browser.sparql.QueryEngine;
-import org.json.JSONException;
 import org.json.JSONWriter;
 
 public class CountResourcesCommand extends RdfCommand{
@@ -18,26 +17,22 @@ public class CountResourcesCommand extends RdfCommand{
 		RdfEngine engine;
 		try{
 			engine = getRdfEngine(request);
-		}catch(JSONException je){
-			respondException(response, je);
-			return;
-		}
-		QueryEngine queryEngine = new QueryEngine();
-		int filtered = engine.getFilteredResourcesCount(queryEngine); 
+		
+			QueryEngine queryEngine = new QueryEngine();
+			int filtered = engine.getFilteredResourcesCount(queryEngine); 
 			
-		response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Type", "application/json");
+			response.setCharacterEncoding("UTF-8");
+        	response.setHeader("Content-Type", "application/json");
         
-        Writer w = response.getWriter();
-        JSONWriter writer = new JSONWriter(w);
-        try{
+        	Writer w = response.getWriter();
+        	JSONWriter writer = new JSONWriter(w);
         	writer.object();
         	writer.key("code"); writer.value("ok");
         	writer.key("filtered");
         	writer.value(filtered);
         	writer.endObject();
-        }catch(JSONException e){
-        	e.printStackTrace(response.getWriter());
+        } catch (Exception e) {
+			respondException(response, e);
         }
 	}
 
