@@ -5,7 +5,8 @@
   	["dcat","http://www.w3.org/ns/dcat#"],
   	["dct","http://purl.org/dc/terms/"]
   ],
-  "main_resource_details_query": "",
+  "script":"custom-script/QBViewer.js",
+  "script_template": "viewObservation",
   "template":
   "<div class=\"dataset-container\"><h2 class=\"dataset-title\" sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2><div sparql_content=\"http://data.lod2.eu/scoreboard/properties/country\"> </div> </div>"
 }

@@ -28,6 +28,8 @@ public class GetResourcesCommand extends RdfCommand{
 			
 		response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");
+		response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+		response.setDateHeader("Expires", 0);
         
         Writer w = response.getWriter();
         JSONWriter writer = new JSONWriter(w);

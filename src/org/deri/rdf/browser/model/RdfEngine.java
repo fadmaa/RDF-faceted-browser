@@ -138,11 +138,14 @@ public class RdfEngine implements Jsonizable{
 	}
 	
 	protected List<String> getProperties(String template) throws XPathExpressionException{
+		List<String> properties = new ArrayList<String>();
+		if(template.isEmpty()){
+			return properties;
+		}
         XPath xpath = XPathFactory.newInstance().newXPath();
         String expression = "//*/@sparql_content";
         InputSource inputSource = new InputSource(new StringReader(template));
         NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
-        List<String> properties = new ArrayList<String>();
         for(int i=0;i<nodes.getLength();i++){
         	Node n = nodes.item(i);
         	properties.add(n.getNodeValue());

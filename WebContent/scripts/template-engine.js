@@ -1,8 +1,22 @@
-function TemplateEngine(tmplt){
-	this.__template = tmplt;
+function TemplateEngine(tmplt,scriptTmplt){
+	this.__scriptTemplate = scriptTmplt;
+	this.__template = scriptTmplt?"":tmplt;
 } 
 
-TemplateEngine.prototype.viewResource = function(resource,container){
+TemplateEngine.prototype.viewResource = function(resource,container,endpoint){
+	if(this.__scriptTemplate){
+		this.__viewResourceUsingScript(resource,container,endpoint);
+	}else{
+		this.__viewResourceUsingTemplate(resource,container);
+	}
+};
+
+TemplateEngine.prototype.__viewResourceUsingScript = function(resource,container,endpoint){
+	var myFunc = window[this.__scriptTemplate];
+	myFunc(resource,container,endpoint);
+};
+
+TemplateEngine.prototype.__viewResourceUsingTemplate = function(resource,container){
 	var dom = $(this.__template);
 	$.each(dom.find('[sparql_content]'),function(key,val){
 		var k = $(val).attr('sparql_content');
@@ -13,5 +27,5 @@ TemplateEngine.prototype.viewResource = function(resource,container){
 			$(val).text('undefined');
 		}
 	});
-	container.append(dom);
+	container.append(dom);	
 };

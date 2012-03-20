@@ -13,7 +13,7 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
 	this.configuration_URL = "configuration.json";
 	var self = this;
     this.__loadConfig(function(){
-    	self.templateEngine = new TemplateEngine(self.config.template);
+    	self.templateEngine = new TemplateEngine(self.config.template,self.config.script_template);
     	dismissBusy();
     });
 }
@@ -45,7 +45,7 @@ RdfBrowsingEngine.prototype.viewResources = function(resources){
 	this._resourcesDiv.empty();
 	for(var i=0;i<resources.length;i++){
 		var r = resources[i];
-		self.templateEngine.viewResource(r,this._resourcesDiv);
+		self.templateEngine.viewResource(r,this._resourcesDiv,this._sparqlEndpointUrl);
 	}
 	
 	self._pageSizeControls.empty().append($('<span></span>').html('Show: '));
@@ -211,6 +211,10 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback){
 				if(self.config.css){
 					RdfBrowsingEngine.__loadCSS(self.config.css);
 				}
+				//load scripts
+				if(self.config.script){
+					RdfBrowsingEngine.__loadScript(self.config.script);
+				}
 				if(callback){
 					callback();
 				}
@@ -227,4 +231,8 @@ RdfBrowsingEngine.__loadCSS = function(cssFile) {
           type: "text/css",
           href: cssFile
     });
+};
+
+RdfBrowsingEngine.__loadScript = function(scriptFile) {
+	$.getScript(scriptFile);
 };

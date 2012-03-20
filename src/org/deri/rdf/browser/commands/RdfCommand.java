@@ -66,7 +66,10 @@ public abstract class RdfCommand extends HttpServlet {
 			o.put("stack", sw.toString());
 
 			response.setCharacterEncoding("UTF-8");
+			
 			response.setHeader("Content-Type", "application/json");
+			response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+			response.setDateHeader("Expires", 0);
 			respond(response, o.toString());
 		} catch (JSONException e1) {
 			e.printStackTrace(response.getWriter());
