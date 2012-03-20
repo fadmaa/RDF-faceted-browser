@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.deri.rdf.browser.model.RdfEngine;
 import org.deri.rdf.browser.util.ParsingUtilities;
@@ -21,7 +22,7 @@ import com.google.refine.Jsonizable;
 
 public abstract class RdfCommand extends HttpServlet {
 	protected RdfEngine getRdfEngine(HttpServletRequest request)
-			throws JSONException {
+			throws JSONException, XPathExpressionException {
 		String json = request.getParameter("rdf-engine");
 		JSONObject o = ParsingUtilities.evaluateJsonStringToObject(json);
 		RdfEngine engine = new RdfEngine();

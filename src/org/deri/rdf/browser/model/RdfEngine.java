@@ -1,10 +1,16 @@
 package org.deri.rdf.browser.model;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.deri.rdf.browser.facet.RdfFacet;
 import org.deri.rdf.browser.facet.RdfListFacet;
@@ -14,6 +20,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -24,14 +33,16 @@ public class RdfEngine implements Jsonizable{
 	protected String sparqlEndpointUrl;
 	protected String mainResourcesSelector;
 	protected String template;
+	protected List<String> properties;
 
-	public void initializeFromJSON(JSONObject o) throws JSONException {
+	public void initializeFromJSON(JSONObject o) throws JSONException, XPathExpressionException {
         if (o == null) {
             return;
         }
         sparqlEndpointUrl = o.getString("sparqlEndpointUrl");
         mainResourcesSelector = o.getString("mainResourcesSelector");
-//        template = o.getString("template");
+        template = o.getString("template");
+        properties = getProperties(template);
         if (o.has("facets") && !o.isNull("facets")) {
             JSONArray a = o.getJSONArray("facets");
             int length = a.length();
@@ -83,7 +94,7 @@ public class RdfEngine implements Jsonizable{
 	}
 	
 	public Collection<RdfResource> getResources(QueryEngine queryEngine, int offset, int limit){
-		return queryEngine.getResources(sparqlEndpointUrl,mainResourcesSelector, getFilters(), offset, limit);
+		return queryEngine.getResources(sparqlEndpointUrl,mainResourcesSelector,properties, getFilters(), offset, limit);
 	}
 
 	public int getFilteredResourcesCount(QueryEngine queryEngine){
@@ -124,5 +135,18 @@ public class RdfEngine implements Jsonizable{
 	
 	protected SetMultimap<RdfFacet, String> getFilters(){
 		return getFilters(null);
+	}
+	
+	protected List<String> getProperties(String template) throws XPathExpressionException{
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        String expression = "//*/@sparql_content";
+        InputSource inputSource = new InputSource(new StringReader(template));
+        NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+        List<String> properties = new ArrayList<String>();
+        for(int i=0;i<nodes.getLength();i++){
+        	Node n = nodes.item(i);
+        	properties.add(n.getNodeValue());
+        }
+        return properties;
 	}
 }

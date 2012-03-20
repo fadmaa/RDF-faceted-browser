@@ -23,7 +23,7 @@ RdfBrowsingEngine.prototype.getJSON = function() {
     var a = {
     	sparqlEndpointUrl: self._sparqlEndpointUrl,
     	mainResourcesSelector: unescape(self._mainResourcesSelector),
-    	template:self.configuration_URL.template,
+    	template:self.templateEngine.__template,
         facets: []
     };
     for (var i = 0; i < this._facets.length; i++) {

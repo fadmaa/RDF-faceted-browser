@@ -24,7 +24,7 @@ import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class QueryEngine {
 
-	public Collection<RdfResource> getResources(String sparqlEndpoint,String filter, SetMultimap<RdfFacet, String> filters, int offset, int limit){
+	public Collection<RdfResource> getResources(String sparqlEndpoint,String filter, List<String> properties,SetMultimap<RdfFacet, String> filters, int offset, int limit){
 		//get the resources
 		//TODO support blank node
 		//FIXME support blank node. currently, silently ignored
@@ -45,7 +45,7 @@ public class QueryEngine {
 		}
 		//get properties of resources
 		//TODO make this configurable.... currently get *all* properties
-		sparql = "SELECT ?x ?p ?o WHERE { ?x ?p ?o. ?x " + filter + getOrClause("x",resources) + " }";
+		sparql = "SELECT ?x ?p ?o WHERE { ?x ?p ?o. ?x " + filter + getOrClause("x",resources) + getPropertiesFilter("p",properties) + " }";
 		results = execSparql(sparql,sparqlEndpoint);
 		while(results.hasNext()){
 			QuerySolution sol = results.next();
@@ -151,6 +151,18 @@ public class QueryEngine {
 		StringBuilder builder = new StringBuilder("FILTER ( ");
 		for(String r:resources){
 			builder.append("?").append(varname).append(" = <").append(r).append("> || ");
+		}
+		//get rid of the last ||
+		return builder.substring(0,builder.length()-4) + ").";
+	}
+	
+	protected String getPropertiesFilter(String varname, List<String> properties) {
+		if(properties.isEmpty()){
+			return "";
+		}
+		StringBuilder builder = new StringBuilder("FILTER ( ");
+		for(String p:properties){
+			builder.append("?").append(varname).append(" = <").append(p).append("> || ");
 		}
 		//get rid of the last ||
 		return builder.substring(0,builder.length()-4) + ").";

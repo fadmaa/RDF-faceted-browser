@@ -1,26 +1,36 @@
 [
   {
+  	"type":"search",
+  	"config":{
+  		"name":"search",
+   		"property": " ?dimensionProp ?dimensionPropVal. ?dimensionProp a <http://purl.org/linked-data/cube#DimensionProperty>. ?x ?dimensionProp ",
+   		"endpoint_vendor": "standard"
+   	}
+  },
+  {
   	"type":"list",
   	"config":{
-  		"name":"area",
-  		"property": "<http://dbpedia.org/ontology/areaTotal> ",
+  		"name":"measures",
+  		"property": " ?measureProp ?measurePropVal. ?measureProp a <http://purl.org/linked-data/cube#MeasureProperty>. ?measureProp <http://www.w3.org/2000/01/rdf-schema#label> ",
   		"expression": "value"
   	}
   },
   {
   	"type":"list",
   	"config":{
-  		"name":"leader name",
-   		"property": "<http://dbpedia.org/ontology/leaderName> ",
-   		"expression": "value"
-   	}
-   },
-   {
-  	"type":"search",
+  		"name":"year",
+  		"property": " <http://data.lod2.eu/scoreboard/properties/year> ",
+  		"expression": "value"
+  	}
+  },
+  {
+  	"type":"list",
   	"config":{
-  		"name":"search",
-   		"property": "<http://www.w3.org/2000/01/rdf-schema#label> ",
-   		"endpoint_vendor": "Virtuoso"
-   	}
-   	}
+  		"name":"country",
+  		"property": " <http://data.lod2.eu/scoreboard/properties/country> ",
+  		"expression": "value"
+  	}
+  }
+  
+  
 ]
