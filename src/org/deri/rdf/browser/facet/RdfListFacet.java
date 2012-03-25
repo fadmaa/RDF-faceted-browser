@@ -85,7 +85,7 @@ public class RdfListFacet implements RdfFacet{
     }
 
 	@Override
-	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, String> filters) {
+	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
 		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
 		for(AnnotatedString cs:values){
 			if(cs.value==null){
@@ -109,21 +109,29 @@ public class RdfListFacet implements RdfFacet{
 	}
 
 	@Override
-	public String getResourceSparqlSelector(String varname, String val) {
-		return "?" + varname + " " + sparqlSelector + " " + val;
+	public String getResourceSparqlSelector(String varname, RdfDecoratedValue val) {
+		return "?" + varname + " " + sparqlSelector + " " + val.getValue();
 	}
 	
 	@Override
-	public String getLiteralSparqlSelector(String varname, String auxVarName, String val) {
-		return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(str(?" + auxVarName + ")=" + val + ") ";
+	public String getLiteralSparqlSelector(String varname, String auxVarName, RdfDecoratedValue val) {
+		return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(str(?" + auxVarName + ")=" + val.getValue() + ") ";
 	}
 
 	public boolean hasSelection(){
 		return ! this._selection.isEmpty();
 	}
 
-	public List<String> getSelection(){
-		return this._selection;
+	public List<RdfDecoratedValue> getSelection(){
+		List<RdfDecoratedValue> lst = new LinkedList<RdfDecoratedValue>();
+		for(String s:this._selection){
+			if (s.startsWith("<")){
+				lst.add(new RdfDecoratedValue(s, false));
+			}else{
+				lst.add(new RdfDecoratedValue(s, true));
+			}
+		}
+		return lst;
 	}
 	
 	@Override

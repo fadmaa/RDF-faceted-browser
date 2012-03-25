@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.deri.rdf.browser.facet.RdfDecoratedValue;
 import org.deri.rdf.browser.facet.RdfFacet;
 import org.deri.rdf.browser.model.AnnotatedString;
 import org.deri.rdf.browser.model.RdfResource;
@@ -24,7 +25,7 @@ import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class QueryEngine {
 
-	public Collection<RdfResource> getResources(String sparqlEndpoint,String filter, List<String> properties,SetMultimap<RdfFacet, String> filters, int offset, int limit){
+	public Collection<RdfResource> getResources(String sparqlEndpoint,String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters, int offset, int limit){
 		//get the resources
 		//TODO support blank node
 		//FIXME support blank node. currently, silently ignored
@@ -54,7 +55,7 @@ public class QueryEngine {
 		return resourcesMap.values();
 	}
 	
-	public int getResourcesCount(String sparqlEndpoint, String filter, SetMultimap<RdfFacet, String> filters){
+	public int getResourcesCount(String sparqlEndpoint, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		String sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE { ?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). } ";
 		ResultSet results = execSparql(sparql, sparqlEndpoint);
 		if(results.hasNext()){
@@ -65,7 +66,7 @@ public class QueryEngine {
 		}
 	}
 	
-	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String property, String filter, SetMultimap<RdfFacet, String> filters){
+	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		String sparql = "SELECT DISTINCT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + property + " ?v. ?x " + filter + getFilter("x",filter,filters) + " } GROUP BY (?v)";
 		ResultSet results = execSparql(sparql, sparqlEndpoint);
 		List<AnnotatedString> values = new ArrayList<AnnotatedString>(); 
@@ -92,50 +93,50 @@ public class QueryEngine {
 		return values;
 	}
 	
-	protected String getFilter(String varname, String mainSelector, SetMultimap<RdfFacet, String> propertyFilters){
+	protected String getFilter(String varname, String mainSelector, SetMultimap<RdfFacet, RdfDecoratedValue> propertyFilters){
 		if(propertyFilters.isEmpty()){
 			return "";
 		}
 		StringBuilder builder = new StringBuilder("");
 		int j = 1;
-		for(Entry<RdfFacet, Collection<String>> pv:propertyFilters.asMap().entrySet()){
-			Collection<String> values = pv.getValue();
+		for(Entry<RdfFacet, Collection<RdfDecoratedValue>> pv:propertyFilters.asMap().entrySet()){
+			Collection<RdfDecoratedValue> values = pv.getValue();
 			builder.append("{");
 			//iterate through values
 			int i = 1;
-			Iterator<String> valIter = values.iterator();
+			Iterator<RdfDecoratedValue> valIter = values.iterator();
 			String auxVarname = "?" + ParsingUtilities.varname(pv.getKey().getName()) + "_vvv";
 			while(i<values.size()){
-				String val = valIter.next();
+				RdfDecoratedValue val = valIter.next();
 				if(val==null){
 					//blank selected
 					//FIXME if two blanks are selected we are screwed... variable name will be used twice
 					String localVarname = ParsingUtilities.varname(pv.getKey().getName()) + varname;
-					builder.append("{").append("?").append(localVarname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(localVarname, auxVarname)).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } UNION ");
+					builder.append("{").append("?").append(localVarname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(localVarname, new RdfDecoratedValue(auxVarname,false))).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } UNION ");
 				}else{
 					
 					//literals should be handled different than resources
-					if(val.startsWith("<")){
-						builder.append("{ ").append(pv.getKey().getResourceSparqlSelector(varname,val)).append(" . } UNION ");
-					}else{
+					if(val.isLiteral()){
 						builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(varname,varname+ i + "_"+ j+ "_lit",val)).append(" } UNION ");
+					}else{
+						builder.append("{ ").append(pv.getKey().getResourceSparqlSelector(varname,val)).append(" . } UNION ");
 					}
 				}
 				i+=1;
 			}
 			//the last value
-			String val = valIter.next();
+			RdfDecoratedValue val = valIter.next();
 			if(val==null){
 				//blank selected
 				//FIXME if two blanks are selected we are screwed... variable name will be used twice
 				String localVarname = ParsingUtilities.varname(pv.getKey().getName()) + varname;
-				builder.append("{").append("?").append(localVarname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(localVarname, auxVarname)).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } ");
+				builder.append("{").append("?").append(localVarname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(localVarname, new RdfDecoratedValue(auxVarname, false))).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } ");
 			}else{
 				//literals should be handled different than resources
-				if(val.startsWith("<")){
-					builder.append("{ ").append(pv.getKey().getResourceSparqlSelector(varname,val)).append(" . } ");
-				}else{
+				if(val.isLiteral()){
 					builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(varname,varname+ i + "_"+ j+ "_lit",val)).append(" } ");
+				}else{
+					builder.append("{ ").append(pv.getKey().getResourceSparqlSelector(varname,val)).append(" . } ");
 				}
 			}
 			builder.append("}");

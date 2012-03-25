@@ -128,6 +128,8 @@ RdfBrowsingEngine.prototype.addFacets = function(facets) {
     		facet = new RdfPropertyListFacet(elmt, facets[i].config);
     	}else if (facet.type==="search"){
     		facet = new RdfSearchFacet(elmt, facets[i].config);
+    	}else if (facet.type==="numeric"){
+    		facet = new RdfRangeFacet(elmt,facets[i].config);
     	}else{
     		//ignore
     		continue;

@@ -146,5 +146,4 @@ RdfSearchFacet.prototype._updateRest = function() {
 };
 
 RdfSearchFacet.prototype.setLoadingState = function(){
-	
 };

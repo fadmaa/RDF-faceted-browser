@@ -31,7 +31,7 @@ public class RdfSearchFacet implements RdfFacet {
 
 	@Override
 	public void computeChoices(String sparqlEndpoint, QueryEngine engine,
-			String filter, SetMultimap<RdfFacet, String> filters) {
+			String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
 		// nothing to do
 
 	}
@@ -76,28 +76,28 @@ public class RdfSearchFacet implements RdfFacet {
 	}
 
 	@Override
-	public List<String> getSelection() {
+	public List<RdfDecoratedValue> getSelection() {
 		if (query == null || query.isEmpty()) {
-			return new ArrayList<String>();
+			return new ArrayList<RdfDecoratedValue>();
 		} else {
-			ArrayList<String> lst = new ArrayList<String>();
-			lst.add(query);
+			ArrayList<RdfDecoratedValue> lst = new ArrayList<RdfDecoratedValue>();
+			lst.add(new RdfDecoratedValue(query,true));
 			return lst;
 		}
 	}
 
 	@Override
-	public String getResourceSparqlSelector(String varname, String val) {
+	public String getResourceSparqlSelector(String varname, RdfDecoratedValue val) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getLiteralSparqlSelector(String varname, String auxVarName,String val) {
+	public String getLiteralSparqlSelector(String varname, String auxVarName, RdfDecoratedValue val) {
 		if(_endpointVendor.equals("Virtuoso")){
-			return "?" + varname + " " + _property + " ?" + auxVarName + " . ?" + auxVarName + " bif:contains \"'" + val + "*'\". ";
+			return "?" + varname + " " + _property + " ?" + auxVarName + " . ?" + auxVarName + " bif:contains \"'" + val.getValue() + "*'\". ";
 		}else{
-			return "?" + varname + " " + _property + " ?" + auxVarName + " . FILTER regex(str(?" + auxVarName + "),'" + val + "','i'). ";
+			return "?" + varname + " " + _property + " ?" + auxVarName + " . FILTER regex(str(?" + auxVarName + "),'" + val.getValue() + "','i'). ";
 		}
 	}
 

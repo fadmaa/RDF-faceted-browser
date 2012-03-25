@@ -12,8 +12,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.deri.rdf.browser.facet.RdfDecoratedValue;
 import org.deri.rdf.browser.facet.RdfFacet;
 import org.deri.rdf.browser.facet.RdfListFacet;
+import org.deri.rdf.browser.facet.RdfRangeFacet;
 import org.deri.rdf.browser.facet.RdfSearchFacet;
 import org.deri.rdf.browser.sparql.QueryEngine;
 import org.json.JSONArray;
@@ -56,6 +58,8 @@ public class RdfEngine implements Jsonizable{
                     facet = new RdfListFacet();
                 }else if("rdf-search".equals(type)){
                 	facet = new RdfSearchFacet();
+                }else if("rdf-range".equals(type)){
+                	facet = new RdfRangeFacet();
                 }
                 
                 if (facet != null) {
@@ -114,15 +118,15 @@ public class RdfEngine implements Jsonizable{
 		writer.endObject();
 	}
 	
-	protected SetMultimap<RdfFacet, String> getFilters(RdfFacet except){
-		SetMultimap<RdfFacet, String> filters = HashMultimap.create();
+	protected SetMultimap<RdfFacet, RdfDecoratedValue> getFilters(RdfFacet except){
+		SetMultimap<RdfFacet, RdfDecoratedValue> filters = HashMultimap.create();
 		for(RdfFacet f:_facets){
 			if(f.equals(except)){
 				continue;
 			}
 			if(f.hasSelection()){
-				for(String s:f.getSelection()){
-					filters.put(f, s);
+				for(RdfDecoratedValue v:f.getSelection()){
+					filters.put(f, v);
 				}
 			}
 			if(f.isBlankSelected()){
@@ -133,7 +137,7 @@ public class RdfEngine implements Jsonizable{
 		return filters;
 	}
 	
-	protected SetMultimap<RdfFacet, String> getFilters(){
+	protected SetMultimap<RdfFacet, RdfDecoratedValue> getFilters(){
 		return getFilters(null);
 	}
 	

@@ -1,5 +1,6 @@
 package org.deri.rdf.browser.model;
 
+import org.deri.rdf.browser.facet.RdfDecoratedValue;
 import org.deri.rdf.browser.facet.RdfFacet;
 import org.deri.rdf.browser.sparql.QueryEngine;
 
@@ -9,10 +10,10 @@ public class FacetChoiceComputer implements Runnable{
 
 	private RdfFacet facet;
 	private QueryEngine engine;
-	private SetMultimap<RdfFacet, String> filters;
+	private SetMultimap<RdfFacet, RdfDecoratedValue> filters;
 	private String sparqlEndpoint;
 	private String mainResourcesSelector;
-	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, String> filters){
+	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		this.facet = facet;
 		this.engine = engine;
 		this.filters = filters;

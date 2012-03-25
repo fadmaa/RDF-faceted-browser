@@ -16,7 +16,7 @@
   	}
   },
   {
-  	"type":"numeric",
+  	"type":"list",
   	"config":{
   		"name":"year",
   		"property": " <http://data.lod2.eu/scoreboard/properties/year> ",
