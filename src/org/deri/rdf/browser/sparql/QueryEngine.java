@@ -110,9 +110,7 @@ public class QueryEngine {
 				RdfDecoratedValue val = valIter.next();
 				if(val==null){
 					//blank selected
-					//FIXME if two blanks are selected we are screwed... variable name will be used twice
-					String localVarname = ParsingUtilities.varname(pv.getKey().getName()) + varname;
-					builder.append("{").append("?").append(localVarname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(localVarname, new RdfDecoratedValue(auxVarname,false))).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } UNION ");
+					builder.append("{").append("?").append(varname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(varname, new RdfDecoratedValue(auxVarname,false))).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } UNION ");
 				}else{
 					
 					//literals should be handled different than resources
@@ -128,9 +126,7 @@ public class QueryEngine {
 			RdfDecoratedValue val = valIter.next();
 			if(val==null){
 				//blank selected
-				//FIXME if two blanks are selected we are screwed... variable name will be used twice
-				String localVarname = ParsingUtilities.varname(pv.getKey().getName()) + varname;
-				builder.append("{").append("?").append(localVarname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(localVarname, new RdfDecoratedValue(auxVarname, false))).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } ");
+				builder.append("{").append("?").append(varname).append(" ").append(mainSelector).append(" OPTIONAL{ ").append(pv.getKey().getResourceSparqlSelector(varname, new RdfDecoratedValue(auxVarname, false))).append(" . } FILTER(! bound(").append(auxVarname).append(") ) } ");
 			}else{
 				//literals should be handled different than resources
 				if(val.isLiteral()){

@@ -45,7 +45,7 @@ RdfBrowsingEngine.prototype.viewResources = function(resources){
 	this._resourcesDiv.empty();
 	for(var i=0;i<resources.length;i++){
 		var r = resources[i];
-		self.templateEngine.viewResource(r,this._resourcesDiv,this._sparqlEndpointUrl);
+		self.templateEngine.viewResource(r,this._resourcesDiv,this._sparqlEndpointUrl,self.config);
 	}
 	
 	self._pageSizeControls.empty().append($('<span></span>').html('Show: '));

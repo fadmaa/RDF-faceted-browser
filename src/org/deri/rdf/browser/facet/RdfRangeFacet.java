@@ -72,7 +72,7 @@ public class RdfRangeFacet implements RdfFacet{
 				if(v>_max){
 					_max = v;
 				}
-			}catch(NumberFormatException ne){
+			}catch(Exception ne){
 				_errorCount += 1;
 			}
 		}
