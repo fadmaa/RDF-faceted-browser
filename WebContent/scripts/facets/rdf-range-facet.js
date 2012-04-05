@@ -55,7 +55,9 @@ function RdfRangeFacet(div, config, options) {
   this._errorCount = 0;
 
   this._error = false;
-  this._initializedUI = false;
+  this._initializeUI();
+  this._initializedUI = true;
+  
 }
 
 RdfRangeFacet.prototype.reset = function() {
@@ -97,6 +99,7 @@ RdfRangeFacet.prototype.getJSON = function() {
   var o = {
       type: "rdf-range",
       name: this._config.name,
+      replaceCommas: this._config.replace_commas,
       expression: this._config.expression,
       property:this._config.property,
       selectNumeric: this._selectNumeric,
@@ -374,4 +377,9 @@ RdfRangeFacet.prototype._updateRest = function() {
 
 
 RdfRangeFacet.prototype.setLoadingState = function(){
+	this._elmts.sliderWidgetDiv.hide();
+    this._elmts.histogramDiv.hide();
+    this._elmts.statusDiv.hide();
+    this._elmts.otherChoicesDiv.hide();
+	this._elmts.messageDiv.text('loading...').show();
 };

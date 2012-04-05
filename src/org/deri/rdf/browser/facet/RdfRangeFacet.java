@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.deri.rdf.browser.model.AnnotatedString;
 import org.deri.rdf.browser.sparql.QueryEngine;
+import org.deri.rdf.browser.util.ParsingUtilities;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -23,6 +24,7 @@ public class RdfRangeFacet implements RdfFacet{
     protected String     _expression;
     protected String     sparqlSelector;
     protected boolean    _invert;
+    protected boolean _replaceCommas;
     
     // If true, then facet won't show the blank and error choices
     protected boolean _omitBlank;
@@ -64,7 +66,12 @@ public class RdfRangeFacet implements RdfFacet{
 		_min = Double.POSITIVE_INFINITY;
 		for(AnnotatedString a:values){
 			try{
-				Double v = Double.parseDouble(a.value);
+				Double v;
+				if(_replaceCommas){
+					v = ParsingUtilities.replaceCommas(a.value);
+				}else{
+					v = Double.parseDouble(a.value);
+				}
 				allValues.add(new CountedDouble(v,a.count));
 				if(v<_min){
 					_min = v;
@@ -83,6 +90,7 @@ public class RdfRangeFacet implements RdfFacet{
 	@Override
 	public void initializeFromJSON(JSONObject o) throws JSONException {
 		_name = o.getString("name");
+		_replaceCommas = o.has("replaceCommas") && o.getBoolean("replaceCommas");
         _expression = o.getString("expression");
         sparqlSelector = o.getString("property");
         _invert = o.has("invert") && o.getBoolean("invert");
@@ -134,8 +142,6 @@ public class RdfRangeFacet implements RdfFacet{
 		writer.key("blankCount");writer.value(0);
 		writer.key("errorCount");writer.value(0);
 		writer.endObject();
-	//	"baseBins":[168,8,5,2,2,1,1,1,1,0,0,0,1,0,2,1,3,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-//		"baseNumericCount":201,"baseNonNumericCount":0,"baseBlankCount":39,"baseErrorCount":0,"numericCount":201,"nonNumericCount":0,"blankCount":39,"errorCount":0}],"mode":"row-based"}
 		
 	}
 
@@ -159,8 +165,13 @@ public class RdfRangeFacet implements RdfFacet{
 	@Override
 	public String getLiteralSparqlSelector(String varname, String auxVarName, RdfDecoratedValue val) {
 		Double[] range = (Double[])val.getValue();
-		return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(<http://www.w3.org/2001/XMLSchema#int>(?" + auxVarName 
-		+ ")>=" + range[0] + " && <http://www.w3.org/2001/XMLSchema#int>(?" + auxVarName + ")<=" + range[1] + ") ";
+		if(_replaceCommas){
+			return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(?" + auxVarName 
+			+ ">='" + ParsingUtilities.putCommasBack(range[0]) + "' && ?" + auxVarName + "<='" + ParsingUtilities.putCommasBack(range[1]) + "') ";
+		}else{
+			return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(<http://www.w3.org/2001/XMLSchema#double>(?" + auxVarName 
+			+ ")>=" + range[0] + " && <http://www.w3.org/2001/XMLSchema#double>(?" + auxVarName + ")<=" + range[1] + ") ";
+		}
 	}
 
 	@Override
@@ -237,4 +248,5 @@ public class RdfRangeFacet implements RdfFacet{
 			this.v = v;
 		}
 	}
+	
 }

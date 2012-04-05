@@ -6,7 +6,8 @@
   	["dct","http://purl.org/dc/terms/"]
   ],
   "script":"custom-script/QBViewer.js",
+   "css":"custom-css/qb-style.css",
   "script_template": "viewObservation",
   "template":
-  "<div class=\"dataset-container\"><h2 class=\"dataset-title\" sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2><div sparql_content=\"http://data.lod2.eu/scoreboard/properties/country\"> </div> </div>"
+  "<div class=\"observation\"><h2 class=\"dataset-title\" sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2><div sparql_content=\"http://data.lod2.eu/scoreboard/properties/country\"> </div> </div>"
 }

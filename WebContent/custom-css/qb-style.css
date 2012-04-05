@@ -8,3 +8,9 @@
 .observation .dimension-name{
 	font-weight:bold !important;
 	}
+	
+.observation .observation-value{
+	font-size:150%;
+	font-weight:bold !important;
+	padding:3px;
+}
