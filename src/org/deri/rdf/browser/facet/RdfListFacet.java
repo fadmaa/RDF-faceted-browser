@@ -114,7 +114,7 @@ public class RdfListFacet implements RdfFacet{
 	}
 	
 	@Override
-	public String getLiteralSparqlSelector(String varname, String auxVarName, RdfDecoratedValue val) {
+	public String getLiteralSparqlSelector(String mainSelector, String varname, String auxVarName, RdfDecoratedValue val) {
 		return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(str(?" + auxVarName + ")=" + val.getValue() + ") ";
 	}
 

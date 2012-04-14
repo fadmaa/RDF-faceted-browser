@@ -30,15 +30,6 @@
   		"property": " <http://data.lod2.eu/scoreboard/properties/country> ",
   		"expression": "value"
   	}
-  },
-  {
-   	"type":"numeric",
-  	"config":{
-  		"name":"measure",
-  		"replace_commas":"true",
-  		"property": " <http://data.lod2.eu/scoreboard/properties/bb_penet_TOTAL_FBB_lines100> ",
-  		"expression": "value"
-  	}
   }
   
   

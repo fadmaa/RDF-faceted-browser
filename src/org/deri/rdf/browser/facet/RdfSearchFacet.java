@@ -93,7 +93,7 @@ public class RdfSearchFacet implements RdfFacet {
 	}
 
 	@Override
-	public String getLiteralSparqlSelector(String varname, String auxVarName, RdfDecoratedValue val) {
+	public String getLiteralSparqlSelector(String mainSelector, String varname, String auxVarName, RdfDecoratedValue val) {
 		if(_endpointVendor.equals("Virtuoso")){
 			return "?" + varname + " " + _property + " ?" + auxVarName + " . ?" + auxVarName + " bif:contains \"'" + val.getValue() + "*'\". ";
 		}else{

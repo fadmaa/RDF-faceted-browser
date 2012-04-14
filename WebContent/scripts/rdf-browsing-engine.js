@@ -1,4 +1,4 @@
-function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControlsDiv, pagingControlsDiv, facetConfigs) {
+function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControlsDiv, pagingControlsDiv, callback) {
     this._resourcesDiv = resourcesDiv;
     this._facetsDiv = facetsDiv;
     this._summaryDiv = summaryDiv;
@@ -15,7 +15,7 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
     this.__loadConfig(function(){
     	self.templateEngine = new TemplateEngine(self.config.template,self.config.script_template);
     	dismissBusy();
-    });
+    },callback);
 }
 
 RdfBrowsingEngine.prototype.getJSON = function() {
@@ -202,7 +202,7 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 	},"json");
 };
 
-RdfBrowsingEngine.prototype.__loadConfig = function(callback){
+RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
 	var self = this;
 	$.ajax({url:self.configuration_URL,
 			success:function(data){
@@ -217,8 +217,11 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback){
 				if(self.config.script){
 					RdfBrowsingEngine.__loadScript(self.config.script);
 				}
-				if(callback){
-					callback();
+				if(callback2){
+					callback2();
+				}
+				if(callback1){
+					callback1();
 				}
 			}
 	});	

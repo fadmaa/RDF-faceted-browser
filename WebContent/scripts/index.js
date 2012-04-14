@@ -9,16 +9,17 @@ var RdfBrowser = {
 		var summaryDiv = $('#summary-bar');
 		var pageSizeControlsDiv = $('.viewpanel-pagesize');
 		var pageControlsDiv = $('.viewpanel-paging');
-		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv);
-		rdf_engine = this._engine;
 		resize(rightPanelDiv,leftPanelDiv,viewPanelDiv);
 		var self = this;
-		$.ajax({
+		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv, function(){
+			$.ajax({
 				url:self.facets_URL,
 				success:function(facets_data){
 					self._engine.addFacets(jQuery.parseJSON(facets_data));
 				}
 				});
+		});
+		rdf_engine = this._engine;
 	}
 };
 

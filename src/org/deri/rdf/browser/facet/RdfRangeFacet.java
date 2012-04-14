@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.refine.util.JSONUtilities;
 
@@ -30,8 +31,10 @@ public class RdfRangeFacet implements RdfFacet{
     protected boolean _omitBlank;
     protected boolean _omitError;
     
-    protected boolean _selectBlank;
-    protected boolean _selectError;
+    protected boolean   _selectNumeric; // whether the numeric selection applies, default true
+    protected boolean   _selectNonNumeric;
+    protected boolean   _selectBlank;
+    protected boolean   _selectError;
     
     /*
      * Derived configuration
@@ -57,34 +60,64 @@ public class RdfRangeFacet implements RdfFacet{
     protected int       _blankCount;
     protected int       _errorCount;
     
+    protected int       _baseNumericCount;
+    protected int       _baseNonNumericCount;
+    protected int       _baseBlankCount;
+    
     
 	@Override
 	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
 		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
-		List<CountedDouble> allValues = new ArrayList<CountedDouble>();
+		SetMultimap<RdfFacet, RdfDecoratedValue> noFilters = HashMultimap.create();
+		List<AnnotatedString> allValues = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, noFilters);
+		List<CountedDouble> filteredValues = new ArrayList<CountedDouble>();
+		List<CountedDouble> allValuesCounted = new ArrayList<CountedDouble>();
 		_max = Double.NEGATIVE_INFINITY;
 		_min = Double.POSITIVE_INFINITY;
-		for(AnnotatedString a:values){
+		for(AnnotatedString a:allValues){
 			try{
 				Double v;
+				if(a.value==null){
+					_baseBlankCount += a.count;
+					continue;
+				}
 				if(_replaceCommas){
 					v = ParsingUtilities.replaceCommas(a.value);
 				}else{
 					v = Double.parseDouble(a.value);
 				}
-				allValues.add(new CountedDouble(v,a.count));
+				allValuesCounted.add(new CountedDouble(v,a.count));
 				if(v<_min){
 					_min = v;
 				}
 				if(v>_max){
 					_max = v;
 				}
+				_baseNumericCount += a.count;
 			}catch(Exception ne){
-				_errorCount += 1;
+				_baseNonNumericCount += a.count;
 			}
 		}
 		
-		computeBins(allValues);
+		for(AnnotatedString a:values){
+			try{
+				Double v;
+				if(a.value==null){
+					_blankCount += a.count;
+					continue;
+				}
+				if(_replaceCommas){
+					v = ParsingUtilities.replaceCommas(a.value);
+				}else{
+					v = Double.parseDouble(a.value);
+				}
+				filteredValues.add(new CountedDouble(v,a.count));
+				_numericCount += a.count;
+			}catch(Exception ne){
+				_nonNumericCount += a.count;
+			}
+		}
+		computeBins(allValuesCounted, filteredValues);
 	}
 
 	@Override
@@ -104,8 +137,11 @@ public class RdfRangeFacet implements RdfFacet{
         _omitBlank = JSONUtilities.getBoolean(o, "omitBlank", false);
         _omitError = JSONUtilities.getBoolean(o, "omitError", false);
         
-        _selectBlank = JSONUtilities.getBoolean(o, "selectBlank", false);
-        _selectError = JSONUtilities.getBoolean(o, "selectError", false);
+        _selectNumeric = JSONUtilities.getBoolean(o, "selectNumeric", true);
+        _selectNonNumeric = JSONUtilities.getBoolean(o, "selectNonNumeric", true);
+        _selectBlank = JSONUtilities.getBoolean(o, "selectBlank", true);
+        _selectError = JSONUtilities.getBoolean(o, "selectError", true);
+        
 	}
 
 	@Override
@@ -114,6 +150,11 @@ public class RdfRangeFacet implements RdfFacet{
 		
 		writer.key("name");writer.value("year");
 		writer.key("expression");writer.value("value");
+		if(_min==Double.NEGATIVE_INFINITY || _max ==Double.POSITIVE_INFINITY){
+			writer.key("code"); writer.value("nodata");
+			writer.endObject();
+			return;
+		}
 		writer.key("min");writer.value(_min);
 		writer.key("max");writer.value(_max);
 		writer.key("step");writer.value(_step);
@@ -133,13 +174,13 @@ public class RdfRangeFacet implements RdfFacet{
 	
 		writer.key("from"); writer.value(_from);
 		writer.key("to"); writer.value(_to);
-		writer.key("baseNumericCount"); writer.value(4);
-		writer.key("baseNonNumericCount");writer.value(0);
-		writer.key("baseBlankCount");writer.value(0);
+		writer.key("baseNumericCount"); writer.value(_baseNumericCount);
+		writer.key("baseNonNumericCount");writer.value(_baseNonNumericCount);
+		writer.key("baseBlankCount");writer.value(_baseBlankCount);
 		writer.key("baseErrorCount");writer.value(0);
-		writer.key("numericCount");writer.value(4);
-		writer.key("nonNumericCount");writer.value(0);
-		writer.key("blankCount");writer.value(0);
+		writer.key("numericCount");writer.value(_numericCount);
+		writer.key("nonNumericCount");writer.value(_nonNumericCount);
+		writer.key("blankCount");writer.value(_blankCount);
 		writer.key("errorCount");writer.value(0);
 		writer.endObject();
 		
@@ -163,15 +204,22 @@ public class RdfRangeFacet implements RdfFacet{
 	}
 
 	@Override
-	public String getLiteralSparqlSelector(String varname, String auxVarName, RdfDecoratedValue val) {
+	public String getLiteralSparqlSelector(String mainSelector, String varname, String auxVarName, RdfDecoratedValue val) {
 		Double[] range = (Double[])val.getValue();
+		String auxVarValue, minRange,maxRange;
 		if(_replaceCommas){
-			return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(?" + auxVarName 
-			+ ">='" + ParsingUtilities.putCommasBack(range[0]) + "' && ?" + auxVarName + "<='" + ParsingUtilities.putCommasBack(range[1]) + "') ";
+			auxVarValue = "?" + auxVarName;
+			maxRange = "'" + ParsingUtilities.putCommasBack(range[1]) + "'";
+			minRange = "'" + ParsingUtilities.putCommasBack(range[0]) + "'";
 		}else{
-			return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(<http://www.w3.org/2001/XMLSchema#double>(?" + auxVarName 
-			+ ")>=" + range[0] + " && <http://www.w3.org/2001/XMLSchema#double>(?" + auxVarName + ")<=" + range[1] + ") ";
+			auxVarValue = "<http://www.w3.org/2001/XMLSchema#double>(?" + auxVarName + ")";
+			maxRange = String.valueOf(range[1]);
+			minRange = String.valueOf(range[0]);
 		}
+		return "?" + varname + " " + mainSelector + ". OPTIONAL{ ?" + varname + " " +  sparqlSelector + " ?" + auxVarName 
+		+ " } FILTER((bound (?" + auxVarName +
+		") && " + auxVarValue  + ">=" + minRange + " && " + auxVarValue + "<=" +  maxRange
+		+ ")|| !bound(?" + auxVarName + ")) ";
 	}
 
 	@Override
@@ -185,12 +233,12 @@ public class RdfRangeFacet implements RdfFacet{
 		return _name;
 	}
 	
-	private void computeBins(List<CountedDouble> allValues){
+	private void computeBins(List<CountedDouble> allValues,List<CountedDouble> filteredValues){
         if (_min >= _max) {
             _step = 1;
             _min = Math.min(_min, _max);
             _max = _step;
-            _bins = new int[1];
+            _baseBins = new int[1];
             
             return;
         }
@@ -223,8 +271,13 @@ public class RdfRangeFacet implements RdfFacet{
             binCount++;
         }
         
-        _bins = new int[(int) Math.round(binCount)];
+        _baseBins = new int[(int) Math.round(binCount)];
         for (CountedDouble cd : allValues) {
+            int bin = Math.max((int) Math.floor((cd.v - _min) / _step),0);
+            _baseBins[bin] += cd.count;
+        }
+        _bins = new int[(int) Math.round(binCount)];
+        for (CountedDouble cd : filteredValues) {
             int bin = Math.max((int) Math.floor((cd.v - _min) / _step),0);
             _bins[bin] += cd.count;
         }
@@ -235,9 +288,6 @@ public class RdfRangeFacet implements RdfFacet{
             _from = _min;
             _to = _max;
         }
-        //TOD check if this makes sense
-        _baseBins = _bins;
-        
 	}
 
 	private static class CountedDouble{

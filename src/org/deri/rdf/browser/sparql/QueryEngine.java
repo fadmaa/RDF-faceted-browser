@@ -115,7 +115,7 @@ public class QueryEngine {
 					
 					//literals should be handled different than resources
 					if(val.isLiteral()){
-						builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(varname,varname+ i + "_"+ j+ "_lit",val)).append(" } UNION ");
+						builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(mainSelector,varname,varname+ i + "_"+ j+ "_lit",val)).append(" } UNION ");
 					}else{
 						builder.append("{ ").append(pv.getKey().getResourceSparqlSelector(varname,val)).append(" . } UNION ");
 					}
@@ -130,7 +130,7 @@ public class QueryEngine {
 			}else{
 				//literals should be handled different than resources
 				if(val.isLiteral()){
-					builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(varname,varname+ i + "_"+ j+ "_lit",val)).append(" } ");
+					builder.append("{ ").append(pv.getKey().getLiteralSparqlSelector(mainSelector,varname,varname+ i + "_"+ j+ "_lit",val)).append(" } ");
 				}else{
 					builder.append("{ ").append(pv.getKey().getResourceSparqlSelector(varname,val)).append(" . } ");
 				}

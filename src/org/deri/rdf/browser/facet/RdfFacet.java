@@ -22,7 +22,7 @@ public interface RdfFacet {
 	public List<RdfDecoratedValue> getSelection();
 
 	public String getResourceSparqlSelector(String varname, RdfDecoratedValue val);
-	public String getLiteralSparqlSelector(String varname, String auxVarName, RdfDecoratedValue val);
+	public String getLiteralSparqlSelector(String mainSelector,String varname, String auxVarName, RdfDecoratedValue val);
 	
 	public boolean isBlankSelected();
 	
