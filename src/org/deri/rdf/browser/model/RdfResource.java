@@ -2,6 +2,7 @@ package org.deri.rdf.browser.model;
 
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.json.JSONException;
@@ -27,6 +28,14 @@ public class RdfResource {
 		return properties;
 	}
 	
+	public String getLabel(){
+		if(this.properties.containsKey(RDFS_LABEL)){
+			Iterator<String> iter = properties.get(RDFS_LABEL).iterator();
+			return iter.next();
+		}else{
+			return uri;
+		}
+	}
 	@Override
 	public int hashCode() {
 		return uri.hashCode();
@@ -57,5 +66,7 @@ public class RdfResource {
 		
 		writer.endObject();
 	}
-	
+
+	private static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#";
 }
+

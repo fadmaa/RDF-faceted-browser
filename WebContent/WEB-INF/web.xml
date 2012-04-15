@@ -22,6 +22,18 @@
   	<servlet-name>compute-facets</servlet-name>
   	<servlet-class>org.deri.rdf.browser.commands.ComputeFactesCommand</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>start-browsing</servlet-name>
+  	<servlet-class>org.deri.rdf.qb.browse.EndpointVetter</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>get-config</servlet-name>
+  	<servlet-class>org.deri.rdf.qb.browse.Configuration</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>get-facets</servlet-name>
+  	<servlet-class>org.deri.rdf.qb.browse.Facets</servlet-class>
+  </servlet>
   
   <servlet-mapping>
   	<servlet-name>get-resources</servlet-name>
@@ -35,4 +47,18 @@
   	<servlet-name>compute-facets</servlet-name>
   	<url-pattern>/compute-facets</url-pattern>
   </servlet-mapping>
+  
+  <servlet-mapping>
+  	<servlet-name>start-browsing</servlet-name>
+  	<url-pattern>/qb-browse</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>get-config</servlet-name>
+  	<url-pattern>/get-config</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>get-facets</servlet-name>
+  	<url-pattern>/get-facets</url-pattern>
+  </servlet-mapping>
+  
 </web-app>

@@ -10,7 +10,7 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
     this._filtered = 0;
     
     var dismissBusy = DialogSystem.showBusy();
-	this.configuration_URL = "configuration.json";
+	this.configuration_URL = "get-config";
 	var self = this;
     this.__loadConfig(function(){
     	self.templateEngine = new TemplateEngine(self.config.template,self.config.script_template);
@@ -164,6 +164,7 @@ RdfBrowsingEngine.prototype.update = function(onlyFacets) {
 	        },"json");
 	if(onlyFacets!==true){
 		this.getResources(0);
+		$('<img>').attr("src", "images/large-spinner.gif").appendTo(this._summaryDiv.empty());
 		$.post("count-resources",{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
 			self._filtered = data.filtered;
 			self.viewHeader();
@@ -206,7 +207,8 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
 	var self = this;
 	$.ajax({url:self.configuration_URL,
 			success:function(data){
-				self.config = jQuery.parseJSON( data );
+				//self.config = jQuery.parseJSON( data );
+				self.config = data;
 				self._sparqlEndpointUrl = self.config.endpoint_url;
 				self._mainResourcesSelector = self.config.main_resource_selector;
 				//load CSS

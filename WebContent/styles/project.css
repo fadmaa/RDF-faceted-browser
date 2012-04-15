@@ -1,13 +1,20 @@
 
-@import-less url("theme.less");
-#left-panel {
+#left-panel, #left-panel-header {
   position: fixed;
   overflow: auto;
   padding: 0px;
-  padding-top: @padding_tight;
   font-size: 1.3em;
-  background: @chrome_secondary;  
   }
+#left-panel-header {
+	width:300px;
+}
+#right-panel-header {
+	left:300px;
+	position:fixed;
+	}
+#header{
+	padding-bottom:0.5em;
+	}
   
 #left-panel  .ui-tabs .ui-tabs-panel {
   border-left: none;
@@ -20,8 +27,6 @@
   position: fixed;
   overflow: auto;
   padding: 0px;
-  padding-left: @padding_tight;
-  background: @chrome_primary;
   }
 
 
@@ -36,13 +41,12 @@
   
 #summary-bar {
   position: relative;
-  top: @padding_normal;
-  left: @padding_normal;
-  font-size: 1.8em;
-  font-weight: bold;
   height:32px;
   }
-  
+
+#summary-bar-container{
+	font-size:120%;
+	}
 .viewpanel-pagesize{
   left:280px;
   top:0px;
@@ -56,3 +60,8 @@
   font-weight:normal;
 }
 
+.big-title{
+	font-size:2em;
+	font-weight:bold;
+	color:#1111CC;
+	}

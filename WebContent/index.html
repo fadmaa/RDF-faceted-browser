@@ -27,19 +27,25 @@
   <script type="text/javascript" src="scripts/rdf-browsing-engine.js"></script>
 </head>
 <body>
+    <div id="header">
+      <div id="left-panel-header" bind="leftPanelHeaderDiv">manage facets button</div>
+      <div id="right-panel-header" >
+        <span class="big-title">Data Cube Viewer</span>
+        <span style="float:right">Export Button</span>
+      </div>
+    </div>
     <div id="body">
     	<div bind="leftPanelDiv" id="left-panel">
     	  <ul bind="facets" class="facets-container"></ul>
     	</div>
     	<div bind="rightPanelDiv" id="right-panel">
-    	  <div bind="summaryBarDiv" >
+    	  <div bind="summaryBarDiv" id="summary-bar-container">
             <!-- row/record counts -->
             <div id="summary-bar"></div>
             <div class="viewpanel-pagesize"></div>
             <div class="viewpanel-paging"></div>
           </div>
           <div bind="viewPanelDiv" id="view-panel"></div>
-          </div>
         </div>
     </div>
 </body>

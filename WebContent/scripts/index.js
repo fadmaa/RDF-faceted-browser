@@ -1,21 +1,22 @@
 var rdf_engine = {};
 
 var RdfBrowser = {
-	facets_URL : "facets.json",
+	facets_URL : "get-facets",
 	initialize:function(){
 		var rightPanelDiv = $('#right-panel');
+		var rightPanelHeaderDiv = $('#right-panel-header');
 		var leftPanelDiv = $('#left-panel');
 		var viewPanelDiv = $('#view-panel');
 		var summaryDiv = $('#summary-bar');
 		var pageSizeControlsDiv = $('.viewpanel-pagesize');
 		var pageControlsDiv = $('.viewpanel-paging');
-		resize(rightPanelDiv,leftPanelDiv,viewPanelDiv);
+		resize(rightPanelDiv,leftPanelDiv,viewPanelDiv,rightPanelHeaderDiv);
 		var self = this;
 		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv, function(){
 			$.ajax({
 				url:self.facets_URL,
 				success:function(facets_data){
-					self._engine.addFacets(jQuery.parseJSON(facets_data));
+					self._engine.addFacets(facets_data);
 				}
 				});
 		});
@@ -27,7 +28,7 @@ $(function(){
 	RdfBrowser.initialize();
 });
 
-function resize(rightPanelDiv,leftPanelDiv,viewPanelDiv) {
+function resize(rightPanelDiv,leftPanelDiv,viewPanelDiv,rightPanelHeaderDiv) {
 	
 	
     var header = $("#header");
@@ -51,6 +52,8 @@ function resize(rightPanelDiv,leftPanelDiv,viewPanelDiv) {
         .css("left", leftPanelWidth + "px")
         .css("height", (height - rightPanelVPaddings) + "px")
         .css("width", (width - leftPanelWidth - rightPanelHPaddings) + "px");
+    
+    rightPanelHeaderDiv.css("width", (width - leftPanelWidth - rightPanelHPaddings) + "px");
     
     viewPanelDiv.height((height  - rightPanelVPaddings) + "px");
     
