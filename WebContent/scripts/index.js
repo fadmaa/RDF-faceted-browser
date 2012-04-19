@@ -12,12 +12,11 @@ var RdfBrowser = {
 		resize(rightPanelDiv,leftPanelDiv,viewPanelDiv);
 		var self = this;
 		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv, function(){
-			$.ajax({
-				url:self.facets_URL,
-				success:function(facets_data){
-					self._engine.addFacets(jQuery.parseJSON(facets_data));
+			$.get(self.facets_URL,{},
+				function(facets_data){
+					self._engine.addFacets(facets_data);
 				}
-				});
+				,"json");
 		});
 		rdf_engine = this._engine;
 	}

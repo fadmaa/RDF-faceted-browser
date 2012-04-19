@@ -204,9 +204,9 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 
 RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
 	var self = this;
-	$.ajax({url:self.configuration_URL,
-			success:function(data){
-				self.config = jQuery.parseJSON( data );
+	$.get(self.configuration_URL,{},
+			function(data){
+				self.config = data ;
 				self._sparqlEndpointUrl = self.config.endpoint_url;
 				self._mainResourcesSelector = self.config.main_resource_selector;
 				//load CSS
@@ -224,7 +224,7 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
 					callback1();
 				}
 			}
-	});	
+	,"json");	
 };
 
 RdfBrowsingEngine.__loadCSS = function(cssFile) {
