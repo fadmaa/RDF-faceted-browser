@@ -44,7 +44,17 @@ public class Facets extends RdfCommand{
 		  	writer.key("property"); writer.value(" ?dimensionProp ?dimensionPropVal. ?dimensionProp a <http://purl.org/linked-data/cube#DimensionProperty>. ?x ?dimensionProp ");
 		  	writer.key("endpoint_vendor"); writer.value("standard");
 		   	writer.endObject();
-		  	writer.endObject();		  	
+		  	writer.endObject();	
+		  	//dataset facet
+		  	writer.object();
+		  	writer.key("type"); writer.value("list");
+  			writer.key("config");
+  			writer.object();
+  			writer.key("name"); writer.value("datasets");
+		  	writer.key("property"); writer.value(" <http://purl.org/linked-data/cube#dataSet> ");
+		  	writer.key("expression"); writer.value("value");
+		  	writer.endObject();
+		  	writer.endObject();
 		  	//measures facet
 		  	writer.object();
 		  	writer.key("type"); writer.value("list");
@@ -58,13 +68,12 @@ public class Facets extends RdfCommand{
 		  	//add facet for each dimension
 		  	int count = 1;
 		  	for(RdfResource d:dimensions){
-		  		String varname = "?d_v_" + count ;
 		  		writer.object();
 		  		writer.key("type"); writer.value("list");
 	  			writer.key("config");
 	  			writer.object();
 	  			writer.key("name"); writer.value(d.getLabel());
-	  			writer.key("property"); writer.value(" <" + d.getUri() + "> " + varname + " . " + varname + " <http://www.w3.org/2004/02/skos/core#prefLabel> ");
+	  			writer.key("property"); writer.value(" <" + d.getUri() + "> ");
 	  			writer.key("expression"); writer.value("value");
 	  			writer.endObject();
 		  		writer.endObject();

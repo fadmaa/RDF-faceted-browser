@@ -66,21 +66,59 @@ public class QueryEngine {
 		}
 	}
 	
-	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+	public Collection<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		String sparql = "SELECT DISTINCT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + property + " ?v. ?x " + filter + getFilter("x",filter,filters) + " } GROUP BY (?v)";
 		ResultSet results = execSparql(sparql, sparqlEndpoint);
-		List<AnnotatedString> values = new ArrayList<AnnotatedString>(); 
+		Set<String> lblsTodo = new HashSet<String>();
+		List<Set<String>> lblsTodoSets = new ArrayList<Set<String>>();
+		Map<String, AnnotatedString> valuesMap = new HashMap<String, AnnotatedString>();
 		while(results.hasNext()){
 			QuerySolution sol = results.next();
 			RDFNode node = sol.get("v");
-			String v = getString(node);
-			if(v==null){
+			String id = getString(node);
+			int type = node.canAs(Literal.class)?AnnotatedString.LITERAL:AnnotatedString.RESOURCE;
+			if(id==null){
 				continue;
 			}
-			values.add(new AnnotatedString(sol.getLiteral("count").getInt(),v,node.canAs(Literal.class)?AnnotatedString.LITERAL:AnnotatedString.RESOURCE));
+			valuesMap.put(id, new AnnotatedString(sol.getLiteral("count").getInt(),id,type));
+			if(type==AnnotatedString.RESOURCE && !id.contains(" ")){
+				//TODO hack some URIs in World Bank data contains space http://worldbank.270a.info/classification/country/Sub-Saharan Africa excluding South Africa
+				//not sure whether this correct... suspect no
+				//but Fuseki is not complaining upon importing... firing an error when queried
+				lblsTodo.add(id);
+				if(lblsTodo.size()>50){
+					//divide into 50 subsets... more than that is too much for a single SPARQL query
+					lblsTodoSets.add(lblsTodo);
+					lblsTodo = new HashSet<String>();
+				}
+			}
 		}
-		//now see if there are blank values
+		if(lblsTodo.size()>0){
+			lblsTodoSets.add(lblsTodo);
+		}
+		//get Labels if any todo 
+		if(lblsTodoSets.size()>0){
+			for(Set<String> set: lblsTodoSets){
+				sparql = LABEL_SPARQL + getOrFilter(set,"item") + "}";
+				results = execSparql(sparql, sparqlEndpoint);
+				while(results.hasNext()){
+					QuerySolution sol = results.next();
+					String id = sol.getResource("item").getURI();
+					String lbl = null;
+					if(sol.get("lbl1")!=null){
+						lbl = sol.getLiteral("lbl1").getString();
+					}else if(sol.get("lbl2")!=null){
+						lbl = sol.getLiteral("lbl2").getString();
+					}
+					if(lbl!=null){
+						valuesMap.get(id).setLabel(lbl);
+					}
+				}
+			}
+		}
 		
+		Collection<AnnotatedString> values = new HashSet<AnnotatedString>(valuesMap.values());
+		//now see if there are blank values
 		sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + filter + "OPTIONAL{ ?x " + property + " ?v.}. FILTER(!bound(?v)). " + getFilter("x",filter,filters) + " }";
 		results = execSparql(sparql, sparqlEndpoint);
 		if(results.hasNext()){
@@ -201,4 +239,25 @@ public class QueryEngine {
 		return res;
 	}
 	
+	private String getOrFilter(Collection<String> uris, String varname){
+		if(uris.size()==0){
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		String itemF = "?" + varname + "=<";
+		sb.append(" FILTER( ");
+		for(String uri : uris){
+			sb.append(itemF).append(uri).append("> || ");
+		}
+		sb.delete(sb.length()-3, sb.length());
+		sb.append(")");
+		return sb.toString();
+	}
+	private static final String LABEL_SPARQL = 
+		"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> " +
+		"PREFIX skos:<http://www.w3.org/2004/02/skos/core#> " +
+		"SELECT ?item ?lbl1 ?lbl2 " +
+		"WHERE{" +
+		" OPTIONAL {?item skos:prefLabel ?lbl1. } " +
+		" OPTIONAL {?item rdfs:label ?lb2 .}" ; 
 }

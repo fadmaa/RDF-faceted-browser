@@ -45,6 +45,7 @@ public class Configuration extends RdfCommand {
 			writer.key("measures");
 			writer.array();
 			
+			writer.value("http://purl.org/linked-data/sdmx/2009/measure#obsValue");
 			writer.value("http://data.lod2.eu/scoreboard/properties/FOA_cit_Country_ofpubs");
 			writer.value("http://data.lod2.eu/scoreboard/properties/i_bfeu_IND_TOTAL_indilt1");
 			writer.value("http://data.lod2.eu/scoreboard/properties/bb_ne_TOTAL_FBB_lines");

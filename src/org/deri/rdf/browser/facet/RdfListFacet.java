@@ -1,5 +1,6 @@
 package org.deri.rdf.browser.facet;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -86,20 +87,20 @@ public class RdfListFacet implements RdfFacet{
 
 	@Override
 	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
-		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
+		Collection<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
 		for(AnnotatedString cs:values){
-			if(cs.value==null){
+			if(cs.id==null){
 				//blank choices
 				_blankCount = cs.count;
 				continue;
 			}
 			String val;
 			if(cs.type==AnnotatedString.RESOURCE){
-				val = "<" + cs.value + ">";
+				val = "<" + cs.id + ">";
 			}else{
-				val = "\"" + cs.value + "\"";
+				val = "\"" + cs.id + "\"";
 			}
-			NominalFacetChoice choice = new NominalFacetChoice(new DecoratedValue(val, cs.value));
+			NominalFacetChoice choice = new NominalFacetChoice(new DecoratedValue(val, cs.getLabel()));
 			choice.count = cs.count;
 			if(_selection.contains(val)){
 				choice.selected = true;

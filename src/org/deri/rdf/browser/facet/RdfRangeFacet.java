@@ -1,6 +1,7 @@
 package org.deri.rdf.browser.facet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,9 +68,9 @@ public class RdfRangeFacet implements RdfFacet{
     
 	@Override
 	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
-		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
+		Collection<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
 		SetMultimap<RdfFacet, RdfDecoratedValue> noFilters = HashMultimap.create();
-		List<AnnotatedString> allValues = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, noFilters);
+		Collection<AnnotatedString> allValues = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, noFilters);
 		List<CountedDouble> filteredValues = new ArrayList<CountedDouble>();
 		List<CountedDouble> allValuesCounted = new ArrayList<CountedDouble>();
 		_max = Double.NEGATIVE_INFINITY;
@@ -77,14 +78,14 @@ public class RdfRangeFacet implements RdfFacet{
 		for(AnnotatedString a:allValues){
 			try{
 				Double v;
-				if(a.value==null){
+				if(a.id==null){
 					_baseBlankCount += a.count;
 					continue;
 				}
 				if(_replaceCommas){
-					v = ParsingUtilities.replaceCommas(a.value);
+					v = ParsingUtilities.replaceCommas(a.id);
 				}else{
-					v = Double.parseDouble(a.value);
+					v = Double.parseDouble(a.id);
 				}
 				allValuesCounted.add(new CountedDouble(v,a.count));
 				if(v<_min){
@@ -102,14 +103,14 @@ public class RdfRangeFacet implements RdfFacet{
 		for(AnnotatedString a:values){
 			try{
 				Double v;
-				if(a.value==null){
+				if(a.id==null){
 					_blankCount += a.count;
 					continue;
 				}
 				if(_replaceCommas){
-					v = ParsingUtilities.replaceCommas(a.value);
+					v = ParsingUtilities.replaceCommas(a.id);
 				}else{
-					v = Double.parseDouble(a.value);
+					v = Double.parseDouble(a.id);
 				}
 				filteredValues.add(new CountedDouble(v,a.count));
 				_numericCount += a.count;
