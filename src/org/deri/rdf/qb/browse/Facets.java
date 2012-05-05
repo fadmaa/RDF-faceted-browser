@@ -23,7 +23,7 @@ public class Facets extends RdfCommand{
 
 		//TODO
 		//FIXME
-		endpoint="http://localhost:3030/ict/query";
+		endpoint="http://localhost:3030/test/query";
 		//get dimensions
 		QueryEngine engine = new QueryEngine();
 		Collection<RdfResource> dimensions = engine.getDimensions(endpoint);
@@ -56,16 +56,19 @@ public class Facets extends RdfCommand{
 		  	writer.endObject();
 		  	writer.endObject();
 		  	//add facet for each dimension
+		  	int count = 1;
 		  	for(RdfResource d:dimensions){
+		  		String varname = "?d_v_" + count ;
 		  		writer.object();
 		  		writer.key("type"); writer.value("list");
 	  			writer.key("config");
 	  			writer.object();
 	  			writer.key("name"); writer.value(d.getLabel());
-	  			writer.key("property"); writer.value(" <" + d.getUri() + "> ");
+	  			writer.key("property"); writer.value(" <" + d.getUri() + "> " + varname + " . " + varname + " <http://www.w3.org/2004/02/skos/core#prefLabel> ");
 	  			writer.key("expression"); writer.value("value");
 	  			writer.endObject();
 		  		writer.endObject();
+		  		count +=1;
 		  	}
 		  	
 		  	writer.endArray();
