@@ -29,6 +29,7 @@ import org.xml.sax.InputSource;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.refine.Jsonizable;
+import com.hp.hpl.jena.rdf.model.Model;
 
 public class RdfEngine implements Jsonizable{
 	protected List<RdfFacet> _facets = new LinkedList<RdfFacet>();
@@ -99,6 +100,10 @@ public class RdfEngine implements Jsonizable{
 	
 	public Collection<RdfResource> getResources(QueryEngine queryEngine, int offset, int limit){
 		return queryEngine.getResources(sparqlEndpointUrl,mainResourcesSelector,properties, getFilters(), offset, limit);
+	}
+
+	public Model getResourcesRDF(QueryEngine queryEngine){
+		return queryEngine.getResourcesRDF(sparqlEndpointUrl,mainResourcesSelector,properties, getFilters());
 	}
 
 	public int getFilteredResourcesCount(QueryEngine queryEngine){

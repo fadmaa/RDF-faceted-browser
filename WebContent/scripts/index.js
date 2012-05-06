@@ -26,6 +26,51 @@ var RdfBrowser = {
 
 $(function(){
 	RdfBrowser.initialize();
+	$("#export-rdf").click(function(){
+		var form = document.createElement("form");
+	    $(form)
+	        .css("display", "none")
+	        .attr("method", "post")
+	        .attr("action", "export-rdf")
+	        .attr("target","rdf-export")
+	        ;
+	    $('<input />')
+	        .attr("name", "rdf-engine")
+	        .attr("value", JSON.stringify(rdf_engine.getJSON()))
+	        .appendTo(form);
+	    $('<input />')
+	        .attr("name", "format")
+	        .attr("value", "TURTLE")
+	        .appendTo(form);
+
+	    document.body.appendChild(form);
+
+	    window.open("about:blank", "rdf-export");
+	    form.submit();
+
+	    document.body.removeChild(form);
+	});
+	
+	$("#export-json").click(function(){
+		var form = document.createElement("form");
+	    $(form)
+	        .css("display", "none")
+	        .attr("method", "post")
+	        .attr("action", "export-json")
+	        .attr("target","json-export")
+	        ;
+	    $('<input />')
+	        .attr("name", "rdf-engine")
+	        .attr("value", JSON.stringify(rdf_engine.getJSON()))
+	        .appendTo(form);
+
+	    document.body.appendChild(form);
+
+	    window.open("about:blank", "json-export");
+	    form.submit();
+
+	    document.body.removeChild(form);
+	});
 });
 
 function resize(rightPanelDiv,leftPanelDiv,viewPanelDiv,rightPanelHeaderDiv) {

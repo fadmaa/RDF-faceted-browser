@@ -20,10 +20,34 @@ import com.google.common.collect.SetMultimap;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class QueryEngine {
+	
+	public Model getResourcesRDF(String sparqlEndpoint,String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+		int limit = 500;
+		int offset = 0;
+		Model totalModel = ModelFactory.createDefaultModel();
+		Model model;
+		do{
+			//get the resources
+			String sparql = "CONSTRUCT {?x ?p ?o } WHERE { ?x ?p ?o. ?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). } ORDER BY ?x LIMIT " + limit + " OFFSET " + offset;
+			model = execConstruct(sparql, sparqlEndpoint);
+			totalModel.add(model);
+			offset += limit;
+			//throttle
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}while(! model.isEmpty());
+		
+		return totalModel;
+	}
 
 	public Collection<RdfResource> getResources(String sparqlEndpoint,String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters, int offset, int limit){
 		//get the resources
@@ -75,6 +99,7 @@ public class QueryEngine {
 		while(results.hasNext()){
 			QuerySolution sol = results.next();
 			RDFNode node = sol.get("v");
+			if(node==null){continue;}
 			String id = getString(node);
 			int type = node.canAs(Literal.class)?AnnotatedString.LITERAL:AnnotatedString.RESOURCE;
 			if(id==null){
@@ -237,6 +262,11 @@ public class QueryEngine {
 		}*/
 		ResultSet res = qExec.execSelect();
 		return res;
+	}
+	
+	private Model execConstruct(String sparql, String sparqlEndpointUrl) {
+		QueryEngineHTTP qExec = new QueryEngineHTTP(sparqlEndpointUrl, sparql);
+		return qExec.execConstruct();
 	}
 	
 	private String getOrFilter(Collection<String> uris, String varname){

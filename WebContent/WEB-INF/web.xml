@@ -34,6 +34,14 @@
   	<servlet-name>get-facets</servlet-name>
   	<servlet-class>org.deri.rdf.qb.browse.Facets</servlet-class>
   </servlet>
+  <servlet>
+      <servlet-name>export-rdf</servlet-name>
+      <servlet-class>org.deri.rdf.browser.commands.ExportRdfCommand</servlet-class>
+  </servlet>
+   <servlet>
+      <servlet-name>export-json</servlet-name>
+      <servlet-class>org.deri.rdf.browser.commands.ExportJsonLdCommand</servlet-class>
+  </servlet>
   
   <servlet-mapping>
   	<servlet-name>get-resources</servlet-name>
@@ -59,6 +67,14 @@
   <servlet-mapping>
   	<servlet-name>get-facets</servlet-name>
   	<url-pattern>/get-facets</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+      <servlet-name>export-rdf</servlet-name>
+      <url-pattern>/export-rdf</url-pattern>
+  </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>export-json</servlet-name>
+      <url-pattern>/export-json</url-pattern>
   </servlet-mapping>
   
 </web-app>
