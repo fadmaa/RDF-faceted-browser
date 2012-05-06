@@ -22,7 +22,7 @@ public class Configuration extends RdfCommand {
 
 		//TODO
 		//FIXME
-		endpoint="http://localhost:3030/ict/query";
+		endpoint="http://localhost:3030/test/query";
 		
 		response.setHeader("Content-Type", "application/json");
 		response.setHeader("Pragma", "no-cache"); // HTTP 1.0.

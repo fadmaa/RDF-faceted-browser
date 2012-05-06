@@ -1,0 +1,225 @@
+.container {
+position: relative;       /* make this a containing block! */
+
+}
+.center {
+position: relative;   
+
+top: 10px;                /* position the element vertically using top or bottom
+						   and define width as you like:*/
+width: 800px;   
+left: 0;                  /* set left and right to the same value! */
+right: 0;
+margin-left: auto;        /* adding auto-margins left and right will
+						   center the element horizontally!*/
+margin-right: auto;
+	  /* mark this element visually prominent */
+
+height:150px;
+}
+
+img.loading{
+width:130;
+height:130;
+display: block;   margin-left: auto;   margin-right: auto; 
+}
+body{
+font-family:Georgia;
+}
+table{
+width:100%;
+}
+a:link {
+text-decoration:none;
+color:#627AAD;
+}
+a:visited {text-decoration:none;color:#627AAD;}
+a:hover {text-decoration:none;
+color:#1D4088;
+}
+a:active {text-decoration:underline;color:#627AAD;}
+
+img{
+cursor:pointer;
+display:inline;
+}
+
+.datasetdiv{
+
+border-top:1px solid #e5eff8;
+border-right:1px solid #e5eff8;
+border-bottom:1px solid #e5eff8;
+border-left:1px solid #e5eff8;
+right:0;
+width:800px;
+height:auto;
+
+}
+.measurediv{
+border-top:1px solid #e5eff8;
+border-right:1px solid #e5eff8;
+border-bottom:1px solid #e5eff8;
+border-left:1px solid #e5eff8;
+right:0;
+width:800px;
+height:auto;
+}
+
+.observationdiv{
+border-top:1px solid #e5eff8;
+border-right:1px solid #e5eff8;
+border-bottom:1px solid #e5eff8;
+border-left:1px solid #e5eff8;
+float:left;
+
+left:0;
+width:398px;
+height:auto;
+
+}
+
+.attributediv{
+
+float:left;
+
+right:0;
+width:398px;
+height:auto;
+
+}
+
+.dimensiondiv
+{
+border-top:1px solid #e5eff8;
+border-right:1px solid #e5eff8;
+border-bottom:1px solid #e5eff8;
+border-left:1px solid #e5eff8;
+
+clear:both;
+width:800px;
+height:auto;
+
+}
+
+
+.measure {
+text-align:center;
+text-transform:capitalize
+}
+.attribute {
+text-align:left;
+padding-top:5px;
+text-transform:capitalize;
+font-family:Lucida Console;
+font-size:20;  
+}
+.observation{
+
+text-align:right;
+color: #009ACD;
+font-size:50;
+}
+
+.dimensiontable {
+width:90%;
+border-top:1px solid #e5eff8;
+border-right:1px solid #e5eff8;
+border-bottom:1px solid #e5eff8;
+border-left:1px solid #e5eff8;
+margin:1em auto;
+border-collapse:collapse;
+padding:.3em 1em;
+text-align:center;
+}
+
+.dimensiontable td{
+width:50%;
+
+}
+
+ul {list-style-type: none;}
+.measuretable{
+text-align:center;
+margin:1em auto;
+text-transform:capitalize;
+}
+.datasettable{
+text-align:center;
+margin:1em auto;
+text-transform:capitalize;
+
+}
+.tr-even {
+background-color: #f0f0f0;
+}
+
+.tr-odd {
+
+}
+
+
+.hover{
+background-color: #D5E1F0;
+}
+
+.hover img{
+display:inline;
+}
+
+.uri{
+
+}
+.title{
+text-align:center;
+text-transform:capitalize;
+font-size:25px;
+color: #009ACD;
+
+}
+
+a.trigger{
+color: #1D4088;
+cursor: pointer;
+display: block;
+font-family: Georgia;
+font-size: 13px;
+font-style: normal;
+font-variant: normal;
+font-weight: bold;
+text-decoration: none;
+text-align:center;
+text-transform:capitalize
+}
+a.trigger.left {
+	left: 0;
+	border-top-right-radius: 5px;
+	-moz-border-radius-topright: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-webkit-border-bottom-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+.panel {
+	color:#CCC;
+	position: absolute;
+	display: none;
+	background:#e5eff8;
+	height: auto;
+	
+}
+
+.dropvalues{
+
+    list-style: none;  
+    position: relative; /*--Important - Keeps subnav from affecting main navigation flow--*/  
+    margin: 0; padding: 0;  
+    display: none;  
+    color: #627AAD;  
+	
+}
+.dropvalues li{
+
+cursor:pointer;
+	
+}

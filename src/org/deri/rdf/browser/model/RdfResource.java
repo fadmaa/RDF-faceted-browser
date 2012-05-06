@@ -67,6 +67,6 @@ public class RdfResource {
 		writer.endObject();
 	}
 
-	private static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#";
+	public static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#";
 }
 

@@ -23,7 +23,7 @@ public class Facets extends RdfCommand{
 
 		//TODO
 		//FIXME
-		endpoint="http://localhost:3030/ict/query";
+		endpoint="http://localhost:3030/test/query";
 		//get dimensions
 		QueryEngine engine = new QueryEngine();
 		Collection<RdfResource> dimensions = engine.getDimensions(endpoint);
