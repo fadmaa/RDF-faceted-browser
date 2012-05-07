@@ -174,7 +174,15 @@ RdfPropertyListFacet.prototype._initializeUI = function() {
     );
     this._elmts = DOM.bind(this._div);
     
-    this._elmts.titleSpan.text(this._config.name);
+    //this._elmts.titleSpan.text(this._config.name);
+    if(this._config.propertyUri){
+      //make facet name a link
+      var facetNameAnchor = $('<a></a>').attr('href','dereference?uri=' + escape(this._config.propertyUri)).attr('title',this._config.propertyUri).text(this._config.name);
+      facetNameAnchor.colorbox();
+      this._elmts.titleSpan.append(facetNameAnchor);
+    }else{
+      this._elmts.titleSpan.text(this._config.name);	
+    }
     this._elmts.expressionDiv.text(this._config.expression).hide().click(function() { self._editExpression(); });
     this._elmts.resetButton.click(function() { self._reset(); });
     this._elmts.changeButton.click(function() { self._change(); });
@@ -316,8 +324,11 @@ RdfPropertyListFacet.prototype._update = function(resetScroll) {
                 '</a>'
             );
             
-            
             html.push('<a href="javascript:{}" class="facet-choice-label">' + encodeHtml(label) + '</a>');
+            //popup 
+            if(choice.v && choice.v.v && choice.v.v.indexOf('<')===0 && choice.v.v.match(">$")==">"){
+            	html.push('<a class="colorbox-link" href="dereference?uri=' + escape(choice.v.v.substring(1,choice.v.v.length-1)) + '" ><img src="images/icon_popup_search.gif" /></a>' );
+    		}
             html.push('<span class="facet-choice-count">' + count + '</span>');
             
         html.push('</div>');
@@ -331,8 +342,12 @@ RdfPropertyListFacet.prototype._update = function(resetScroll) {
     if (this._errorChoice !== null) {
         renderChoice(-2, this._errorChoice, "(error)");
     }
+   
+    //setting the popups    
+    var htmlObj = $(html.join('')); htmlObj.find('a.colorbox-link').colorbox();
     
-    this._elmts.bodyInnerDiv.html(html.join(''));
+    this._elmts.bodyInnerDiv.empty().append(htmlObj);//html(html.join(''));
+   
     this._renderBodyControls();
     this._elmts.bodyInnerDiv[0].scrollTop = scrollTop;
     

@@ -76,7 +76,10 @@ jQuery.fn.extend({
 // every event handler - blur(), focus(), click() etc now has a 2nd param which
 // if true will add the passed function to the beginning of the event list 
 // instead of the end
-jQuery.each( ("blur,focus,load,resize,scroll,unload,click,dblclick," +
+
+//HACK ******************************
+//I had to drop load from this list to have colorbox working :(
+jQuery.each( ("blur,focus,resize,scroll,unload,click,dblclick," +
 	"mousedown,mouseup,mousemove,mouseover,mouseout,change,select," +
 	"submit,keydown,keypress,keyup,error").split(","), function(i, name){
 

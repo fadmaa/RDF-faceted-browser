@@ -53,6 +53,7 @@ public class Facets extends RdfCommand{
   			writer.key("name"); writer.value("datasets");
 		  	writer.key("property"); writer.value(" <http://purl.org/linked-data/cube#dataSet> ");
 		  	writer.key("expression"); writer.value("value");
+		  	writer.key("propertyUri"); writer.value("http://purl.org/linked-data/cube#dataSet");
 		  	writer.endObject();
 		  	writer.endObject();
 		  	//measures facet
@@ -63,6 +64,7 @@ public class Facets extends RdfCommand{
   			writer.key("name"); writer.value("measures");
 		  	writer.key("property"); writer.value(" ?measureProp ?measurePropVal. ?measureProp a <http://purl.org/linked-data/cube#MeasureProperty>. ?measureProp <http://www.w3.org/2000/01/rdf-schema#label> ");
 		  	writer.key("expression"); writer.value("value");
+		  	writer.key("propertyUri"); writer.value("http://purl.org/linked-data/cube#MeasureProperty");
 		  	writer.endObject();
 		  	writer.endObject();
 		  	//add facet for each dimension
@@ -75,6 +77,7 @@ public class Facets extends RdfCommand{
 	  			writer.key("name"); writer.value(d.getLabel());
 	  			writer.key("property"); writer.value(" <" + d.getUri() + "> ");
 	  			writer.key("expression"); writer.value("value");
+	  			writer.key("propertyUri"); writer.value(d.getUri());
 	  			writer.endObject();
 		  		writer.endObject();
 		  		count +=1;

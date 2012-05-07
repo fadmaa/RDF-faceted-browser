@@ -42,6 +42,11 @@
       <servlet-name>export-json</servlet-name>
       <servlet-class>org.deri.rdf.browser.commands.ExportJsonLdCommand</servlet-class>
   </servlet>
+   <servlet>
+      <servlet-name>dereference</servlet-name>
+      <servlet-class>org.deri.rdf.browser.commands.DereferenceUriCommand</servlet-class>
+  </servlet>
+  
   
   <servlet-mapping>
   	<servlet-name>get-resources</servlet-name>
@@ -75,6 +80,10 @@
    <servlet-mapping>
       <servlet-name>export-json</servlet-name>
       <url-pattern>/export-json</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+      <servlet-name>dereference</servlet-name>
+      <url-pattern>/dereference</url-pattern>
   </servlet-mapping>
   
 </web-app>
