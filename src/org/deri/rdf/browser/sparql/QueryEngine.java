@@ -263,6 +263,8 @@ public class QueryEngine {
 		ResultSet res = qExec.execSelect();
 		return res;
 	}
+
+
 	
 	private Model execConstruct(String sparql, String sparqlEndpointUrl) {
 		QueryEngineHTTP qExec = new QueryEngineHTTP(sparqlEndpointUrl, sparql);
