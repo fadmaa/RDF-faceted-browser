@@ -205,7 +205,7 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 
 RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
 	var self = this;
-	$.ajax({url:self.configuration_URL,
+	$.ajax({url:self.configuration_URL + "?endpoint=" + getEndpoint(),
 			success:function(data){
 				//self.config = jQuery.parseJSON( data );
 				self.config = data;

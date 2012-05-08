@@ -11,6 +11,7 @@
   <link href="styles/widgets/histogram-widget.css" type="text/css" rel="stylesheet" ></link>
   <link href="styles/widgets/slider-widget.css" type="text/css" rel="stylesheet" ></link>
   <link href="externals/color-box/colorbox.css" type="text/css" rel="stylesheet" ></link>
+  <link href="styles/menu.css" type="text/css" rel="stylesheet" ></link>
 
   <script type="text/javascript" src="externals/jquery-1.7.1.min.js"></script>
   <script type="text/javascript" src="externals/jquery-ui/jquery-ui-1.8.custom.min.js"></script>	
@@ -18,6 +19,7 @@
   <script type="text/javascript" src="externals/color-box/jquery.colorbox-min.js"></script>
   <script type="text/javascript" src="scripts/util/dom.js"></script>
   <script type="text/javascript" src="scripts/util/dialog.js"></script>
+  <script type="text/javascript" src="scripts/util/menu.js"></script>
   <script type="text/javascript" src="scripts/index.js"></script>
   <script type="text/javascript" src="scripts/widgets/slider-widget.js"></script>
   <script type="text/javascript" src="scripts/widgets/histogram-widget.js"></script>
@@ -34,8 +36,7 @@
       <div id="right-panel-header" >
         <span class="big-title">Data Cube Viewer</span>
         <span style="float:right">
-          <input type="button" class="button" value="Export RDF" id="export-rdf"/>
-          <input type="button" class="button" value="Export JSON-LD" id="export-json"/>
+          <a class="button" id="export"><span class="button-menu">Export</span></a>
         </span>
       </div>
     </div>

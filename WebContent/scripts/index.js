@@ -14,7 +14,7 @@ var RdfBrowser = {
 		var self = this;
 		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv, function(){
 			$.ajax({
-				url:self.facets_URL,
+				url:self.facets_URL+ "?endpoint=" + getEndpoint(),
 				success:function(facets_data){
 					self._engine.addFacets(facets_data);
 				}
@@ -24,52 +24,86 @@ var RdfBrowser = {
 	}
 };
 
+function getEndpoint(){
+	var url = location.href;
+	return url.substring(url.indexOf("?endpoint=") + 10)
+}
+var export_rdf = function(format){
+	return function(){
+	var form = document.createElement("form");
+    $(form)
+        .css("display", "none")
+        .attr("method", "post")
+        .attr("action", "export-rdf")
+        .attr("target","rdf-export")
+        ;
+    $('<input />')
+        .attr("name", "rdf-engine")
+        .attr("value", JSON.stringify(rdf_engine.getJSON()))
+        .appendTo(form);
+    $('<input />')
+        .attr("name", "format")
+        .attr("value", format)
+        .appendTo(form);
+
+    document.body.appendChild(form);
+
+    window.open("about:blank", "rdf-export");
+    form.submit();
+
+    document.body.removeChild(form);
+	}
+};
+
+var export_json = function(){
+	var form = document.createElement("form");
+    $(form)
+        .css("display", "none")
+        .attr("method", "post")
+        .attr("action", "export-json")
+        .attr("target","json-export")
+        ;
+    $('<input />')
+        .attr("name", "rdf-engine")
+        .attr("value", JSON.stringify(rdf_engine.getJSON()))
+        .appendTo(form);
+
+    document.body.appendChild(form);
+
+    window.open("about:blank", "json-export");
+    form.submit();
+
+    document.body.removeChild(form);
+};
+
 $(function(){
 	RdfBrowser.initialize();
-	$("#export-rdf").click(function(){
-		var form = document.createElement("form");
-	    $(form)
-	        .css("display", "none")
-	        .attr("method", "post")
-	        .attr("action", "export-rdf")
-	        .attr("target","rdf-export")
-	        ;
-	    $('<input />')
-	        .attr("name", "rdf-engine")
-	        .attr("value", JSON.stringify(rdf_engine.getJSON()))
-	        .appendTo(form);
-	    $('<input />')
-	        .attr("name", "format")
-	        .attr("value", "TURTLE")
-	        .appendTo(form);
-
-	    document.body.appendChild(form);
-
-	    window.open("about:blank", "rdf-export");
-	    form.submit();
-
-	    document.body.removeChild(form);
-	});
 	
-	$("#export-json").click(function(){
-		var form = document.createElement("form");
-	    $(form)
-	        .css("display", "none")
-	        .attr("method", "post")
-	        .attr("action", "export-json")
-	        .attr("target","json-export")
-	        ;
-	    $('<input />')
-	        .attr("name", "rdf-engine")
-	        .attr("value", JSON.stringify(rdf_engine.getJSON()))
-	        .appendTo(form);
-
-	    document.body.appendChild(form);
-
-	    window.open("about:blank", "json-export");
-	    form.submit();
-
-	    document.body.removeChild(form);
+	$("#export").click(function(){
+		MenuSystem.createAndShowStandardMenu(
+		        [
+		         {
+		        	 "id":"export-ttl",
+		        	 "label":"export in TURTLE",
+		        	 "click":export_rdf("TURTLE")
+		        	 
+		         },
+		         {
+		        	 "id":"export-rdf-xml",
+		        	 "label":"export in RDF/XML",
+		        	 "click":export_rdf("RDF/XML")
+		         },
+		         {
+		        	 "id":"export-json",
+		        	 "label":"export in JSON-LD",
+		        	 "click":export_json
+		         }
+		         
+		        ],
+		        this,
+		        { horizontal: false }
+		    );
+		
 	});
 });
 
