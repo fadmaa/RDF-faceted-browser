@@ -20,10 +20,6 @@ public class Configuration extends RdfCommand {
 		String endpoint = request.getParameter("endpoint");
 		response.setCharacterEncoding("UTF-8");
 
-		//TODO
-		//FIXME
-		endpoint="http://localhost:3030/test/query";
-		
 		response.setHeader("Content-Type", "application/json");
 		response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
 		response.setDateHeader("Expires", 0);

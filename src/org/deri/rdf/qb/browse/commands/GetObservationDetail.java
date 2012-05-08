@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.util.URLEncoder;
 import org.deri.rdf.browser.commands.RdfCommand;
 import org.deri.rdf.qb.browse.sparql.QueryEngine;
 import org.deri.rdf.qb.model.Dimension;
@@ -88,7 +87,6 @@ public class GetObservationDetail extends RdfCommand {
 		}
 		Dimension dimension=new Dimension(dimuri, null, dimval);
 		String observationDetailsByDirection = queryEngine.getObservationDetailsByDirection(observation, endpoint, dir, dimension);
-		URLEncoder encoder=new URLEncoder();
 		resp.setCharacterEncoding("UTF-8");
     	resp.setHeader("Content-Type", "application/json");
 		resp.getWriter().write("{\"status\":\"ok\",\"uri\":\""+observationDetailsByDirection+"\"}");

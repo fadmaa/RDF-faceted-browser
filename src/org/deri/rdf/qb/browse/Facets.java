@@ -21,9 +21,6 @@ public class Facets extends RdfCommand{
 		String endpoint = request.getParameter("endpoint");
 		response.setCharacterEncoding("UTF-8");
 
-		//TODO
-		//FIXME
-		endpoint="http://localhost:3030/test/query";
 		//get dimensions
 		QueryEngine engine = new QueryEngine();
 		Collection<RdfResource> dimensions = engine.getDimensions(endpoint);
