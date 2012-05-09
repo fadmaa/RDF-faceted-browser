@@ -19,4 +19,7 @@ function viewObservation(resource,container,endpoint,config){
 			.append($('<span></span>').text(' ' + resource['http://data.lod2.eu/scoreboard/properties/year'])).appendTo(obsContainer);
 	$('<div/>').html('country: ' + resource['http://data.lod2.eu/scoreboard/properties/country']).appendTo(obsContainer);
 	
+	var a_link = $('<a>').attr('href','get-observation-detail?uri=' + escape(resource['@']) + '&endpoint=' + getEndpoint()).text('details').colorbox();
+	$('<div/>').append(a_link).appendTo(obsContainer);
+	
 }
