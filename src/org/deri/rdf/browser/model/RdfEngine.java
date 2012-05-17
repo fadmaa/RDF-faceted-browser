@@ -33,6 +33,7 @@ import com.google.refine.Jsonizable;
 public class RdfEngine implements Jsonizable{
 	protected List<RdfFacet> _facets = new LinkedList<RdfFacet>();
 	protected String sparqlEndpointUrl;
+	protected String graphUri;
 	protected String mainResourcesSelector;
 	protected String template;
 	protected List<String> properties;
@@ -42,6 +43,9 @@ public class RdfEngine implements Jsonizable{
             return;
         }
         sparqlEndpointUrl = o.getString("sparqlEndpointUrl");
+        if(o.has("graph")){
+        	graphUri = o.getString("graph");
+        }
         mainResourcesSelector = o.getString("mainResourcesSelector");
         template = o.getString("template");
         properties = getProperties(template);
@@ -73,7 +77,7 @@ public class RdfEngine implements Jsonizable{
 	public void computeFacets(QueryEngine engine){
 		List<Thread> threads = new ArrayList<Thread>(_facets.size());
 		for(RdfFacet f:_facets){
-			FacetChoiceComputer task = new FacetChoiceComputer(f, sparqlEndpointUrl, mainResourcesSelector, engine, getFilters(f));
+			FacetChoiceComputer task = new FacetChoiceComputer(f, sparqlEndpointUrl, graphUri, mainResourcesSelector, engine, getFilters(f));
 			Thread worker = new Thread(task);
 			worker.setName(f.toString());
 			worker.start();
@@ -98,11 +102,11 @@ public class RdfEngine implements Jsonizable{
 	}
 	
 	public Collection<RdfResource> getResources(QueryEngine queryEngine, int offset, int limit){
-		return queryEngine.getResources(sparqlEndpointUrl,mainResourcesSelector,properties, getFilters(), offset, limit);
+		return queryEngine.getResources(sparqlEndpointUrl,graphUri,mainResourcesSelector,properties, getFilters(), offset, limit);
 	}
 
 	public int getFilteredResourcesCount(QueryEngine queryEngine){
-		return queryEngine.getResourcesCount(sparqlEndpointUrl,mainResourcesSelector, getFilters());		
+		return queryEngine.getResourcesCount(sparqlEndpointUrl,graphUri,mainResourcesSelector, getFilters());		
 	}
 	
 	public void write(JSONWriter writer, Properties option) throws JSONException {

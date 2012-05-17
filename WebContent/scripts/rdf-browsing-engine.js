@@ -22,6 +22,7 @@ RdfBrowsingEngine.prototype.getJSON = function() {
 	var self = this;
     var a = {
     	sparqlEndpointUrl: self._sparqlEndpointUrl,
+    	graph: self.config.graph,
     	mainResourcesSelector: unescape(self._mainResourcesSelector),
     	template:self.templateEngine.__template,
         facets: []

@@ -25,11 +25,17 @@ import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class QueryEngine {
 
-	public Collection<RdfResource> getResources(String sparqlEndpoint,String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters, int offset, int limit){
+	public Collection<RdfResource> getResources(String sparqlEndpoint, String graph, String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters, int offset, int limit){
 		//get the resources
 		//TODO support blank node
 		//FIXME support blank node. currently, silently ignored
-		String sparql = "SELECT DISTINCT ?x WHERE { ?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). } ORDER BY ?x LIMIT " + limit + " OFFSET " + offset;
+		String graphPre = "";
+		String graphPost = "";
+		if (graph!=null && !graph.isEmpty()){
+			graphPre = " GRAPH <" + graph + "> { ";
+			graphPost = "}";
+		}
+		String sparql = "SELECT DISTINCT ?x WHERE {" + graphPre + "?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). " + graphPost + "} ORDER BY ?x LIMIT " + limit + " OFFSET " + offset;
 		ResultSet results = execSparql(sparql,sparqlEndpoint);
 		Set<String> resources = new HashSet<String>(limit);
 		Map<String,RdfResource> resourcesMap = new HashMap<String, RdfResource>();
@@ -46,7 +52,7 @@ public class QueryEngine {
 		}
 		//get properties of resources
 		//TODO make this configurable.... currently get *all* properties
-		sparql = "SELECT ?x ?p ?o WHERE { ?x ?p ?o. ?x " + filter + getOrClause("x",resources) + getPropertiesFilter("p",properties) + " }";
+		sparql = "SELECT ?x ?p ?o WHERE {" + graphPre + "?x ?p ?o. ?x " + filter + getOrClause("x",resources) + getPropertiesFilter("p",properties) + graphPost + " }";
 		results = execSparql(sparql,sparqlEndpoint);
 		while(results.hasNext()){
 			QuerySolution sol = results.next();
@@ -55,8 +61,14 @@ public class QueryEngine {
 		return resourcesMap.values();
 	}
 	
-	public int getResourcesCount(String sparqlEndpoint, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
-		String sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE { ?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). } ";
+	public int getResourcesCount(String sparqlEndpoint, String graph, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+		String graphPre = "";
+		String graphPost = "";
+		if (graph!=null && !graph.isEmpty()){
+			graphPre = " GRAPH <" + graph + "> { ";
+			graphPost = "}";
+		}
+		String sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE {" + graphPre + "?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). " + graphPost + "} ";
 		ResultSet results = execSparql(sparql, sparqlEndpoint);
 		if(results.hasNext()){
 			QuerySolution sol = results.next();
@@ -66,8 +78,14 @@ public class QueryEngine {
 		}
 	}
 	
-	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
-		String sparql = "SELECT DISTINCT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + property + " ?v. ?x " + filter + getFilter("x",filter,filters) + " } GROUP BY (?v)";
+	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String graph, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+		String graphPre = "";
+		String graphPost = "";
+		if (graph!=null && !graph.isEmpty()){
+			graphPre = " GRAPH <" + graph + "> { ";
+			graphPost = "}";
+		}
+		String sparql = "SELECT DISTINCT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{" + graphPre + "?x " + property + " ?v. ?x " + filter + getFilter("x",filter,filters) + graphPost + "} GROUP BY (?v)";
 		ResultSet results = execSparql(sparql, sparqlEndpoint);
 		List<AnnotatedString> values = new ArrayList<AnnotatedString>(); 
 		while(results.hasNext()){
@@ -81,7 +99,7 @@ public class QueryEngine {
 		}
 		//now see if there are blank values
 		
-		sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE{ ?x " + filter + "OPTIONAL{ ?x " + property + " ?v.}. FILTER(!bound(?v)). " + getFilter("x",filter,filters) + " }";
+		sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE{" + graphPre + "?x " + filter + "OPTIONAL{ ?x " + property + " ?v.}. FILTER(!bound(?v)). " + getFilter("x",filter,filters) + graphPost + " }";
 		results = execSparql(sparql, sparqlEndpoint);
 		if(results.hasNext()){
 			QuerySolution sol = results.next();
@@ -194,9 +212,6 @@ public class QueryEngine {
 	private ResultSet execSparql(String sparql, String sparqlEndpointUrl) {
 		//we use QueryEngineHTTP to skip query validation as Virtuoso needs non-standardised extensions and will not pass ARQ validation
 		QueryEngineHTTP qExec = new QueryEngineHTTP(sparqlEndpointUrl, sparql);
-		/*if(defaultGraphUri!=null){
-			qExec.setDefaultGraphURIs(Collections.singletonList(defaultGraphUri));
-		}*/
 		ResultSet res = qExec.execSelect();
 		return res;
 	}

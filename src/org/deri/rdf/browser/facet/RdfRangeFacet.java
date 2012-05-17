@@ -66,10 +66,10 @@ public class RdfRangeFacet implements RdfFacet{
     
     
 	@Override
-	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
-		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
+	public void computeChoices(String sparqlEndpoint, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
+		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, graphUri, this.sparqlSelector, filter, filters);
 		SetMultimap<RdfFacet, RdfDecoratedValue> noFilters = HashMultimap.create();
-		List<AnnotatedString> allValues = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, noFilters);
+		List<AnnotatedString> allValues = engine.getPropertiesWithCount(sparqlEndpoint, graphUri, this.sparqlSelector, filter, noFilters);
 		List<CountedDouble> filteredValues = new ArrayList<CountedDouble>();
 		List<CountedDouble> allValuesCounted = new ArrayList<CountedDouble>();
 		_max = Double.NEGATIVE_INFINITY;

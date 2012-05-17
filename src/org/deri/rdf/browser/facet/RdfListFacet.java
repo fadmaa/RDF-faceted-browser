@@ -85,8 +85,8 @@ public class RdfListFacet implements RdfFacet{
     }
 
 	@Override
-	public void computeChoices(String sparqlEndpoint, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
-		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, this.sparqlSelector, filter, filters);
+	public void computeChoices(String sparqlEndpoint, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
+		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, graphUri, this.sparqlSelector, filter, filters);
 		for(AnnotatedString cs:values){
 			if(cs.value==null){
 				//blank choices

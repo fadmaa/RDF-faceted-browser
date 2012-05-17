@@ -12,18 +12,20 @@ public class FacetChoiceComputer implements Runnable{
 	private QueryEngine engine;
 	private SetMultimap<RdfFacet, RdfDecoratedValue> filters;
 	private String sparqlEndpoint;
+	private String graphUri;
 	private String mainResourcesSelector;
-	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String graphUri, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		this.facet = facet;
 		this.engine = engine;
 		this.filters = filters;
 		this.sparqlEndpoint = sparqlEndpoint;
 		this.mainResourcesSelector = mainResourcesSelector;
+		this.graphUri = graphUri;
 	}
 	
 	@Override
 	public void run() {
-		facet.computeChoices(sparqlEndpoint, engine, mainResourcesSelector, filters);
+		facet.computeChoices(sparqlEndpoint, graphUri, engine, mainResourcesSelector, filters);
 	}
 
 }

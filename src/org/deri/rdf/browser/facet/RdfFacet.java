@@ -11,7 +11,7 @@ import com.google.common.collect.SetMultimap;
 
 public interface RdfFacet {
 
-    public void computeChoices(String sparqlEndpoint,QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters);
+    public void computeChoices(String sparqlEndpoint, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters);
     
     public void initializeFromJSON(JSONObject o) throws JSONException;
     

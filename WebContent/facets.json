@@ -1,12 +1,5 @@
 [
-  {
-  	"type":"search",
-  	"config":{
-  		"name":"search",
-   		"property": " ?dimensionProp ?dimensionPropVal. ?dimensionProp a <http://purl.org/linked-data/cube#DimensionProperty>. ?x ?dimensionProp ",
-   		"endpoint_vendor": "standard"
-   	}
-  },
+  
   {
   	"type":"list",
   	"config":{
