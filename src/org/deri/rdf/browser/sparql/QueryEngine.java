@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.deri.rdf.browser.facet.RdfDecoratedValue;
 import org.deri.rdf.browser.facet.RdfFacet;
 import org.deri.rdf.browser.model.AnnotatedString;
@@ -25,6 +26,7 @@ import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class QueryEngine {
 
+	private static Logger logger = Logger.getLogger("org.deri.rdf.browser.sparql.QueryEngine");
 	public Collection<RdfResource> getResources(String sparqlEndpoint, String graph, String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters, int offset, int limit){
 		//get the resources
 		//TODO support blank node
@@ -211,6 +213,7 @@ public class QueryEngine {
 	
 	private ResultSet execSparql(String sparql, String sparqlEndpointUrl) {
 		//we use QueryEngineHTTP to skip query validation as Virtuoso needs non-standardised extensions and will not pass ARQ validation
+		logger.debug("executing SPARQL query:\\n" + sparql);
 		QueryEngineHTTP qExec = new QueryEngineHTTP(sparqlEndpointUrl, sparql);
 		ResultSet res = qExec.execSelect();
 		return res;
