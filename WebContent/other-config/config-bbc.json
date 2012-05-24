@@ -1,6 +1,6 @@
 {
   "endpoint_url":"http://api.talis.com/stores/bbc-backstage/services/sparql",
-  "main_resource_selector":"?x a <http://dbpedia.org/ontology/Artist> ",
+  "main_resource_selector":" a <http://dbpedia.org/ontology/Artist> ",
   "namespaces":[
   	["dcat","http://www.w3.org/ns/dcat#"],
   	["dct","http://purl.org/dc/terms/"]
