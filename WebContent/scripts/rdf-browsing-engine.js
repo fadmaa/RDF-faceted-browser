@@ -225,7 +225,7 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
 				if(callback1){
 					callback1();
 				}
-			}
+			},"text"
 	);	
 };
 
