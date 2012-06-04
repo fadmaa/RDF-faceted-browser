@@ -19,7 +19,7 @@ public class CountResourcesCommand extends RdfCommand{
 			engine = getRdfEngine(request);
 		
 			QueryEngine queryEngine = new QueryEngine();
-			int filtered = engine.getFilteredResourcesCount(queryEngine); 
+			long filtered = engine.getFilteredResourcesCount(queryEngine); 
 			
 			response.setCharacterEncoding("UTF-8");
         	response.setHeader("Content-Type", "application/json");

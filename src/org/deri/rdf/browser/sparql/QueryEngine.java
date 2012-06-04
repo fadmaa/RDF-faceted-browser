@@ -27,7 +27,10 @@ import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 public class QueryEngine {
 
 	private static Logger logger = Logger.getLogger("org.deri.rdf.browser.sparql.QueryEngine");
-	public Collection<RdfResource> getResources(String sparqlEndpoint, String graph, String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters, int offset, int limit){
+	public Collection<RdfResource> getResources(String[] sparqlEndpoints, String graph, String filter, List<String> properties,SetMultimap<RdfFacet, RdfDecoratedValue> filters, int offset, int limit){
+		Set<String> resources = new HashSet<String>(limit);
+		Set<String> queriedEndpoints = new HashSet<String>();
+		Map<String,RdfResource> resourcesMap = new HashMap<String, RdfResource>();
 		//get the resources
 		//TODO support blank node
 		//FIXME support blank node. currently, silently ignored
@@ -38,15 +41,23 @@ public class QueryEngine {
 			graphPost = "}";
 		}
 		String sparql = "SELECT DISTINCT ?x WHERE {" + graphPre + "?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). " + graphPost + "} ORDER BY ?x LIMIT " + limit + " OFFSET " + offset;
-		ResultSet results = execSparql(sparql,sparqlEndpoint);
-		Set<String> resources = new HashSet<String>(limit);
-		Map<String,RdfResource> resourcesMap = new HashMap<String, RdfResource>();
-		while(results.hasNext()){
-			QuerySolution sol = results.next();
-			//DOC limitation: resources can't be blank nodes
-			String uri = sol.getResource("x").getURI();
-			resources.add(uri);
-			resourcesMap.put(uri, new RdfResource(uri));
+		for(String sparqlEndpoint: sparqlEndpoints){
+			queriedEndpoints.add(sparqlEndpoint);
+			ResultSet results = execSparql(sparql,sparqlEndpoint);
+			while(results.hasNext()){
+				QuerySolution sol = results.next();
+				//DOC limitation: resources can't be blank nodes
+				String uri = sol.getResource("x").getURI();
+				resources.add(uri);
+				resourcesMap.put(uri, new RdfResource(uri));
+				
+				if(resources.size()==limit){
+					break;
+				}
+			}
+			if(resources.size()==limit){
+				break;
+			}
 		}
 		
 		if(resources.isEmpty()){
@@ -55,15 +66,17 @@ public class QueryEngine {
 		//get properties of resources
 		//TODO make this configurable.... currently get *all* properties
 		sparql = "SELECT ?x ?p ?o WHERE {" + graphPre + "?x ?p ?o. ?x " + filter + getOrClause("x",resources) + getPropertiesFilter("p",properties) + graphPost + " }";
-		results = execSparql(sparql,sparqlEndpoint);
-		while(results.hasNext()){
-			QuerySolution sol = results.next();
-			resourcesMap.get(sol.getResource("x").getURI()).getProperties().put(sol.getResource("p").getURI(),getString(sol.get("o")));
+		for(String sparqlEndpoint:queriedEndpoints){
+			ResultSet results = execSparql(sparql,sparqlEndpoint);	
+			while(results.hasNext()){
+				QuerySolution sol = results.next();
+				resourcesMap.get(sol.getResource("x").getURI()).getProperties().put(sol.getResource("p").getURI(),getString(sol.get("o")));
+			}
 		}
 		return resourcesMap.values();
 	}
 	
-	public int getResourcesCount(String sparqlEndpoint, String graph, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+	public long getResourcesCount(String[] sparqlEndpoints, String graph, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		String graphPre = "";
 		String graphPost = "";
 		if (graph!=null && !graph.isEmpty()){
@@ -71,13 +84,16 @@ public class QueryEngine {
 			graphPost = "}";
 		}
 		String sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE {" + graphPre + "?x " + filter + getFilter("x",filter,filters) + " FILTER (isIRI(?x)). " + graphPost + "} ";
-		ResultSet results = execSparql(sparql, sparqlEndpoint);
-		if(results.hasNext()){
-			QuerySolution sol = results.next();
-			return sol.getLiteral("count").getInt();
-		}else{
-			return 0;
+		long count = 0;
+		//TODO make these queries on different threads
+		for(String sparqlEndpoint:sparqlEndpoints){
+			ResultSet results = execSparql(sparql, sparqlEndpoint);
+			if(results.hasNext()){
+				QuerySolution sol = results.next();
+				count += sol.getLiteral("count").getInt();
+			}
 		}
+		return count;
 	}
 	
 	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String graph, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){

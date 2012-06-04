@@ -1,6 +1,8 @@
 {
-"endpoint_url": "http://localhost:3030/test/query",
-"graph":"http://data.example.com/test",
-"main_resource_selector": "a <http://purl.org/linked-data/cube#Observation> ",
-"template": ""
+"endpoint_urls": "http://localhost:3031/test2/query http://localhost:3030/test/query ",
+"main_resource_selector": "a <http://www.w3.org/ns/dcat#Dataset> ",
+"template": "<div>
+<h2 sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2>
+<div sparql_content=\"http://purl.org/dc/terms/publisher\"></div>
+</div>"
 }

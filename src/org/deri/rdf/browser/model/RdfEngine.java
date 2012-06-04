@@ -32,7 +32,7 @@ import com.google.refine.Jsonizable;
 
 public class RdfEngine implements Jsonizable{
 	protected List<RdfFacet> _facets = new LinkedList<RdfFacet>();
-	protected String sparqlEndpointUrl;
+	protected String[] sparqlEndpointUrls;
 	protected String graphUri;
 	protected String mainResourcesSelector;
 	protected String template;
@@ -42,7 +42,7 @@ public class RdfEngine implements Jsonizable{
         if (o == null) {
             return;
         }
-        sparqlEndpointUrl = o.getString("sparqlEndpointUrl");
+        sparqlEndpointUrls = o.getString("sparqlEndpointUrls").split(" ");
         if(o.has("graph")){
         	graphUri = o.getString("graph");
         }
@@ -77,7 +77,8 @@ public class RdfEngine implements Jsonizable{
 	public void computeFacets(QueryEngine engine){
 		List<Thread> threads = new ArrayList<Thread>(_facets.size());
 		for(RdfFacet f:_facets){
-			FacetChoiceComputer task = new FacetChoiceComputer(f, sparqlEndpointUrl, graphUri, mainResourcesSelector, engine, getFilters(f));
+			//FIXME only one endpoint is handled
+			FacetChoiceComputer task = new FacetChoiceComputer(f, sparqlEndpointUrls[0], graphUri, mainResourcesSelector, engine, getFilters(f));
 			Thread worker = new Thread(task);
 			worker.setName(f.toString());
 			worker.start();
@@ -102,17 +103,24 @@ public class RdfEngine implements Jsonizable{
 	}
 	
 	public Collection<RdfResource> getResources(QueryEngine queryEngine, int offset, int limit){
-		return queryEngine.getResources(sparqlEndpointUrl,graphUri,mainResourcesSelector,properties, getFilters(), offset, limit);
+		//FIXME only first endpoint is queried
+		return queryEngine.getResources(sparqlEndpointUrls,graphUri,mainResourcesSelector,properties, getFilters(), offset, limit);
 	}
 
-	public int getFilteredResourcesCount(QueryEngine queryEngine){
-		return queryEngine.getResourcesCount(sparqlEndpointUrl,graphUri,mainResourcesSelector, getFilters());		
+	public long getFilteredResourcesCount(QueryEngine queryEngine){
+		return queryEngine.getResourcesCount(sparqlEndpointUrls,graphUri,mainResourcesSelector, getFilters());		
 	}
 	
 	public void write(JSONWriter writer, Properties option) throws JSONException {
 
 		writer.object();
-		writer.key("sparqlEndpointUrl"); writer.value(sparqlEndpointUrl);
+		writer.key("sparqlEndpointUrls");
+		String endpoints = "";
+		for(String s:sparqlEndpointUrls){
+			endpoints += s + " "; 
+		}
+		writer.value(endpoints);
+		
 		writer.key("facets");
 		writer.array();
 		for (RdfFacet facet : _facets) {

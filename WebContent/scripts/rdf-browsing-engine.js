@@ -21,7 +21,7 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
 RdfBrowsingEngine.prototype.getJSON = function() {
 	var self = this;
     var a = {
-    	sparqlEndpointUrl: self._sparqlEndpointUrl,
+    	sparqlEndpointUrls: self._sparqlEndpointUrls,
     	graph: self.config.graph,
     	mainResourcesSelector: unescape(self._mainResourcesSelector),
     	template:self.templateEngine.__template,
@@ -46,7 +46,7 @@ RdfBrowsingEngine.prototype.viewResources = function(resources){
 	this._resourcesDiv.empty();
 	for(var i=0;i<resources.length;i++){
 		var r = resources[i];
-		self.templateEngine.viewResource(r,this._resourcesDiv,this._sparqlEndpointUrl,self.config);
+		self.templateEngine.viewResource(r,this._resourcesDiv,this._sparqlEndpointUrls,self.config);
 	}
 	
 	self._pageSizeControls.empty().append($('<span></span>').html('Show: '));
@@ -155,7 +155,7 @@ RdfBrowsingEngine.prototype.update = function(onlyFacets) {
 	        "compute-facets",
 	        { "rdf-engine": JSON.stringify(this.getJSON(true)) },
 	        function(data) {
-	        	self._sparqlEndpointUrl = data.sparqlEndpointUrl;
+	        	self._sparqlEndpointUrls = data.sparqlEndpointUrls;
 	        	var facetData = data.facets;
 	            for (var i = 0; i < facetData.length; i++) {
 	                self._facets[i].facet.updateState(facetData[i]);
@@ -207,9 +207,9 @@ RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
 	var self = this;
 	$.get(self.configuration_URL,{},
 			function(raw_data){
-		        var data = JSON.parse(raw_data.replace(/\n/g, ' '));
+		        var data = JSON.parse(raw_data.replace(/\n|\t/g, ' '));
 				self.config = data ;
-				self._sparqlEndpointUrl = self.config.endpoint_url;
+				self._sparqlEndpointUrls = self.config.endpoint_urls;
 				self._mainResourcesSelector = self.config.main_resource_selector;
 				//load CSS
 				if(self.config.css){
