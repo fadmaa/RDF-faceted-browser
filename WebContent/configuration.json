@@ -1,8 +1,10 @@
 {
-"endpoint_urls": "http://localhost:3031/test2/query http://localhost:3030/test/query ",
-"main_resource_selector": "a <http://www.w3.org/ns/dcat#Dataset> ",
+"endpoint_urls": "http://api.kasabi.com/dataset/research/apis/sparql",
+"main_resource_selector": "a <http://xmlns.com/foaf/0.1/Organization> ",
 "template": "<div>
 <h2 sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2>
-<div sparql_content=\"http://purl.org/dc/terms/publisher\"></div>
+<div>
+description...
+</div>
 </div>"
 }

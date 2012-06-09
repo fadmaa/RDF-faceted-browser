@@ -2,8 +2,8 @@
   {
   	"type":"list",
   	"config":{
-  		"name":"publisher",
-  		"property": "<http://purl.org/dc/terms/publisher> ",
+  		"name":"within",
+  		"property": "<http://xmlns.com/foaf/0.1/based_near> ",
   		"expression": "value"
   	}
   }  

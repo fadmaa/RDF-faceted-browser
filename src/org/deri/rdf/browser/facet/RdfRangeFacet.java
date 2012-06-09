@@ -66,10 +66,10 @@ public class RdfRangeFacet implements RdfFacet{
     
     
 	@Override
-	public void computeChoices(String sparqlEndpoint, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
-		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, graphUri, this.sparqlSelector, filter, filters);
+	public void computeChoices(String[] sparqlEndpoints, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
+		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoints, graphUri, this.sparqlSelector, filter, filters);
 		SetMultimap<RdfFacet, RdfDecoratedValue> noFilters = HashMultimap.create();
-		List<AnnotatedString> allValues = engine.getPropertiesWithCount(sparqlEndpoint, graphUri, this.sparqlSelector, filter, noFilters);
+		List<AnnotatedString> allValues = engine.getPropertiesWithCount(sparqlEndpoints, graphUri, this.sparqlSelector, filter, noFilters);
 		List<CountedDouble> filteredValues = new ArrayList<CountedDouble>();
 		List<CountedDouble> allValuesCounted = new ArrayList<CountedDouble>();
 		_max = Double.NEGATIVE_INFINITY;
@@ -78,7 +78,7 @@ public class RdfRangeFacet implements RdfFacet{
 			try{
 				Double v;
 				if(a.value==null){
-					_baseBlankCount += a.count;
+					_baseBlankCount += a.getCount();
 					continue;
 				}
 				if(_replaceCommas){
@@ -86,16 +86,16 @@ public class RdfRangeFacet implements RdfFacet{
 				}else{
 					v = Double.parseDouble(a.value);
 				}
-				allValuesCounted.add(new CountedDouble(v,a.count));
+				allValuesCounted.add(new CountedDouble(v,a.getCount()));
 				if(v<_min){
 					_min = v;
 				}
 				if(v>_max){
 					_max = v;
 				}
-				_baseNumericCount += a.count;
+				_baseNumericCount += a.getCount();
 			}catch(Exception ne){
-				_baseNonNumericCount += a.count;
+				_baseNonNumericCount += a.getCount();
 			}
 		}
 		
@@ -103,7 +103,7 @@ public class RdfRangeFacet implements RdfFacet{
 			try{
 				Double v;
 				if(a.value==null){
-					_blankCount += a.count;
+					_blankCount += a.getCount();
 					continue;
 				}
 				if(_replaceCommas){
@@ -111,10 +111,10 @@ public class RdfRangeFacet implements RdfFacet{
 				}else{
 					v = Double.parseDouble(a.value);
 				}
-				filteredValues.add(new CountedDouble(v,a.count));
-				_numericCount += a.count;
+				filteredValues.add(new CountedDouble(v,a.getCount()));
+				_numericCount += a.getCount();
 			}catch(Exception ne){
-				_nonNumericCount += a.count;
+				_nonNumericCount += a.getCount();
 			}
 		}
 		computeBins(allValuesCounted, filteredValues);

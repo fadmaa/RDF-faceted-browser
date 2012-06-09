@@ -96,7 +96,7 @@ public class QueryEngine {
 		return count;
 	}
 	
-	public List<AnnotatedString> getPropertiesWithCount(String sparqlEndpoint, String graph, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+	public List<AnnotatedString> getPropertiesWithCount(String[] sparqlEndpoints, String graph, String property, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		String graphPre = "";
 		String graphPost = "";
 		if (graph!=null && !graph.isEmpty()){
@@ -104,27 +104,40 @@ public class QueryEngine {
 			graphPost = "}";
 		}
 		String sparql = "SELECT DISTINCT ?v (COUNT(DISTINCT(?x)) AS ?count) WHERE{" + graphPre + "?x " + property + " ?v. ?x " + filter + getFilter("x",filter,filters) + graphPost + "} GROUP BY (?v)";
-		ResultSet results = execSparql(sparql, sparqlEndpoint);
-		List<AnnotatedString> values = new ArrayList<AnnotatedString>(); 
-		while(results.hasNext()){
-			QuerySolution sol = results.next();
-			RDFNode node = sol.get("v");
-			String v = getString(node);
-			if(v==null){
-				continue;
+		
+		List<AnnotatedString> values = new ArrayList<AnnotatedString>();
+		for(String sparqlEndpoint:sparqlEndpoints){
+			ResultSet results = execSparql(sparql, sparqlEndpoint);
+			while(results.hasNext()){
+				QuerySolution sol = results.next();
+				RDFNode node = sol.get("v");
+				String v = getString(node);
+				if(v==null){
+					continue;
+				}
+				AnnotatedString countedVal = new AnnotatedString(sol.getLiteral("count").getInt(),v,node.canAs(Literal.class)?AnnotatedString.LITERAL:AnnotatedString.RESOURCE);
+				if(values.contains(countedVal)){
+					AnnotatedString existingVal = values.get(values.indexOf(countedVal));
+					existingVal.setCount( existingVal.getCount() + sol.getLiteral("count").getInt());
+				}else{
+					values.add(countedVal);
+				}
 			}
-			values.add(new AnnotatedString(sol.getLiteral("count").getInt(),v,node.canAs(Literal.class)?AnnotatedString.LITERAL:AnnotatedString.RESOURCE));
 		}
 		//now see if there are blank values
 		
 		sparql = "SELECT (COUNT(DISTINCT(?x)) AS ?count) WHERE{" + graphPre + "?x " + filter + "OPTIONAL{ ?x " + property + " ?v.}. FILTER(!bound(?v)). " + getFilter("x",filter,filters) + graphPost + " }";
-		results = execSparql(sparql, sparqlEndpoint);
-		if(results.hasNext()){
-			QuerySolution sol = results.next();
-			int count = sol.getLiteral("count").getInt();
-			if(count>0){
-				values.add(new AnnotatedString(count, null,0));
+		int count = 0;
+		for(String sparqlEndpoint:sparqlEndpoints){
+			ResultSet results = execSparql(sparql, sparqlEndpoint);
+			if(results.hasNext()){
+				QuerySolution sol = results.next();
+				int c = sol.getLiteral("count").getInt();
+				count +=c;
 			}
+		}
+		if(count>0){
+			values.add(new AnnotatedString(count, null,0));
 		}
 		return values;
 	}
@@ -231,6 +244,8 @@ public class QueryEngine {
 		//we use QueryEngineHTTP to skip query validation as Virtuoso needs non-standardised extensions and will not pass ARQ validation
 		logger.debug("executing SPARQL query:\\n" + sparql);
 		QueryEngineHTTP qExec = new QueryEngineHTTP(sparqlEndpointUrl, sparql);
+		
+		//qExec.addParam("apikey", "KASABI API KEY");
 		ResultSet res = qExec.execSelect();
 		return res;
 	}

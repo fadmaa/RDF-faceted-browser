@@ -30,7 +30,7 @@ public class RdfSearchFacet implements RdfFacet {
 	}
 
 	@Override
-	public void computeChoices(String sparqlEndpoint, String graphUri, QueryEngine engine,
+	public void computeChoices(String[] sparqlEndpoints, String graphUri, QueryEngine engine,
 			String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
 		// nothing to do
 

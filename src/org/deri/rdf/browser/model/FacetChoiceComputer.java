@@ -11,21 +11,21 @@ public class FacetChoiceComputer implements Runnable{
 	private RdfFacet facet;
 	private QueryEngine engine;
 	private SetMultimap<RdfFacet, RdfDecoratedValue> filters;
-	private String sparqlEndpoint;
+	private String[] sparqlEndpoints;
 	private String graphUri;
 	private String mainResourcesSelector;
-	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String graphUri, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, RdfDecoratedValue> filters){
+	public FacetChoiceComputer(RdfFacet facet,String[] sparqlEndpoints, String graphUri, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, RdfDecoratedValue> filters){
 		this.facet = facet;
 		this.engine = engine;
 		this.filters = filters;
-		this.sparqlEndpoint = sparqlEndpoint;
+		this.sparqlEndpoints = sparqlEndpoints;
 		this.mainResourcesSelector = mainResourcesSelector;
 		this.graphUri = graphUri;
 	}
 	
 	@Override
 	public void run() {
-		facet.computeChoices(sparqlEndpoint, graphUri, engine, mainResourcesSelector, filters);
+		facet.computeChoices(sparqlEndpoints, graphUri, engine, mainResourcesSelector, filters);
 	}
 
 }

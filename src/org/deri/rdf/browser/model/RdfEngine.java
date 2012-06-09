@@ -77,8 +77,7 @@ public class RdfEngine implements Jsonizable{
 	public void computeFacets(QueryEngine engine){
 		List<Thread> threads = new ArrayList<Thread>(_facets.size());
 		for(RdfFacet f:_facets){
-			//FIXME only one endpoint is handled
-			FacetChoiceComputer task = new FacetChoiceComputer(f, sparqlEndpointUrls[0], graphUri, mainResourcesSelector, engine, getFilters(f));
+			FacetChoiceComputer task = new FacetChoiceComputer(f, sparqlEndpointUrls, graphUri, mainResourcesSelector, engine, getFilters(f));
 			Thread worker = new Thread(task);
 			worker.setName(f.toString());
 			worker.start();

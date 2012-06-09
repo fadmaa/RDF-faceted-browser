@@ -85,12 +85,12 @@ public class RdfListFacet implements RdfFacet{
     }
 
 	@Override
-	public void computeChoices(String sparqlEndpoint, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
-		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoint, graphUri, this.sparqlSelector, filter, filters);
+	public void computeChoices(String[] sparqlEndpoints, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
+		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoints, graphUri, this.sparqlSelector, filter, filters);
 		for(AnnotatedString cs:values){
 			if(cs.value==null){
 				//blank choices
-				_blankCount = cs.count;
+				_blankCount = cs.getCount();
 				continue;
 			}
 			String val;
@@ -100,7 +100,7 @@ public class RdfListFacet implements RdfFacet{
 				val = "\"" + cs.value + "\"";
 			}
 			NominalFacetChoice choice = new NominalFacetChoice(new DecoratedValue(val, cs.value));
-			choice.count = cs.count;
+			choice.count = cs.getCount();
 			if(_selection.contains(val)){
 				choice.selected = true;
 			}
