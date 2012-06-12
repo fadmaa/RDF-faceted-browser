@@ -57,5 +57,14 @@ public class RdfResource {
 		
 		writer.endObject();
 	}
+
+	public void addProperty(String p, String v) {
+		this.properties.put(p, v);
+	}
+
+	@Override
+	public String toString() {
+		return uri;
+	}
 	
 }

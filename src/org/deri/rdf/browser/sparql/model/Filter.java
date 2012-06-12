@@ -9,6 +9,7 @@ public class Filter {
 
 	private String property;
 	private SetMultimap<String, RdfDecoratedValue> endpointValuesMap;
+	private boolean missingValueIncluded;
 	
 	public Filter(String p) {
 		this.property = p;
@@ -29,6 +30,13 @@ public class Filter {
 
 	public void addValue(String endpoint, String value) {
 		addValue(endpoint, value, true);
+	}
+	
+	public void addMissingValue(){
+		missingValueIncluded = true;
+	}
+	public boolean missingValueIncluded(){
+		return missingValueIncluded;
 	}
 
 }

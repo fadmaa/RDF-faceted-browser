@@ -24,29 +24,29 @@ public class FederatedPropertiesWithCountTest {
 				"http://localhost:3031/test2/query"
 		};
 		mainFilter = "a <http://xmlns.com/foaf/0.1/Person> .";
-	};
+	}
 	
 	@Test
 	public void noFilters(){
 		Set<Filter> filters = new HashSet<Filter>();
 		String property = "http://xmlns.com/foaf/0.1/member";
-		String sparql = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
-		String expectedSparql =
-			"SELECT ?v (COUNT(?v) AS ?v_count) " +
+		String[] sparqls = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
+		String[] expectedSparqls = new String[] {
+			"SELECT ?v (COUNT(?s) AS ?count) " +
 			"WHERE{" +
-				"{" +
-					"SERVICE <http://localhost:3030/test/query> {" + 
-						"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
-    				"}" +
-				"}" + 
-				"UNION" + 
-				"{" +
-					"SERVICE <http://localhost:3031/test2/query> {" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
-					"}" +
+				"SERVICE <http://localhost:3030/test/query> {" + 
+					"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
+   				"}" +
+			"} GROUP BY ?v" ,
+			
+			"SELECT ?v (COUNT(?s) AS ?count) " +
+			"WHERE{" +
+				"SERVICE <http://localhost:3031/test2/query> {" +
+					"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
 				"}" +
-			"} GROUP BY ?v";
-		assertEquals(sparql, expectedSparql);
+			"} GROUP BY ?v"
+		};
+		assertEquals(sparqls, expectedSparqls);
 	}
 	
 	@Test
@@ -56,27 +56,27 @@ public class FederatedPropertiesWithCountTest {
 		hobbyF.addValue("http://localhost:3031/test2/query","football");
 		filters.add(hobbyF);
 		String property = "http://xmlns.com/foaf/0.1/member";
-		String sparql = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
-		String expectedSparql =
-			"SELECT ?v (COUNT(?v) AS ?v_count) " +
+		String[] sparqls = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
+		String[] expectedSparqls = new String[] {
+			"SELECT ?v (COUNT(?s) AS ?count) " +
 			"WHERE{" +
-				"{" +
-					"SERVICE <http://localhost:3030/test/query> {" + 
-						"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
-						"{SERVICE <http://localhost:3031/test2/query> {" +
-					        "{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). }" + 
-					      "}}" +
-    				"}" +
-				"}" + 
-				"UNION" + 
-				"{" +
-					"SERVICE <http://localhost:3031/test2/query> {" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
-						"{{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). }}" +
-					"}" +
+				"SERVICE <http://localhost:3030/test/query> {" + 
+					"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
+					"{SERVICE <http://localhost:3031/test2/query> {" +
+				        "?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). " + 
+				      "}}" +
+   				"}" +
+   			"} GROUP BY ?v",
+				
+   			"SELECT ?v (COUNT(?s) AS ?count) " +
+			"WHERE{" +
+				"SERVICE <http://localhost:3031/test2/query> {" +
+					"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " +
+					"{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). }" +
 				"}" +
-			"} GROUP BY ?v";
-		assertEquals(sparql, expectedSparql);
+			"} GROUP BY ?v"
+		};
+		assertEquals(sparqls, expectedSparqls);
 	}
 	
 	@Test
@@ -87,41 +87,41 @@ public class FederatedPropertiesWithCountTest {
 		memberF.addValue("http://localhost:3030/test/query","http://example.org/organisation/deri",false);
 		filters.add(memberF);
 		String property = "http://example.org/property/hobby";
-		String sparql = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
-		String expectedSparql =
-			"SELECT ?v (COUNT(?v) AS ?v_count) " +
+		String[] sparqls = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
+		String[] expectedSparqls = new String[] {
+			"SELECT ?v (COUNT(?s) AS ?count) " +
 			"WHERE{" +
-				"{" +
-					"SERVICE <http://localhost:3030/test/query> {" + 
-						"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://example.org/property/hobby> ?v . " +
-	        			"{" +
-	        				"{?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>.}" +
-	        			"}" +
-	        			"UNION" +
-	        			"{" +
-	        				"SERVICE <http://localhost:3031/test2/query> {" +
-	        					"{?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>.}" +
-	        				"}" +
-						"}" +
-    				"}" +
-				"}" + 
-				"UNION" + 
-				"{" +
-					"SERVICE <http://localhost:3031/test2/query> {" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://example.org/property/hobby> ?v . " +
-        				"{" +
-        					"{?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>.}" +
+				"SERVICE <http://localhost:3030/test/query> {" + 
+					"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://example.org/property/hobby> ?v . " +
+        			"{" +
+	       				"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
+	       			"}" +
+	       			"UNION" +
+	       			"{" +
+        				"SERVICE <http://localhost:3031/test2/query> {" +
+        					"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
         				"}" +
-        				"UNION" +
-        				"{" +
-        					"SERVICE <http://localhost:3030/test/query> {" +
-        						"{?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>.}" +
-        					"}" +
-						"}" +
+					"}" +
+   				"}" +
+			"} GROUP BY ?v",
+				
+			"SELECT ?v (COUNT(?s) AS ?count) " +
+			"WHERE{" +
+				"SERVICE <http://localhost:3031/test2/query> {" +
+					"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://example.org/property/hobby> ?v . " +
+        			"{" +
+        				"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
+        			"}" +
+        			"UNION" +
+        			"{" +
+        				"SERVICE <http://localhost:3030/test/query> {" +
+        					"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
+        				"}" +
 					"}" +
 				"}" +
-			"} GROUP BY ?v";
-		assertEquals(sparql, expectedSparql);
+			"} GROUP BY ?v"
+		};
+		assertEquals(sparqls, expectedSparqls);
 	}
 	
 	@Test
@@ -132,40 +132,40 @@ public class FederatedPropertiesWithCountTest {
 		hobbyF.addValue("http://localhost:3030/test/query","rugby");
 		filters.add(hobbyF);
 		String property = "http://xmlns.com/foaf/0.1/member";
-		String sparql = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
-		String expectedSparql =
-			"SELECT ?v (COUNT(?v) AS ?v_count) " +
+		String[] sparqls = engine.propertiesWithCountSparql(endpoints, mainFilter, filters, property);
+		String[] expectedSparqls = new String[] {
+			"SELECT ?v (COUNT(?s) AS ?count) " +
 			"WHERE{" +
-				"{" +
-			    	"SERVICE <http://localhost:3030/test/query> {" + 	
-			    		"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " + 
-		    			"{" +
-			    				"{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"rugby\"). }" +  
-		    			"}" +
-		    			"UNION" + 
-		    			"{" +
-			    			"SERVICE <http://localhost:3031/test2/query> {" + 
-			    				"{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). }" + 
-		    				"}" + 
-		    			"}" + 
-			    	"}" + 
-			    "}" + 
-				"UNION" + 
-				"{" +
-					"SERVICE <http://localhost:3031/test2/query> {" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . "+
-						"{" + 
-							"{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). }" +  
-						"}" + 
-						"UNION" + 
-						"{" +
-							"SERVICE <http://localhost:3030/test/query> {" + 
-								"{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"rugby\"). }" + 
-							"}" + 
+		    	"SERVICE <http://localhost:3030/test/query> {" + 	
+		    		"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . " + 
+	    			"{" +
+		    				"?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"rugby\"). " +  
+	    			"}" +
+	    			"UNION" + 
+	    			"{" +
+		    			"SERVICE <http://localhost:3031/test2/query> {" + 
+		    				"?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). " + 
+	    				"}" + 
+	    			"}" + 
+			    "}" +
+			"} GROUP BY ?v" , 
+			
+			"SELECT ?v (COUNT(?s) AS ?count) " +
+			"WHERE{" +
+				"SERVICE <http://localhost:3031/test2/query> {" +
+					"?s a <http://xmlns.com/foaf/0.1/Person> . ?s <http://xmlns.com/foaf/0.1/member> ?v . "+
+					"{" + 
+						"?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). " +  
+					"}" + 
+					"UNION" + 
+					"{" +
+						"SERVICE <http://localhost:3030/test/query> {" + 
+							"?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"rugby\"). " + 
 						"}" + 
 					"}" + 
-				"}" +
-			"} GROUP BY ?v";
-		assertEquals(sparql, expectedSparql);
+				"}" + 
+			"} GROUP BY ?v"
+		};
+		assertEquals(sparqls, expectedSparqls);
 	}
 }

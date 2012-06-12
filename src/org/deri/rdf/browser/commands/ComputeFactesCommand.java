@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.deri.rdf.browser.model.RdfEngine;
+import org.deri.rdf.browser.RdfEngine;
 import org.deri.rdf.browser.sparql.QueryEngine;
 
 public class ComputeFactesCommand extends RdfCommand{
