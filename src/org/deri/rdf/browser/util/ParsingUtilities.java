@@ -1,12 +1,23 @@
 package org.deri.rdf.browser.util;
 
+import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class ParsingUtilities {
 
@@ -51,5 +62,22 @@ public class ParsingUtilities {
 	    static public String putCommasBack(Double d){
 	    	return String.valueOf(d).replace(".", ",");
 	    }
+	    
+	    static public Set<String> getProperties(String template) throws XPathExpressionException{
+			Set<String> properties = new HashSet<String>();
+			if(template.isEmpty()){
+				return properties;
+			}
+	        XPath xpath = XPathFactory.newInstance().newXPath();
+	        String expression = "//*/@sparql_content";
+	        InputSource inputSource = new InputSource(new StringReader(template));
+	        NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
+	        for(int i=0;i<nodes.getLength();i++){
+	        	Node n = nodes.item(i);
+	        	properties.add(n.getNodeValue());
+	        }
+	        return properties;
+		}
+	    
 	    private static Pattern p = Pattern.compile("^0,\\d+");
 }

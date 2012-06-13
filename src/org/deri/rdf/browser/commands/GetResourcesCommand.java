@@ -8,9 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.deri.rdf.browser.RdfEngine;
+import org.deri.rdf.browser.BrowsingEngine;
 import org.deri.rdf.browser.model.RdfResource;
-import org.deri.rdf.browser.sparql.QueryEngine;
 import org.json.JSONWriter;
 
 public class GetResourcesCommand extends RdfCommand{
@@ -20,11 +19,9 @@ public class GetResourcesCommand extends RdfCommand{
 		try{
 		int offset = getIntegerParameter(request, "offset", 0);
 		int limit = getIntegerParameter(request, "limit", 10);
-		RdfEngine engine;
+		BrowsingEngine engine = getRdfEngine(request);
 		
-			engine = getRdfEngine(request);
-		QueryEngine queryEngine = new QueryEngine();
-		Collection<RdfResource> resources = engine.getResources(queryEngine,offset,limit);
+		Collection<RdfResource> resources = engine.getResources(offset,limit);
 			
 		response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");

@@ -2,16 +2,15 @@ package org.deri.rdf.browser.facet;
 
 import java.util.List;
 
-import org.deri.rdf.browser.sparql.QueryEngine;
+import org.deri.rdf.browser.model.AnnotatedResultItem;
+import org.deri.rdf.browser.sparql.model.Filter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 
-import com.google.common.collect.SetMultimap;
-
 public interface RdfFacet {
 
-    public void computeChoices(String[] sparqlEndpoints, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters);
+    public void setChoices(List<AnnotatedResultItem> items);
     
     public void initializeFromJSON(JSONObject o) throws JSONException;
     
@@ -19,12 +18,7 @@ public interface RdfFacet {
 
 	public boolean hasSelection();
 
-	public List<RdfDecoratedValue> getSelection();
-
-	public String getResourceSparqlSelector(String varname, RdfDecoratedValue val);
-	public String getLiteralSparqlSelector(String mainSelector,String varname, String auxVarName, RdfDecoratedValue val);
-	
-	public boolean isBlankSelected();
-	
 	public String getName();
+	
+	public Filter getFilter();
 }

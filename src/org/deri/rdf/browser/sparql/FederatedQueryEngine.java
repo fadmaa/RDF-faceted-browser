@@ -2,7 +2,7 @@ package org.deri.rdf.browser.sparql;
 
 import java.util.Set;
 
-import org.deri.rdf.browser.facet.RdfDecoratedValue;
+import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.sparql.model.Filter;
 
 import com.google.common.collect.SetMultimap;
@@ -23,7 +23,7 @@ public class FederatedQueryEngine {
 			builder.append(property);
 			builder.append("> ?v . ");
 			//append filter vlaues
-			appendFilters(builder,filters,endpoints,i);
+			appendFilters(builder,filters,endpoints,i,1);
 			builder.append("}");
 			builder.append(PROPERTIES_WITH_COUNT_SPARQL_SUFFIX);
 			sparqls[i] = builder.toString();
@@ -51,7 +51,8 @@ public class FederatedQueryEngine {
 		return sparqls;
 	}
 
-	public String resourcesSparql(String[] endpoints, String mainFilter, Set<Filter> filters, int limit) {
+	public String resourcesSparql(String[] endpoints, String mainFilter, Set<Filter> filters, int offset, int limit) {
+		int counter = 1;
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT DISTINCT ?s WHERE{");
 		for(int i=0; i<endpoints.length;i++){
@@ -61,14 +62,16 @@ public class FederatedQueryEngine {
 			builder.append("> {?s ");
 			builder.append(mainFilter);
 			//append filter vlaues
-			appendFilters(builder,filters,endpoints,i);
+			counter = appendFilters(builder,filters,endpoints,i,counter);
 			builder.append("}}");
 			if(i<endpoints.length -1){
 				builder.append("UNION");
 			}
 		}
-		builder.append("} LIMIT ");
+		builder.append("} ORDER BY ?s LIMIT ");
 		builder.append(limit);
+		builder.append(" OFFSET ");
+		builder.append(offset);
 		return builder.toString();
 	}
 	
@@ -82,6 +85,7 @@ public class FederatedQueryEngine {
 	}
 	
 	public String resourcesCountSparql(String[] endpoints, String mainFilter, Set<Filter> filters) {
+		int counter = 1;//used to generate different variable names
 		StringBuilder builder = new StringBuilder();
 		builder.append("SELECT (COUNT(DISTINCT ?s) AS ?count) WHERE{");
 		for(int i=0; i<endpoints.length;i++){
@@ -91,7 +95,7 @@ public class FederatedQueryEngine {
 			builder.append("> {?s ");
 			builder.append(mainFilter);
 			//append filter vlaues
-			appendFilters(builder,filters,endpoints,i);
+			counter = appendFilters(builder,filters,endpoints,i,counter);
 			builder.append("}}");
 			if(i<endpoints.length -1){
 				builder.append("UNION");
@@ -117,14 +121,14 @@ public class FederatedQueryEngine {
 			builder.append("}");
 			builder.append("FILTER (!bound(?v)).");
 			//append filter vlaues
-			appendFilters(builder,filters,endpoints,i);
+			appendFilters(builder,filters,endpoints,i,1);
 			builder.append("}}");
 			sparqls[i] = builder.toString();
 		}
 		return sparqls;
 	}
 	
-	private void appendFilters(StringBuilder builder, Set<Filter> filters, String[] endpoints, int current){
+	private int appendFilters(StringBuilder builder, Set<Filter> filters, String[] endpoints, int current, int counter){
 		String endpoint = endpoints[current];
 		for(Filter filter: filters){
 			boolean filtered = false;
@@ -134,9 +138,10 @@ public class FederatedQueryEngine {
 				//do the current endpoint first
 				if(endpointsMap.containsKey(endpoint)){
 					builder.append("{");
-					builder.append(union(filter.getProperty(), endpointsMap.get(endpoint)));
+					builder.append(union(filter.getProperty(), endpointsMap.get(endpoint),counter));
 					builder.append("}");
 					builder.append("UNION");
+					counter += 1;
 				}
 				for(String wep:endpointsMap.keySet()){
 					if(wep.equals(endpoint)){
@@ -146,10 +151,11 @@ public class FederatedQueryEngine {
 					builder.append("SERVICE <");
 					builder.append(wep);
 					builder.append("> {");
-					builder.append(union(filter.getProperty(), endpointsMap.get(wep)));
+					builder.append(union(filter.getProperty(), endpointsMap.get(wep),counter));
 					builder.append("}");
 					builder.append("}");
 					builder.append("UNION");
+					counter  +=1;
 				}
 				//get rid of the last union
 				int lngth = builder.length();
@@ -157,29 +163,31 @@ public class FederatedQueryEngine {
 			}
 			
 			if(filter.missingValueIncluded()){
-				String propertyFilter = "?s <" + filter.getProperty() + "> ?v. ";
+				String propertyFilter = "?s <" + filter.getProperty() + "> ?v" + String.valueOf(current) + ". ";
 				if(filtered){
 					builder.append("UNION{");
 				}
 				builder.append("OPTIONAL {");
 				builder.append(union(endpoints, current, propertyFilter));
-				builder.append("}FILTER (!bound(?v)). ");
+				builder.append("}FILTER (!bound(?v").append(current).append(")). ");
 				if(filtered){
 					builder.append("}");
 				}
 			}
 		}
+		
+		return counter;
 	}
 	
-	private String union(String property, Set<RdfDecoratedValue> set) {
+	private String union(String property, Set<RdfDecoratedValue> set,int i) {
 		if(set.isEmpty()){
 			return "";
 		}
 		StringBuilder builder = new StringBuilder();
 		for(RdfDecoratedValue dv:set){
 			builder.append("{?s <").append(property).append("> ");
-			if(dv.isLiteral()){
-				builder.append("?rv. FILTER(str(?rv)=\"").append(dv.getValue()).append("\"). ") ;
+			if(dv.getType()==RdfDecoratedValue.LITERAL){
+				builder.append("?rv").append(i).append(". FILTER(str(?rv").append(i).append(")=\"").append(dv.getValue()).append("\"). ") ;
 			}else{
 				builder.append("<").append(dv.getValue()).append(">.") ;
 			}
@@ -219,6 +227,9 @@ public class FederatedQueryEngine {
 	}
 
 	private String orFilter(String varname, Set<String> vals) {
+		if(vals.isEmpty()){
+			return "";
+		}
 		StringBuilder builder = new StringBuilder();
 		builder.append("FILTER(");
 		for(String val:vals){

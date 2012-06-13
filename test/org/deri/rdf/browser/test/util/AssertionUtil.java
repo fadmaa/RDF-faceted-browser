@@ -18,10 +18,10 @@ public class AssertionUtil {
 		for(AnnotatedResultItem item:items){
 			int index = workingCopy.indexOf(item);
 			if(index==-1){
-				faultyExtras.add(item.value);
+				faultyExtras.add(item.getValue().getValue().toString());
 			}else{
 				AnnotatedResultItem expectedItem = workingCopy.remove(index);
-				if(expectedItem.value.equals(item.value) && expectedItem.type == item.type
+				if(expectedItem.equals(item)
 						&& expectedItem.getCount() == item.getCount() 
 						&& expectedItem.getEndpoints().length == item.getEndpoints().length){
 					for(int i=0;i<expectedItem.getEndpoints().length;i++){

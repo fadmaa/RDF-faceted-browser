@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.sparql.FederatedQueryEngine;
 import org.deri.rdf.browser.sparql.model.Filter;
 import org.testng.annotations.BeforeClass;
@@ -74,7 +75,7 @@ public class ResourcesMissingPropertySparqlTest {
 	public void oneFilterOneEndpoint(){
 		Set<Filter> filters = new TreeSet<Filter>();
 		Filter hobbyF = new ComparableFilter("http://example.org/property/hobby");
-		hobbyF.addValue("http://localhost:3031/test2/query","football");
+		hobbyF.addValue("http://localhost:3031/test2/query","football",RdfDecoratedValue.LITERAL);
 		filters.add(hobbyF);
 		String property = "http://xmlns.com/foaf/0.1/member";
 		String[] sparqls = engine.propertiesMissingValueSparql(endpoints, mainFilter, filters, property);
@@ -95,7 +96,7 @@ public class ResourcesMissingPropertySparqlTest {
 		        	"FILTER (!bound(?v))." +
 		        	"{" +
 						"SERVICE <http://localhost:3031/test2/query> {" +
-							"?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). " + 
+							"?s <http://example.org/property/hobby> ?rv1. FILTER(str(?rv1)=\"football\"). " + 
 						"}" +
 					"}" +
    				"}" +
@@ -117,7 +118,7 @@ public class ResourcesMissingPropertySparqlTest {
 						"}" + 
 					"}" + 
 					"FILTER (!bound(?v))." +
-					"{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). }" +
+					"{?s <http://example.org/property/hobby> ?rv1. FILTER(str(?rv1)=\"football\"). }" +
 				"}" +
 			"}"
 		};
@@ -128,8 +129,8 @@ public class ResourcesMissingPropertySparqlTest {
 	public void oneFilterTwoEndpoint(){
 		Set<Filter> filters = new HashSet<Filter>();
 		Filter memberF = new ComparableFilter("http://xmlns.com/foaf/0.1/member");
-		memberF.addValue("http://localhost:3031/test2/query","http://example.org/organisation/deri",false);
-		memberF.addValue("http://localhost:3030/test/query","http://example.org/organisation/deri",false);
+		memberF.addValue("http://localhost:3031/test2/query","http://example.org/organisation/deri",RdfDecoratedValue.RESOURCE);
+		memberF.addValue("http://localhost:3030/test/query","http://example.org/organisation/deri",RdfDecoratedValue.RESOURCE);
 		filters.add(memberF);
 		String property = "http://example.org/property/hobby";
 		String[] sparqls = engine.propertiesMissingValueSparql(endpoints, mainFilter, filters, property);

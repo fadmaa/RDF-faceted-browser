@@ -1,6 +1,7 @@
 package org.deri.rdf.browser.sparql.model;
 
-import org.deri.rdf.browser.facet.RdfDecoratedValue;
+import org.deri.rdf.browser.model.AnnotatedResultItem;
+import org.deri.rdf.browser.model.RdfDecoratedValue;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -16,10 +17,6 @@ public class Filter {
 		this.endpointValuesMap = HashMultimap.create();
 	}
 
-	public void addValue(String endpoint, String value, boolean literal) {
-		endpointValuesMap.put(endpoint, new RdfDecoratedValue(value, literal));
-	}
-
 	public String getProperty() {
 		return property;
 	}
@@ -28,8 +25,8 @@ public class Filter {
 		return endpointValuesMap;
 	}
 
-	public void addValue(String endpoint, String value) {
-		addValue(endpoint, value, true);
+	public void addValue(String endpoint, String value, int type) {
+		endpointValuesMap.put(endpoint, new RdfDecoratedValue(value, type));
 	}
 	
 	public void addMissingValue(){
@@ -39,4 +36,29 @@ public class Filter {
 		return missingValueIncluded;
 	}
 
+	public boolean selected() {
+		return missingValueIncluded || ! endpointValuesMap.isEmpty();
+	}
+
+	public boolean contains(AnnotatedResultItem item) {
+		return endpointValuesMap.containsValue(item.getValue());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj==null){
+			return false;
+		}
+		if(this.getClass().equals(obj.getClass())){
+			Filter other = (Filter) obj;
+			return this.property.equals(other.property);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.property.hashCode();
+	}
+	
 }

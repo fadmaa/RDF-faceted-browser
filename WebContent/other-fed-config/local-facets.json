@@ -1,0 +1,26 @@
+[
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"member",
+  		"property": "http://xmlns.com/foaf/0.1/member",
+  		"expression": "value"
+  	}
+  } ,
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"hobby",
+  		"property": "http://example.org/property/hobby",
+  		"expression": "value"
+  	}
+  }  ,
+  {
+  	"type":"list",
+  	"config":{
+  		"name":"nick",
+  		"property": "http://xmlns.com/foaf/0.1/nick",
+  		"expression": "value"
+  	}
+  }  
+]

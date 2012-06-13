@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.sparql.FederatedQueryEngine;
 import org.deri.rdf.browser.sparql.model.Filter;
 import org.testng.annotations.BeforeClass;
@@ -17,6 +18,7 @@ public class GetResourcesWithMissingValTest {
 	String[] endpoints;
 	String mainFilter;
 	int limit = 10;
+	int offset = 0;
 	
 	@BeforeClass
 	public void init(){
@@ -34,7 +36,7 @@ public class GetResourcesWithMissingValTest {
 		Filter nickF = new Filter("http://xmlns.com/foaf/0.1/nick");
 		nickF.addMissingValue();
 		filters.add(nickF);
-		String sparql = engine.resourcesSparql(endpoints, mainFilter, filters, limit);
+		String sparql = engine.resourcesSparql(endpoints, mainFilter, filters, offset, limit);
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" +
@@ -42,15 +44,15 @@ public class GetResourcesWithMissingValTest {
 					"SERVICE <http://localhost:3030/test/query> {" + 
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
 						"OPTIONAL {" +
-							"{?s <http://xmlns.com/foaf/0.1/nick> ?v. }" +
+							"{?s <http://xmlns.com/foaf/0.1/nick> ?v0. }" +
 							"UNION" +
 							"{" +
 								"SERVICE <http://localhost:3031/test2/query>{" +
-									"?s <http://xmlns.com/foaf/0.1/nick> ?v. " +
+									"?s <http://xmlns.com/foaf/0.1/nick> ?v0. " +
 								"}" +
 							"}" + 
 						"}" +
-						"FILTER (!bound(?v)). " + 
+						"FILTER (!bound(?v0)). " + 
 					"}" +
 				"}" + 
 				"UNION" + 
@@ -60,16 +62,16 @@ public class GetResourcesWithMissingValTest {
 						"OPTIONAL {" +
 							"{" +
 								"SERVICE <http://localhost:3030/test/query>{" +
-									"?s <http://xmlns.com/foaf/0.1/nick> ?v. " +
+									"?s <http://xmlns.com/foaf/0.1/nick> ?v1. " +
 								"}" +
 							"}" +
 							"UNION" +
-							"{?s <http://xmlns.com/foaf/0.1/nick> ?v. }" +
+							"{?s <http://xmlns.com/foaf/0.1/nick> ?v1. }" +
 						"}" +
-						"FILTER (!bound(?v)). " +
+						"FILTER (!bound(?v1)). " +
 					"}" +
 				"}" + 
-		"} LIMIT 10";
+		"} ORDER BY ?s LIMIT 10 OFFSET 0";
 
 		assertEquals(sparql, expectedSparql);
 	}
@@ -81,9 +83,9 @@ public class GetResourcesWithMissingValTest {
 		nickF.addMissingValue();
 		filters.add(nickF);
 		Filter hobbyF = new ComparableFilter("http://example.org/property/hobby");
-		hobbyF.addValue("http://localhost:3031/test2/query","football");
+		hobbyF.addValue("http://localhost:3031/test2/query","football",RdfDecoratedValue.LITERAL);
 		filters.add(hobbyF);
-		String sparql = engine.resourcesSparql(endpoints, mainFilter, filters, limit);
+		String sparql = engine.resourcesSparql(endpoints, mainFilter, filters, offset, limit);
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" +
@@ -92,39 +94,39 @@ public class GetResourcesWithMissingValTest {
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
 						"{" +
 							"SERVICE <http://localhost:3031/test2/query> {" +
-								"?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). " + 
+								"?s <http://example.org/property/hobby> ?rv1. FILTER(str(?rv1)=\"football\"). " + 
 							"}" +
 						"}" +
 						"OPTIONAL {" +
-							"{?s <http://xmlns.com/foaf/0.1/nick> ?v. }" +
+							"{?s <http://xmlns.com/foaf/0.1/nick> ?v0. }" +
 							"UNION" +
 							"{" +
 								"SERVICE <http://localhost:3031/test2/query>{" +
-									"?s <http://xmlns.com/foaf/0.1/nick> ?v. " +
+									"?s <http://xmlns.com/foaf/0.1/nick> ?v0. " +
 								"}" +
 							"}" + 
 						"}" +
-						"FILTER (!bound(?v)). " + 
+						"FILTER (!bound(?v0)). " + 
 					"}" +
 				"}" + 
 				"UNION" + 
 				"{" +
 					"SERVICE <http://localhost:3031/test2/query> {" +
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"{?s <http://example.org/property/hobby> ?rv. FILTER(str(?rv)=\"football\"). }" +
+						"{?s <http://example.org/property/hobby> ?rv2. FILTER(str(?rv2)=\"football\"). }" +
 						"OPTIONAL {" +
 							"{" +
 								"SERVICE <http://localhost:3030/test/query>{" +
-									"?s <http://xmlns.com/foaf/0.1/nick> ?v. " +
+									"?s <http://xmlns.com/foaf/0.1/nick> ?v1. " +
 								"}" +
 							"}" +
 							"UNION" +
-							"{?s <http://xmlns.com/foaf/0.1/nick> ?v. }" +
+							"{?s <http://xmlns.com/foaf/0.1/nick> ?v1. }" +
 						"}" +
-						"FILTER (!bound(?v)). " +
+						"FILTER (!bound(?v1)). " +
 					"}" +
 				"}" + 
-		"} LIMIT 10";
+		"} ORDER BY ?s LIMIT 10 OFFSET 0";
 
 		assertEquals(sparql, expectedSparql);
 	}
@@ -134,9 +136,9 @@ public class GetResourcesWithMissingValTest {
 		Set<Filter> filters = new TreeSet<Filter>();
 		Filter nickF = new ComparableFilter("http://xmlns.com/foaf/0.1/nick");
 		nickF.addMissingValue();
-		nickF.addValue("http://localhost:3031/test2/query", "sheer");
+		nickF.addValue("http://localhost:3031/test2/query", "sheer",RdfDecoratedValue.LITERAL);
 		filters.add(nickF);
-		String sparql = engine.resourcesSparql(endpoints, mainFilter, filters, limit);
+		String sparql = engine.resourcesSparql(endpoints, mainFilter, filters, offset, limit);
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" +
@@ -145,21 +147,21 @@ public class GetResourcesWithMissingValTest {
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
 						"{" +
 							"SERVICE <http://localhost:3031/test2/query> {" +
-								"?s <http://xmlns.com/foaf/0.1/nick> ?rv. FILTER(str(?rv)=\"sheer\"). " + 
+								"?s <http://xmlns.com/foaf/0.1/nick> ?rv1. FILTER(str(?rv1)=\"sheer\"). " + 
 							"}" +
 						"}" +
 						"UNION" +
 						"{" +
 							"OPTIONAL {" +
-								"{?s <http://xmlns.com/foaf/0.1/nick> ?v. }" +
+								"{?s <http://xmlns.com/foaf/0.1/nick> ?v0. }" +
 								"UNION" +
 								"{" +
 									"SERVICE <http://localhost:3031/test2/query>{" +
-										"?s <http://xmlns.com/foaf/0.1/nick> ?v. " +
+										"?s <http://xmlns.com/foaf/0.1/nick> ?v0. " +
 									"}" +
 								"}" + 
 							"}" +
-							"FILTER (!bound(?v)). " +
+							"FILTER (!bound(?v0)). " +
 						"}" + 
 					"}" +
 				"}" + 
@@ -167,23 +169,23 @@ public class GetResourcesWithMissingValTest {
 				"{" +
 					"SERVICE <http://localhost:3031/test2/query> {" +
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"{?s <http://xmlns.com/foaf/0.1/nick> ?rv. FILTER(str(?rv)=\"sheer\"). }" +
+						"{?s <http://xmlns.com/foaf/0.1/nick> ?rv2. FILTER(str(?rv2)=\"sheer\"). }" +
 						"UNION" +
 						"{" +
 							"OPTIONAL {" +
 								"{" +
 									"SERVICE <http://localhost:3030/test/query>{" +
-										"?s <http://xmlns.com/foaf/0.1/nick> ?v. " +
+										"?s <http://xmlns.com/foaf/0.1/nick> ?v1. " +
 									"}" +
 								"}" +
 								"UNION" +
-								"{?s <http://xmlns.com/foaf/0.1/nick> ?v. }" +
+								"{?s <http://xmlns.com/foaf/0.1/nick> ?v1. }" +
 							"}" +
-							"FILTER (!bound(?v)). " +
+							"FILTER (!bound(?v1)). " +
 						"}" +
 					"}" +
 				"}" + 
-		"} LIMIT 10";
+		"} ORDER BY ?s LIMIT 10 OFFSET 0";
 
 		assertEquals(sparql, expectedSparql);
 	}

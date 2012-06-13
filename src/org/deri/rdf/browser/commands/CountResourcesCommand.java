@@ -7,19 +7,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.deri.rdf.browser.RdfEngine;
-import org.deri.rdf.browser.sparql.QueryEngine;
+import org.deri.rdf.browser.BrowsingEngine;
 import org.json.JSONWriter;
 
 public class CountResourcesCommand extends RdfCommand{
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response)	throws ServletException, IOException {
-		RdfEngine engine;
 		try{
-			engine = getRdfEngine(request);
-		
-			QueryEngine queryEngine = new QueryEngine();
-			long filtered = engine.getFilteredResourcesCount(queryEngine); 
+			BrowsingEngine engine = getRdfEngine(request);
+			long filtered = engine.getResourcesCount(); 
 			
 			response.setCharacterEncoding("UTF-8");
         	response.setHeader("Content-Type", "application/json");

@@ -1,19 +1,17 @@
 package org.deri.rdf.browser.facet;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
-import org.deri.rdf.browser.model.AnnotatedString;
-import org.deri.rdf.browser.sparql.QueryEngine;
+import org.deri.rdf.browser.model.AnnotatedResultItem;
+import org.deri.rdf.browser.model.RdfDecoratedValue;
+import org.deri.rdf.browser.sparql.model.Filter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 
-import com.google.common.collect.SetMultimap;
-import com.google.refine.browsing.DecoratedValue;
-import com.google.refine.browsing.facets.NominalFacetChoice;
 import com.google.refine.util.JSONUtilities;
 
 public class RdfListFacet implements RdfFacet{
@@ -23,15 +21,14 @@ public class RdfListFacet implements RdfFacet{
      */
     protected String     _name;
     protected String     _expression;
-    protected String     sparqlSelector;
     protected boolean    _invert;
     
     // If true, then facet won't show the blank and error choices
     protected boolean _omitBlank;
     protected boolean _omitError;
     
-    protected List<String> _selection = new LinkedList<String>();
-    protected boolean _selectBlank;
+    protected Filter filter;
+    
     protected boolean _selectError;
     
     /*
@@ -42,7 +39,7 @@ public class RdfListFacet implements RdfFacet{
     /*
      * Computed results
      */
-    protected List<NominalFacetChoice> _choices = new LinkedList<NominalFacetChoice>();
+    protected List<AnnotatedResultItem> _choices = new LinkedList<AnnotatedResultItem>();
     protected int _blankCount;
     protected int _errorCount;
     
@@ -51,15 +48,20 @@ public class RdfListFacet implements RdfFacet{
 	public String getName() {
     	return _name;
 	}
+    
+    @Override
+	public Filter getFilter() {
+    	return filter;
+	}
 
 	@Override
     public void initializeFromJSON(JSONObject o) throws JSONException {
         _name = o.getString("name");
         _expression = o.getString("expression");
-        sparqlSelector = o.getString("property");
+        String property = o.getString("property");
         _invert = o.has("invert") && o.getBoolean("invert");
         
-        _selection.clear();
+        filter = new Filter(property);
         
         JSONArray a = o.getJSONArray("selection");
         int length = a.length();
@@ -68,79 +70,41 @@ public class RdfListFacet implements RdfFacet{
             JSONObject oc = a.getJSONObject(i);
             JSONObject ocv = oc.getJSONObject("v");
             
-            DecoratedValue decoratedValue = new DecoratedValue(
-                ocv.get("v"), ocv.getString("l"));
-            
-            NominalFacetChoice nominalFacetChoice = new NominalFacetChoice(decoratedValue);
-            nominalFacetChoice.selected = true;
-            
-            _selection.add(ocv.get("v").toString());
+//            DecoratedValue decoratedValue = new DecoratedValue(ocv.get("v"), ocv.getString("l"));
+
+          //TODO switch to decorated value as it allows a label different than the value
+           JSONArray endpoints = ocv.getJSONArray("ep");
+           for(int k=0;k<endpoints.length();k++){
+        	   filter.addValue(endpoints.getString(k), ocv.getString("v"), ocv.getInt("t"));
+           }
         }
         
         _omitBlank = JSONUtilities.getBoolean(o, "omitBlank", false);
         _omitError = JSONUtilities.getBoolean(o, "omitError", false);
         
-        _selectBlank = JSONUtilities.getBoolean(o, "selectBlank", false);
+        boolean blankSelected = JSONUtilities.getBoolean(o, "selectBlank", false);
+        if(blankSelected){
+        	filter.addMissingValue();
+        }
         _selectError = JSONUtilities.getBoolean(o, "selectError", false);
     }
 
 	@Override
-	public void computeChoices(String[] sparqlEndpoints, String graphUri, QueryEngine engine, String filter, SetMultimap<RdfFacet, RdfDecoratedValue> filters) {
-		List<AnnotatedString> values = engine.getPropertiesWithCount(sparqlEndpoints, graphUri, this.sparqlSelector, filter, filters);
-		for(AnnotatedString cs:values){
-			if(cs.value==null){
-				//blank choices
-				_blankCount = cs.getCount();
-				continue;
-			}
-			String val;
-			if(cs.type==AnnotatedString.RESOURCE){
-				val = "<" + cs.value + ">";
-			}else{
-				val = "\"" + cs.value + "\"";
-			}
-			NominalFacetChoice choice = new NominalFacetChoice(new DecoratedValue(val, cs.value));
-			choice.count = cs.getCount();
-			if(_selection.contains(val)){
-				choice.selected = true;
-			}
-			this._choices.add(choice);
-		}
-	}
-
-	@Override
-	public String getResourceSparqlSelector(String varname, RdfDecoratedValue val) {
-		return "?" + varname + " " + sparqlSelector + " " + val.getValue();
-	}
-	
-	@Override
-	public String getLiteralSparqlSelector(String mainSelector, String varname, String auxVarName, RdfDecoratedValue val) {
-		return "?" + varname + " " +  sparqlSelector + " ?" + auxVarName + " . FILTER(str(?" + auxVarName + ")=" + val.getValue() + ") ";
+	public void setChoices(List<AnnotatedResultItem> items) {
+		this._choices = new ArrayList<AnnotatedResultItem>(items);
 	}
 
 	public boolean hasSelection(){
-		return ! this._selection.isEmpty();
+		return filter.selected();
 	}
 
-	public List<RdfDecoratedValue> getSelection(){
-		List<RdfDecoratedValue> lst = new LinkedList<RdfDecoratedValue>();
-		for(String s:this._selection){
-			if (s.startsWith("<")){
-				lst.add(new RdfDecoratedValue(s, false));
-			}else{
-				lst.add(new RdfDecoratedValue(s, true));
-			}
-		}
-		return lst;
-	}
-	
 	@Override
     public void write(JSONWriter writer) throws JSONException {
         
         writer.object();
         writer.key("name"); writer.value(_name);
         writer.key("expression"); writer.value(_expression);
-        writer.key("property"); writer.value(sparqlSelector);
+        writer.key("property"); writer.value(filter.getProperty());
         writer.key("invert"); writer.value(_invert);
         
         if (_errorMessage != null) {
@@ -149,15 +113,19 @@ public class RdfListFacet implements RdfFacet{
             writer.key("error"); writer.value("Too many choices");
         } else {
             writer.key("choices"); writer.array();
-            for (NominalFacetChoice choice : _choices) {
-                choice.write(writer, new Properties());
+            for (AnnotatedResultItem choice : _choices) {
+            	if(choice.getValue().getType()==RdfDecoratedValue.NULL){
+            		_blankCount = choice.getCount();
+            	}else{
+            		choice.write(writer, filter.contains(choice));
+            	}
             }
             writer.endArray();
             
-            if (!_omitBlank && (_selectBlank || _blankCount > 0)) {
+            if (!_omitBlank && (filter.missingValueIncluded() || _blankCount > 0)) {
                 writer.key("blankChoice");
                 writer.object();
-                writer.key("s"); writer.value(_selectBlank);
+                writer.key("s"); writer.value(filter.missingValueIncluded());
                 writer.key("c"); writer.value(_blankCount);
                 writer.endObject();
             }
@@ -172,10 +140,6 @@ public class RdfListFacet implements RdfFacet{
         
         writer.endObject();
     }
-	
-	public boolean isBlankSelected(){
-		return _selectBlank;
-	}
 	
 	protected int getLimit() {
 		//TODO make this configurable

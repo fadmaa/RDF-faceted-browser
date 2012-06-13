@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.deri.rdf.browser.model.AnnotatedResultItem;
+import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.model.RdfResource;
 
 import com.hp.hpl.jena.query.QuerySolution;
@@ -37,7 +38,7 @@ public class FederatedRdfEngine {
 					continue;
 				}
 				int count = sol.getLiteral("count").getInt();
-				int valueType = node.canAs(Literal.class)?AnnotatedResultItem.LITERAL:AnnotatedResultItem.RESOURCE;
+				int valueType = node.canAs(Literal.class)?RdfDecoratedValue.LITERAL:RdfDecoratedValue.RESOURCE;
 				AnnotatedResultItem countedVal = new AnnotatedResultItem(count,v,valueType,new String[]{});
 				if(trackEndpoints){
 					countedVal.addEndpoint(ep);
@@ -126,7 +127,7 @@ public class FederatedRdfEngine {
 				QuerySolution sol = result.next();
 				RDFNode node = sol.get("v");
 				String v = getString(node);
-				int valueType = node.canAs(Literal.class)?AnnotatedResultItem.LITERAL:AnnotatedResultItem.RESOURCE;
+				int valueType = node.canAs(Literal.class)?RdfDecoratedValue.LITERAL:RdfDecoratedValue.RESOURCE;
 				AnnotatedResultItem item = new AnnotatedResultItem(v,valueType);
 				//if items contain v the add endpoint to its endpoints
 				if(items.contains(item)){
