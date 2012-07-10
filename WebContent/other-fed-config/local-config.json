@@ -1,0 +1,10 @@
+{
+"endpoint_urls": "http://localhost:3031/test2/query http://localhost:3030/test/query",
+"main_resource_selector": "a <http://xmlns.com/foaf/0.1/Person> .",
+"template": "<div>
+<h2 sparql_content=\"http://xmlns.com/foaf/0.1/name\"></h2>
+<div>
+description...
+</div>
+</div>"
+}

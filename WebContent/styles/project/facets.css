@@ -345,3 +345,11 @@ img.facet-choice-link {
 .scatterplot-selectors .scatterplot-dot-selector label.dot-big-label {
   background-position: -48px -25px;
 }
+
+div.grid-layout > table.new-facet-table>tbody>tr> td{
+	vertical-align:top;
+}
+table.new-facet-table span.note{
+	color:#888;
+	font-size:80%;
+	}

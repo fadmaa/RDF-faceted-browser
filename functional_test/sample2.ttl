@@ -1,0 +1,25 @@
+@prefix foaf:<http://xmlns.com/foaf/0.1/> .
+<http://example.org/person/fadi> foaf:name "Fadi";
+	<http://example.org/property/hobby> "football";
+	<http://xmlns.com/foaf/0.1/nick> "sheer";
+	a foaf:Person
+	.
+
+<http://example.org/person/gofran> foaf:name "Gofran";
+	foaf:member <http://example.org/organisation/deri> ;
+	a foaf:Person
+	.
+
+<http://example.org/person/alaa> foaf:name "Alaa";
+	<http://example.org/property/hobby> "football","piano" ;
+	foaf:member <http://example.org/organisation/w3c> ;
+	a foaf:Person
+	.
+
+<http://example.org/organisation/deri> a foaf:Organization;
+	<http://www.w3.org/2000/01/rdf-schema#label> "DERI"
+	.
+
+<http://example.org/organisation/w3c> a foaf:Organization;
+	<http://www.w3.org/2000/01/rdf-schema#label> "W3C"
+	.

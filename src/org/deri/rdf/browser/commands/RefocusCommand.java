@@ -8,16 +8,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.deri.rdf.browser.BrowsingEngine;
+import org.deri.rdf.browser.model.Facet;
+import org.deri.rdf.browser.model.MainFilter;
+import org.deri.rdf.browser.util.ParsingUtilities;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 
-public class CountResourcesCommand extends RdfCommand{
-	private static final long serialVersionUID = 2526472295622776147L;
+public class RefocusCommand extends RdfCommand{
+	private static final long serialVersionUID = 6472295622776147L;
 	
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response)	throws ServletException, IOException {
 		try{
 			BrowsingEngine engine = getRdfEngine(request);
-			long filtered = engine.getResourcesCount(); 
+			String json = request.getParameter("refocus-facet");
+			JSONObject o = ParsingUtilities.evaluateJsonStringToObject(json);
+			Facet refocusFacet = new Facet();
+			refocusFacet.initializeFromJSON(o);
+			
+			MainFilter newMainFilter = engine.refocus(refocusFacet);
 			
 			response.setCharacterEncoding("UTF-8");
         	response.setHeader("Content-Type", "application/json");
@@ -28,10 +37,16 @@ public class CountResourcesCommand extends RdfCommand{
         	JSONWriter writer = new JSONWriter(w);
         	writer.object();
         	writer.key("code"); writer.value("ok");
-        	writer.key("filtered");
-        	writer.value(filtered);
+        	
+        	writer.key("main_selector");
+        	writer.object();
+        	writer.key("pattern"); writer.value(newMainFilter.getPattern());
+        	writer.key("varname"); writer.value(newMainFilter.getVarname());
         	writer.endObject();
-        } catch (Exception e) {
+        	
+        	writer.endObject();
+        	
+		}catch (Exception e) {
 			respondException(response, e);
         }
 	}

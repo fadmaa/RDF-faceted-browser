@@ -2,7 +2,7 @@ var rdf_engine = {};
 
 var RdfBrowser = {
 	facets_URL : "facets.json",
-	initialize:function(){
+	initialize:function(params){
 		var rightPanelDiv = $('#right-panel');
 		var leftPanelDiv = $('#left-panel');
 		var viewPanelDiv = $('#view-panel');
@@ -11,20 +11,37 @@ var RdfBrowser = {
 		var pageControlsDiv = $('.viewpanel-paging');
 		resize(rightPanelDiv,leftPanelDiv,viewPanelDiv);
 		var self = this;
-		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv, function(){
+		this._engine = new RdfBrowsingEngine(viewPanelDiv,leftPanelDiv,summaryDiv,pageSizeControlsDiv,pageControlsDiv, params,function(){
 			$.get(self.facets_URL,{},
 				function(facets_data){
 					self._engine.addFacets(facets_data);
 				}
 				,"json");
 		});
+		
+		$('#add_facet').click(function(){
+			self._engine.addFacetUI();
+		});
 		rdf_engine = this._engine;
 	}
 };
 
 $(function(){
-	RdfBrowser.initialize();
+	RdfBrowser.initialize(getUrlVars());
 });
+
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
 
 function resize(rightPanelDiv,leftPanelDiv,viewPanelDiv) {
 	
@@ -57,4 +74,12 @@ function resize(rightPanelDiv,leftPanelDiv,viewPanelDiv) {
 
 RdfBrowser.update = function(onlyFacets){
 	rdf_engine.update(onlyFacets);
+};
+
+RdfBrowser.refocus = function(refocusFacet){
+	rdf_engine.refocus(refocusFacet);
+};
+
+RdfBrowser.removeFacet = function(facet_index, update) {
+	rdf_engine.removeFacet(facet_index,update);
 };

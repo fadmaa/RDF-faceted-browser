@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
-  <display-name>rdf-browser</display-name>
+  <display-name>rdfrowser</display-name>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.htm</welcome-file>
@@ -22,6 +22,10 @@
   	<servlet-name>compute-facets</servlet-name>
   	<servlet-class>org.deri.rdf.browser.commands.ComputeFactesCommand</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>refocus</servlet-name>
+  	<servlet-class>org.deri.rdf.browser.commands.RefocusCommand</servlet-class>
+  </servlet>
   
   <servlet-mapping>
   	<servlet-name>get-resources</servlet-name>
@@ -34,5 +38,9 @@
   <servlet-mapping>
   	<servlet-name>compute-facets</servlet-name>
   	<url-pattern>/compute-facets</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>refocus</servlet-name>
+  	<url-pattern>/refocus</url-pattern>
   </servlet-mapping>
 </web-app>

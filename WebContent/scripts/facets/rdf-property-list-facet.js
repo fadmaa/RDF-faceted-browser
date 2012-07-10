@@ -31,12 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-function RdfPropertyListFacet(div, config, options, selection) {
+function RdfPropertyListFacet(div, config, options, selection, index) {
     this._div = div;
     this._config = config;
-    if (!("invert" in this._config)) {
-        this._config.invert = false;
-    }
+    this._index = index;
     
     this._options = options || {};
     if (!("sort" in this._options)) {
@@ -82,8 +80,9 @@ RdfPropertyListFacet.prototype.getJSON = function() {
     var o = {
         type: "rdf-property-list",
         name: this._config.name,
-        property: this._config.property,
-        expression: this._config.expression,
+        varname: this._config.varname,
+        filter: {pattern:this._config.filter.pattern},
+        index:this._index,
         omitBlank: "omitBlank" in this._config ? this._config.omitBlank : false,
         omitError: "omitError" in this._config ? this._config.omitError : false,
         selection: [],
@@ -111,9 +110,9 @@ RdfPropertyListFacet.prototype.setLoadingState = function(){
             $('<div>').text("Loading...").addClass("facet-body-message"));
 };
 
-RdfPropertyListFacet.prototype.updateState = function(data) {
+RdfPropertyListFacet.prototype.updateState = function(data,index) {
     this._data = data;
-    
+    this._index = index;
     if ("choices" in data) {
         var selection = [];
         var choices = data.choices;
@@ -155,8 +154,10 @@ RdfPropertyListFacet.prototype._initializeUI = function() {
             '<div class="grid-layout layout-tightest layout-full"><table><tr>' +
                 '<td width="1%"></td>' +
                 '<td>' +
+                	'<a href="javascript:{}" class="facet-choice-link" bind="removeButton">remove</a>' + 
                 	'<a href="javascript:{}" class="facet-choice-link" bind="changeButton">change</a>' +
                     '<a href="javascript:{}" class="facet-choice-link" bind="resetButton">reset</a>' +
+                    '<a href="javascript:{}" class="facet-choice-link" bind="refocusButton">refocus</a>' +
                     '<span bind="titleSpan"></span>' +
                 '</td>' +
             '</tr></table></div>' +
@@ -175,9 +176,11 @@ RdfPropertyListFacet.prototype._initializeUI = function() {
     this._elmts = DOM.bind(this._div);
     
     this._elmts.titleSpan.text(this._config.name);
-    this._elmts.expressionDiv.text(this._config.expression).hide().click(function() { self._editExpression(); });
+    this._elmts.expressionDiv.text(this._config.filter.pattern).hide().click(function() { self._editExpression(); });
     this._elmts.resetButton.click(function() { self._reset(); });
     this._elmts.changeButton.click(function() { self._change(); });
+    this._elmts.refocusButton.click(function() { self._refocus(); });
+    this._elmts.removeButton.click(function() { self._remove(true); });
 
     this._elmts.choiceCountContainer.click(function() { self._copyChoices(); });
     this._elmts.sortByCountLink.click(function() {
@@ -195,10 +198,6 @@ RdfPropertyListFacet.prototype._initializeUI = function() {
         }
     });
         
-    if (this._config.expression != "value" && this._config.expression != "grel:value") {
-        this._elmts.clusterLink.hide();
-    }
-    
     if (!("scroll" in this._options) || this._options.scroll) {
         this._elmts.bodyDiv.addClass("facet-body-scrollable");
         this._elmts.bodyDiv.resizable({
@@ -424,7 +423,7 @@ RdfPropertyListFacet.prototype._getMetaExpression = function() {
         JSON.stringify(this._config.expression),
         JSON.stringify(this._config.property)
     ].join(', ') + ')';
-}
+};
 
 RdfPropertyListFacet.prototype._doEdit = function() {
     new ClusteringDialog(this._config.property, this._config.expression);
@@ -571,12 +570,25 @@ RdfPropertyListFacet.prototype._reset = function() {
     this._updateRest();
 };
 
+RdfPropertyListFacet.prototype._refocus = function() {
+    this._selection = [];
+    this._blankChoice = null;
+    this._errorChoice = null;
+    this._config.invert = false;
+    
+    RdfBrowser.refocus(this);
+};
+
+
 RdfPropertyListFacet.prototype._change = function() {
 	var self = this;
-	new EditFacetExpression(self._config.property,function(e) {
-		self._config.property = e;
-//		self._update();
-		RdfBrowser.update(true);
+	new EditFacetExpression(self._config.name,self._config.varname,self._config.filter.pattern,function(n,pp) {
+		self._config.name = n;
+		self._elmts.titleSpan.text(n);		
+		if(pp!==self._config.filter.pattern){
+			self._config.filter.pattern = pp;
+			RdfBrowser.update(true);
+		}
 	});
 };
 
@@ -586,8 +598,9 @@ RdfPropertyListFacet.prototype._invert = function() {
     this._updateRest();
 };
 
-RdfPropertyListFacet.prototype._remove = function() {
-    ui.browsingEngine.removeFacet(this);
+RdfPropertyListFacet.prototype._remove = function(update) {
+	var self= this;
+    RdfBrowser.removeFacet(self._index,update);
     
     this._div = null;
     this._config = null;
@@ -622,11 +635,6 @@ RdfPropertyListFacet.prototype._editExpression = function() {
                 self._config.expression = expr;
                 
                 self._elmts.expressionDiv.text(self._config.expression);
-                if (self._config.expression == "value" || self._config.expression == "grel:value") {
-                    self._elmts.clusterLink.show();
-                } else {
-                    self._elmts.clusterLink.hide();
-                }
                 
                 self.reset();
                 self._updateRest();

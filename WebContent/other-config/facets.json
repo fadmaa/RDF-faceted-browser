@@ -1,0 +1,18 @@
+[
+    {
+	"name":"creator",
+	"varname":"creator",
+	"filter": {"pattern":"<http://purl.org/dc/elements/1.1/creator>"}
+  },
+  {
+	"name":"journal",
+	"varname":"j",
+  	"filter": {"pattern":"<http://swrc.ontoware.org/ontology#journal>"}
+  },
+  {
+	"name":"pages",
+	"varname":"pages",
+  	"filter": {"pattern":"<http://swrc.ontoware.org/ontology#pages>"}
+  }
+  
+]

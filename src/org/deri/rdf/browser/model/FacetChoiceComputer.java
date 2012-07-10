@@ -1,31 +1,20 @@
 package org.deri.rdf.browser.model;
 
-import org.deri.rdf.browser.facet.RdfDecoratedValue;
-import org.deri.rdf.browser.facet.RdfFacet;
-import org.deri.rdf.browser.sparql.QueryEngine;
-
-import com.google.common.collect.SetMultimap;
+import org.deri.rdf.browser.BrowsingEngine;
 
 public class FacetChoiceComputer implements Runnable{
 
-	private RdfFacet facet;
-	private QueryEngine engine;
-	private SetMultimap<RdfFacet, RdfDecoratedValue> filters;
-	private String sparqlEndpoint;
-	private String graphUri;
-	private String mainResourcesSelector;
-	public FacetChoiceComputer(RdfFacet facet,String sparqlEndpoint, String graphUri, String mainResourcesSelector, QueryEngine engine,SetMultimap<RdfFacet, RdfDecoratedValue> filters){
-		this.facet = facet;
+	private Facet facet;
+	private BrowsingEngine engine; 
+	
+	public FacetChoiceComputer(Facet f, BrowsingEngine engine){
+		this.facet = f;
 		this.engine = engine;
-		this.filters = filters;
-		this.sparqlEndpoint = sparqlEndpoint;
-		this.mainResourcesSelector = mainResourcesSelector;
-		this.graphUri = graphUri;
 	}
 	
 	@Override
 	public void run() {
-		facet.computeChoices(sparqlEndpoint, graphUri, engine, mainResourcesSelector, filters);
+		facet.setChoices(engine.getPropertiesWithCount(facet));
 	}
 
 }

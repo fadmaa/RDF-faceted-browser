@@ -5,9 +5,8 @@
   "varname":"per"
 },
 "template": "<div>
-<h2 sparql_content=\"http://xmlns.com/foaf/0.1/name\"></h2>
-<h2 sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2>
-<span sparql_content=\"@\"></span>
+<h2 sparql_content=\"http://purl.org/dc/elements/1.1/title\"></h2>
+<p sparql_content=\"http://localhost/vocabulary/bench/abstract\"></p>
 <div>
 description...
 </div>

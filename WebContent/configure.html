@@ -7,12 +7,29 @@
   </div>
   <div>
     <form method="get" action="index.html">
-      <label for="endpointUrl">SPARQL endpoint URL:</label><input type="text" name="endpointUrl" size="40"/> <br/>
-      <label for="mainResourcesSelector">Main resources selector:</label>
-      <textarea cols="40" name="mainResourcesSelector">?x a <http://www.w3.org/ns/dcat#Dataset>. 
-      </textarea>
-      <br/>
-      <input type="submit" value="Start browsing" />
+      <table>
+        <tr>
+          <td><label for="endpoint">SPARQL endpoint URL:</label></td>
+          <td><input type="text" name="endpoint" size="40"/></td>
+        </tr>
+        <tr>
+          <td><label for="main_selector">Main resources selector:</label></td>
+          <td>
+            <textarea cols="40" name="main_selector"></textarea>
+            <br/>
+            <span>Example:a &lt;http://www.w3.org/ns/dcat#Dataset&gt;.</span>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="varname">Variable name:</label></td>
+          <td><input type="text" name="varname" size="8" value="s"/></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+      	    <input type="submit" value="Start browsing" />
+      	  </td>
+      	</tr>
+      </table>
     </form>
   </div>
 </body>

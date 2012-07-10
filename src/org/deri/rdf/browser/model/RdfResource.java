@@ -12,15 +12,15 @@ import com.google.common.collect.SetMultimap;
 
 public class RdfResource {
 
-	protected final String uri;
+	protected final RdfDecoratedValue value;
 	protected SetMultimap<String, String> properties = HashMultimap.create(); 
 	
-	public RdfResource(String uri){
-		this.uri = uri;
+	public RdfResource(RdfDecoratedValue v){
+		this.value = v;
 	}
 
-	public String getUri() {
-		return uri;
+	public RdfDecoratedValue getValue() {
+		return value;
 	}
 
 	public SetMultimap<String, String> getProperties() {
@@ -29,7 +29,7 @@ public class RdfResource {
 	
 	@Override
 	public int hashCode() {
-		return uri.hashCode();
+		return value.hashCode();
 	}
 
 	@Override
@@ -37,14 +37,14 @@ public class RdfResource {
 		if(obj==null) return false;
 		
 		if(obj.getClass().equals(this.getClass())){
-			return this.getUri().equals( ((RdfResource)obj).getUri());
+			return this.getValue().equals( ((RdfResource)obj).getValue());
 		}
 		return false;
 	}
 	
 	public void write(JSONWriter writer) throws JSONException{
 		writer.object();
-		writer.key("@"); writer.value(this.uri);
+		writer.key("@"); writer.value(this.value);
 		for(Entry<String, Collection<String>> entry:properties.asMap().entrySet()){
 			writer.key(entry.getKey());
 			writer.array();
@@ -56,6 +56,15 @@ public class RdfResource {
 		}
 		
 		writer.endObject();
+	}
+
+	public void addProperty(String p, String v) {
+		this.properties.put(p, v);
+	}
+
+	@Override
+	public String toString() {
+		return value.toString();
 	}
 	
 }

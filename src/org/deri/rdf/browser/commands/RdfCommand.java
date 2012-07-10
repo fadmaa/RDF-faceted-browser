@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,20 +11,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.deri.rdf.browser.model.RdfEngine;
+import org.deri.rdf.browser.BrowsingEngine;
+import org.deri.rdf.browser.RdfEngine;
+import org.deri.rdf.browser.sparql.SparqlEngine;
 import org.deri.rdf.browser.util.ParsingUtilities;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 
-import com.google.refine.Jsonizable;
-
 public abstract class RdfCommand extends HttpServlet {
-	protected RdfEngine getRdfEngine(HttpServletRequest request)
-			throws JSONException, XPathExpressionException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	protected BrowsingEngine getRdfEngine(HttpServletRequest request) throws JSONException, XPathExpressionException {
 		String json = request.getParameter("rdf-engine");
 		JSONObject o = ParsingUtilities.evaluateJsonStringToObject(json);
-		RdfEngine engine = new RdfEngine();
+		BrowsingEngine engine = new BrowsingEngine(new SparqlEngine(), new RdfEngine());
 		engine.initializeFromJSON(o);
 
 		return engine;
@@ -90,15 +93,8 @@ public abstract class RdfCommand extends HttpServlet {
 			throw new ServletException("response returned a null writer");
 		}
 	}
-
-	static protected void respondJSON(HttpServletResponse response, Jsonizable o)
-			throws IOException, JSONException {
-
-		respondJSON(response, o, new Properties());
-	}
-
-	static protected void respondJSON(HttpServletResponse response,
-			Jsonizable o, Properties options) throws IOException, JSONException {
+	
+	static protected void respondJSON(HttpServletResponse response, BrowsingEngine engine) throws IOException, JSONException {
 
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Content-Type", "application/json");
@@ -106,9 +102,8 @@ public abstract class RdfCommand extends HttpServlet {
 		Writer w = response.getWriter();
 		JSONWriter writer = new JSONWriter(w);
 
-		o.write(writer, options);
+		engine.write(writer);
 		w.flush();
 		w.close();
 	}
-
 }

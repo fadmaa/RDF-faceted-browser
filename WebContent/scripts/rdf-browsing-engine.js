@@ -1,4 +1,4 @@
-function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControlsDiv, pagingControlsDiv, callback) {
+function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControlsDiv, pagingControlsDiv, params, callback) {
     this._resourcesDiv = resourcesDiv;
     this._facetsDiv = facetsDiv;
     this._summaryDiv = summaryDiv;
@@ -12,7 +12,14 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
     var dismissBusy = DialogSystem.showBusy();
 	this.configuration_URL = "configuration.json";
 	var self = this;
-    this.__loadConfig(function(){
+	var configured = false;
+	if(params["endpoint"] && params["varname"] && params["main_selector"]){
+		configured = true;
+		self._sparqlEndpointUrl = unescape(params["endpoint"]);
+		self._mainResourcesSelector = myunescape(params["main_selector"]);
+		self._varname = unescape(params["varname"]);
+	}
+    this.__loadConfig(configured,function(){
     	self.templateEngine = new TemplateEngine(self.config.template,self.config.script_template);
     	dismissBusy();
     },callback);
@@ -21,9 +28,12 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
 RdfBrowsingEngine.prototype.getJSON = function() {
 	var self = this;
     var a = {
-    	sparqlEndpointUrl: self._sparqlEndpointUrl,
+    	endpoint: self._sparqlEndpointUrl,
     	graph: self.config.graph,
-    	mainResourcesSelector: unescape(self._mainResourcesSelector),
+    	main_selector: {
+    		pattern:unescape(self._mainResourcesSelector),
+    		varname:self._varname
+    	},
     	template:self.templateEngine.__template,
         facets: []
     };
@@ -104,20 +114,11 @@ RdfBrowsingEngine.prototype.viewHeader = function(){
 	$('<span></span>').text(self._filtered + ' matching item').prependTo(this._summaryDiv.empty());
 };
 
-RdfBrowsingEngine.prototype.addFacet = function(type, config, options) {
-    var elmt = this._createFacetContainer();
-    var facet;
-    if(type==="list"){
-		facet = new RdfPropertyListFacet(elmt, facets[i].config, options);
-	}else if (type==="search"){
-		facet = new RdfSearchFacet(elmt, facets[i].config, options);
-	}else{
-		//ignore
-		return;
-	}
-
-    this._facets.push({ elmt: elmt, facet: facet });
-    
+RdfBrowsingEngine.prototype.addFacet = function(f_config) {
+	var self = this;
+	var elmt = this._createFacetContainer();
+	var facet = new RdfPropertyListFacet(elmt, f_config,[],[],self._facets.length);
+	this._facets.push({ elmt: elmt, facet: facet });
     this.update();
 };
 
@@ -125,21 +126,35 @@ RdfBrowsingEngine.prototype.addFacets = function(facets) {
 	for(var i=0;i<facets.length;i++){
     	var elmt = this._createFacetContainer();
     	var facet = facets[i];
-    	if(facet.type==="list"){
-    		facet = new RdfPropertyListFacet(elmt, facets[i].config);
-    	}else if (facet.type==="search"){
-    		facet = new RdfSearchFacet(elmt, facets[i].config);
-    	}else if (facet.type==="numeric"){
-    		facet = new RdfRangeFacet(elmt,facets[i].config);
+    	var f_config = {
+    		filter:{pattern:facet.filter.pattern},
+    		name:facet.name,
+    		varname:facet.varname
+    	};
+    	if(facet._blankChoice && facet._blankChoice.s){
+    		f_config.selectBlank = true;
     	}else{
-    		//ignore
-    		continue;
+    		f_config.selectBlank = false;
     	}
+   		facet = new RdfPropertyListFacet(elmt, f_config,[],facet._selection,i);
     
     	this._facets.push({ elmt: elmt, facet: facet });
 	}
 	
 	this.update();
+};
+
+RdfBrowsingEngine.prototype.removeFacet = function(facet_index, update) {
+	this._facets[facet_index].elmt.remove();
+	this._facets.splice(facet_index,1);
+	if(update){
+		this.update();
+	}else{
+		//update indices
+		for(f in this._facets){
+			f._index--;
+		}
+	}
 };
 
 RdfBrowsingEngine.prototype._createFacetContainer = function() {
@@ -155,10 +170,10 @@ RdfBrowsingEngine.prototype.update = function(onlyFacets) {
 	        "compute-facets",
 	        { "rdf-engine": JSON.stringify(this.getJSON(true)) },
 	        function(data) {
-	        	self._sparqlEndpointUrl = data.sparqlEndpointUrl;
+	        	self._sparqlEndpointUrl = data.endpoint;
 	        	var facetData = data.facets;
 	            for (var i = 0; i < facetData.length; i++) {
-	                self._facets[i].facet.updateState(facetData[i]);
+	                self._facets[i].facet.updateState(facetData[i],i);
 	            }
 	            
 	            
@@ -171,6 +186,21 @@ RdfBrowsingEngine.prototype.update = function(onlyFacets) {
 		},"json");
 	}
 	
+};
+
+
+RdfBrowsingEngine.prototype.refocus = function(refocusFacet) {
+	var self = this;
+	$.post("refocus",{"rdf-engine": JSON.stringify(this.getJSON(true)), "refocus-facet":JSON.stringify(refocusFacet.getJSON())}, function(data){
+		self._mainResourcesSelector = data.main_selector.pattern;
+		self._varname = data.main_selector.varname;
+		self.removeFacet(refocusFacet._index,true);
+	},"json");
+};
+
+RdfBrowsingEngine.prototype.removeAllFacets = function(){
+	this._facets = [];
+	this._facetsDiv.find('.facets-container').empty();	
 };
 
 RdfBrowsingEngine.prototype._onClickFirstPage = function(){
@@ -203,14 +233,17 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 	},"json");
 };
 
-RdfBrowsingEngine.prototype.__loadConfig = function(callback1,callback2){
+RdfBrowsingEngine.prototype.__loadConfig = function(configured,callback1,callback2){
 	var self = this;
 	$.get(self.configuration_URL,{},
 			function(raw_data){
-		        var data = JSON.parse(raw_data.replace(/\n/g, ' '));
+		        var data = JSON.parse(raw_data.replace(/\n|\t/g, ' '));
 				self.config = data ;
-				self._sparqlEndpointUrl = self.config.endpoint_url;
-				self._mainResourcesSelector = self.config.main_resource_selector;
+				if(!configured){
+					self._sparqlEndpointUrl = self.config.endpoint;
+					self._mainResourcesSelector = self.config.main_selector.pattern;
+					self._varname = self.config.main_selector.varname;
+				}
 				//load CSS
 				if(self.config.css){
 					RdfBrowsingEngine.__loadCSS(self.config.css);
@@ -242,4 +275,12 @@ RdfBrowsingEngine.__loadCSS = function(cssFile) {
 
 RdfBrowsingEngine.__loadScript = function(scriptFile) {
 	$.getScript(scriptFile);
+};
+
+RdfBrowsingEngine.prototype.addFacetUI = function(){
+	var self = this;
+	//show dialog
+	new NewFacetUI(function(f){
+		self.addFacet(f);
+	});
 };

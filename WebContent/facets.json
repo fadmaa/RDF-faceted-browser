@@ -1,29 +1,4 @@
 [
-  
-  {
-  	"type":"list",
-  	"config":{
-  		"name":"measures",
-  		"property": " ?measureProp ?measurePropVal. ?measureProp a <http://purl.org/linked-data/cube#MeasureProperty>. ?measureProp <http://www.w3.org/2000/01/rdf-schema#label> ",
-  		"expression": "value"
-  	}
-  },
-  {
-  	"type":"numeric",
-  	"config":{
-  		"name":"year",
-  		"property": " <http://data.lod2.eu/scoreboard/properties/year> ",
-  		"expression": "value"
-  	}
-  },
-  {
-  	"type":"list",
-  	"config":{
-  		"name":"country",
-  		"property": " <http://data.lod2.eu/scoreboard/properties/country> ",
-  		"expression": "value"
-  	}
-  }
-  
+    
   
 ]
