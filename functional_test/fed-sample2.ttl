@@ -23,3 +23,7 @@
 <http://example.org/organisation/w3c> a foaf:Organization;
 	<http://www.w3.org/2000/01/rdf-schema#label> "W3C"
 	.
+
+<http://example.org/person/phil> a foaf:Person;
+
+	.
