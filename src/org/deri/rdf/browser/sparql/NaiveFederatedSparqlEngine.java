@@ -102,15 +102,19 @@ public class NaiveFederatedSparqlEngine{
 		}
 		StringBuilder filter = new StringBuilder();
 		for(String ep:endpoints){
-			filter.append("{").append("SERVICE <").append(ep).append(">{");
+			StringBuilder subfilter = new StringBuilder();
+			
 			for(RdfDecoratedValue v:f.getSelections()){
-				filter.append("{?").append(varname).append(" ").append(f.getFilter().getPattern()).append(" ").append(v.inSparqlFilter(f.getVarname())).append(" .}").append("UNION");
+				subfilter.append("{?").append(varname).append(" ").append(f.getFilter().getPattern()).append(" ").append(v.inSparqlFilter(f.getVarname())).append(" .}").append("UNION");
 			}
 			if(f.missingValueSelected()){
-				filter.append("{?").append(varname).append(" ").append(f.getFilter().getPattern()).append(" ?").append(f.getVarname()).append(DISAMBIGUATION_SUFFIX).append(" .}").append("UNION");
+				subfilter.append("{?").append(varname).append(" ").append(f.getFilter().getPattern()).append(" ?").append(f.getVarname()).append(DISAMBIGUATION_SUFFIX).append(" .}").append("UNION");
 			}
-			SparqlUtil.getRidOfLastUnion(filter);
-			filter.append("}}UNION");	
+			SparqlUtil.getRidOfLastUnion(subfilter);
+			subfilter.replace(0,0,"{SERVICE <"+ep+">{");
+			subfilter.append("}}UNION");
+			
+			filter.append(subfilter);
 		}
 		//get rid of the last UNION
 		SparqlUtil.getRidOfLastUnion(filter);
