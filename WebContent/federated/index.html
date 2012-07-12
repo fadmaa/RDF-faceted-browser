@@ -1,0 +1,49 @@
+<html>
+<head>
+  <link href="../externals/jquery-ui/css/ui-lightness/jquery-ui-1.8.custom.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/jquery-ui-overrides.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/common.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/pure.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/dialog.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/project.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/project/sidebar.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/project/facets.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/widgets/histogram-widget.css" type="text/css" rel="stylesheet" ></link>
+  <link href="../styles/widgets/slider-widget.css" type="text/css" rel="stylesheet" ></link>
+
+  <script type="text/javascript" src="../externals/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="../externals/jquery-ui/jquery-ui-1.8.custom.min.js"></script>	
+  <script type="text/javascript" src="../externals/jquery.eventstack-0.3.js"></script>
+  <script type="text/javascript" src="../scripts/util/dom.js"></script>
+  <script type="text/javascript" src="../scripts/util/dialog.js"></script>
+  <script type="text/javascript" src="../scripts/util/myunescape.js"></script>
+  <script type="text/javascript" src="../scripts/federated/index.js"></script>
+  <script type="text/javascript" src="../scripts/widgets/slider-widget.js"></script>
+  <script type="text/javascript" src="../scripts/widgets/histogram-widget.js"></script>
+  <script type="text/javascript" src="../scripts/facets/rdf-property-list-facet.js"></script>
+  <script type="text/javascript" src="../scripts/facets/edit-facet-expression.js"></script>
+  <script type="text/javascript" src="../scripts/facets/new-facet.js"></script>
+  <script type="text/javascript" src="../scripts/template-engine.js"></script>
+  <script type="text/javascript" src="../scripts/federated/rdf-browsing-engine.js"></script>
+</head>
+<body>
+    <div id="body">
+    	<div bind="leftPanelDiv" id="left-panel">
+    	  <div>
+    	    <button id="add_facet" bind="add_facet">add facet</button>
+    	  </div>
+    	  <ul bind="facets" class="facets-container"></ul>
+    	</div>
+    	<div bind="rightPanelDiv" id="right-panel">
+    	  <div bind="summaryBarDiv" >
+            <!-- row/record counts -->
+            <div id="summary-bar"></div>
+            <div class="viewpanel-pagesize"></div>
+            <div class="viewpanel-paging"></div>
+          </div>
+          <div bind="viewPanelDiv" id="view-panel"></div>
+          </div>
+        </div>
+    </div>
+</body>
+</html>

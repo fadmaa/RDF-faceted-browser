@@ -26,7 +26,7 @@ public class NaiveFederatedSparqlEngine{
 		return builder.toString();
 	}
 	
-	public String getFacetValuesSparql(String[] endpoints, MainFilter mainFilter, Set<Facet> facets, Facet focusFacet) {
+	public String getFacetValuesSparql(String[] endpoints, MainFilter mainFilter, Collection<Facet> facets, Facet focusFacet) {
 		if(!facets.contains(focusFacet)){
 			throw new RuntimeException("Facets set should contain the focus facet");
 		}
@@ -65,6 +65,22 @@ public class NaiveFederatedSparqlEngine{
 		return builder.toString();
 	}
 		
+	public String resourcesDetailsSparql(String[] endpoints, Set<String> uris, Set<String> properties) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(RESOURCES_DETAILS_SPARQL_PROLOG);
+		
+		for(String ep:endpoints){
+			builder.append("{SERVICE<").append(ep).append("> {");
+			builder.append("?s ?p ?o .");
+			builder.append(orFilter("p",properties));
+			builder.append(orFilter("s",uris));
+			builder.append("}}UNION");
+		}
+		SparqlUtil.getRidOfLastUnion(builder);		
+		builder.append("}");
+		return builder.toString();
+	}
+	
 	private String getWhereClause(String[] endpoints, MainFilter mainFilter, Collection<Facet> facets) {
 		StringBuilder builder = new StringBuilder();
 		appendMainFilter(builder,endpoints,mainFilter);
@@ -127,6 +143,26 @@ public class NaiveFederatedSparqlEngine{
 		return filter.toString();
 	}
 	
+	private String orFilter(String varname, Set<String> vals) {
+		if(vals.isEmpty()){
+			return "";
+		}
+		StringBuilder builder = new StringBuilder();
+		builder.append("FILTER(");
+		for(String val:vals){
+			builder.append("?"); builder.append(varname);
+			builder.append("=<"); builder.append(val); builder.append("> || ");
+		}
+		//get rid of the last  ||
+		int lngth = builder.length();
+		builder.delete(lngth-4, lngth);
+		builder.append(").");
+		return builder.toString();
+		
+	}
+	
+	
 	private static final String DISAMBIGUATION_SUFFIX = "_v";
+	private static final String RESOURCES_DETAILS_SPARQL_PROLOG = "SELECT ?s ?p ?o WHERE{" ;
 
 }

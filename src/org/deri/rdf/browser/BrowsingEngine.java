@@ -9,12 +9,14 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.deri.rdf.browser.model.AnnotatedResultItem;
 import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.FacetChoiceComputer;
 import org.deri.rdf.browser.model.MainFilter;
 import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.model.RdfResource;
+import org.deri.rdf.browser.sparql.NaiveFederatedSparqlEngine;
 import org.deri.rdf.browser.sparql.SparqlEngine;
 import org.deri.rdf.browser.util.ParsingUtilities;
 import org.json.JSONArray;
@@ -25,16 +27,19 @@ import org.json.JSONWriter;
 public class BrowsingEngine{
 
 	private SparqlEngine sparqlEngine;
+	private NaiveFederatedSparqlEngine naviveFedSparqlEngine;
 	private RdfEngine rdfEngine;
 	private List<Facet> facets;
 	
 	private MainFilter mainFilter;
-	private String endpoint;
+	private String[] endpoints;
 	protected String template;
 	protected Set<String> properties;
+	private int mode;
 	
-	public BrowsingEngine(SparqlEngine sparqlEngine, RdfEngine rdfEngine) {
+	public BrowsingEngine(NaiveFederatedSparqlEngine fedSparqlEngine, SparqlEngine sparqlEngine, RdfEngine rdfEngine) {
 		this.sparqlEngine = sparqlEngine;
+		this.naviveFedSparqlEngine = fedSparqlEngine;
 		this.rdfEngine = rdfEngine;
 		facets = new LinkedList<Facet>();
 	}
@@ -43,7 +48,13 @@ public class BrowsingEngine{
         if (o == null) {
             return;
         }
-        endpoint = o.getString("endpoint");
+        if(o.has("mode") && o.getString("mode").equals("naive-federated")){
+        	mode = NAIVE_FEDERATED_MODE;
+        	endpoints = o.getString("endpoint").split("\\r?\\n");
+        }else{
+        	mode = NORMAL_MODE;
+        	endpoints = new String[] {o.getString("endpoint").trim()};
+        }
         JSONObject f= o.getJSONObject("main_selector");
         mainFilter = new MainFilter(f.getString("varname"), f.getString("pattern")); 
         template = o.getString("template");
@@ -67,13 +78,23 @@ public class BrowsingEngine{
 
 
 	public long getResourcesCount(){
-		String sparql = sparqlEngine.countFocusItemsSparql(mainFilter, facets);
-		return rdfEngine.getResourcesCount(sparql, endpoint);
+		String sparql = "";
+		if(mode==NORMAL_MODE){
+			sparql = sparqlEngine.countFocusItemsSparql(mainFilter, facets);
+		}else if(mode==NAIVE_FEDERATED_MODE){
+			sparql = naviveFedSparqlEngine.countFocusItemsSparql(endpoints, mainFilter, facets);
+		}
+		return rdfEngine.getResourcesCount(sparql, endpoints[0]);
 	}
 	
 	public Collection<RdfResource> getResources(int offset, int limit){
-		String sparql = sparqlEngine.getFocusItemsSparql(mainFilter, facets, offset, limit);
-		Set<RdfDecoratedValue> values = rdfEngine.getResources(sparql, endpoint, mainFilter.getVarname());
+		String sparql = "";
+		if(mode==NORMAL_MODE){
+			sparql = sparqlEngine.getFocusItemsSparql(mainFilter, facets, offset, limit);
+		}else if(mode==NAIVE_FEDERATED_MODE){
+			sparql = naviveFedSparqlEngine.getFocusItemsSparql(endpoints, mainFilter, facets, offset, limit);
+		}
+		Set<RdfDecoratedValue> values = rdfEngine.getResources(sparql, endpoints[0], mainFilter.getVarname());
 		Set<String> uris = new HashSet<String>();
 		Set<RdfResource> literalResources = new HashSet<RdfResource>(); 
 		for(RdfDecoratedValue rd:values){
@@ -86,18 +107,30 @@ public class BrowsingEngine{
 		if(uris.isEmpty()){
 			return literalResources;
 		}
-		String detailsSparql = sparqlEngine.resourcesDetailsSparql(uris, properties);
-		Collection<RdfResource> resources = rdfEngine.getRdfResources(detailsSparql, endpoint);
+		String detailsSparql = "";
+		if(mode==NORMAL_MODE){
+			detailsSparql = sparqlEngine.resourcesDetailsSparql(uris, properties);
+		}else if(mode==NAIVE_FEDERATED_MODE){
+			detailsSparql = naviveFedSparqlEngine.resourcesDetailsSparql(endpoints,uris, properties);
+		}
+		
+		Collection<RdfResource> resources = rdfEngine.getRdfResources(detailsSparql, endpoints[0]);
 		resources.addAll(literalResources);
 		return resources;
 	}
 	
 	public List<AnnotatedResultItem> getPropertiesWithCount(Facet focusFacet) {
-		String sparql = sparqlEngine.getFacetValuesSparql(mainFilter, facets, focusFacet);
-		List<AnnotatedResultItem> items = rdfEngine.getPropertiesWithCount(sparql, endpoint, focusFacet.getVarname());
+		String sparql = "", missingValSparql = "";
+		if(mode==NORMAL_MODE){
+			sparql = sparqlEngine.getFacetValuesSparql(mainFilter, facets, focusFacet);
+			missingValSparql = sparqlEngine.countItemsMissingFacetSparql(mainFilter, facets, focusFacet);
+		}else if(mode==NAIVE_FEDERATED_MODE){
+			sparql = naviveFedSparqlEngine.getFacetValuesSparql(endpoints, mainFilter, facets, focusFacet);
+			missingValSparql = naviveFedSparqlEngine.countItemsMissingFacetSparql(endpoints, mainFilter, facets, focusFacet);
+		}
+		List<AnnotatedResultItem> items = rdfEngine.getPropertiesWithCount(sparql, endpoints[0], focusFacet.getVarname());
 		
-		String missingValSparql = sparqlEngine.countItemsMissingFacetSparql(mainFilter, facets, focusFacet);
-		AnnotatedResultItem item = rdfEngine.countResourcesMissingProperty(missingValSparql, endpoint);
+		AnnotatedResultItem item = rdfEngine.countResourcesMissingProperty(missingValSparql, endpoints[0]);
 		if(item.getCount()>0){
 			items.add(item);
 		}
@@ -106,6 +139,9 @@ public class BrowsingEngine{
 	}
 	
 	public MainFilter refocus(Facet refocusFacet){
+		if(mode !=NORMAL_MODE){
+			throw new UnsupportedOperationException("Can't refocus in federated mode");
+		}
 		return sparqlEngine.refocusSaprql(mainFilter, facets, refocusFacet);
 	}
 	
@@ -113,10 +149,13 @@ public class BrowsingEngine{
 
 		writer.object();
 		writer.key("endpoint");
-		writer.value(endpoint);
+		writer.value(StringUtils.join(endpoints, "\n"));
 
 		writer.key("main_selector");
 		mainFilter.write(writer);
+		
+		writer.key("mode");
+		writer.value(mode);
 		
 		writer.key("facets");
 		writer.array();
@@ -153,4 +192,8 @@ public class BrowsingEngine{
 		} while (running > 0);
 		//return
 	}
+	
+	private static final int NORMAL_MODE = 0;
+	private static final int NAIVE_FEDERATED_MODE = 1;
+	
 }
