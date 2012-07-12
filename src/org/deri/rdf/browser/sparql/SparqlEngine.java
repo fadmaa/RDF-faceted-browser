@@ -6,6 +6,7 @@ import java.util.Set;
 import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.MainFilter;
 import org.deri.rdf.browser.model.RdfDecoratedValue;
+import org.deri.rdf.browser.util.SparqlUtil;
 
 public class SparqlEngine {
 
@@ -107,8 +108,7 @@ public class SparqlEngine {
 		}
 		
 		//get rid of the last UNION
-		int lngth = filter.length();
-		filter.delete(lngth-5, lngth);//5 = "UNION".length()
+		SparqlUtil.getRidOfLastUnion(filter);
 
 		if(f.missingValueSelected()){
 			//left join
