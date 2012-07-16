@@ -278,15 +278,15 @@ public class GetFocusItemsTest {
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
 						"OPTIONAL {" +
 							"{" +
-								"?s <http://xmlns.com/foaf/0.1/nick> ?nick. " +
+								"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
 							"}" +
 							"UNION" +
 							"{" +
 								"SERVICE <http://localhost:3031/test/query>{" + 
-									"?s <http://xmlns.com/foaf/0.1/nick> ?nick. " + 
+									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
 								"}" +
 							"}" +
-						"} FILTER (!bound(?nick)) ." + 
+						"} FILTER (!bound(?nick_v)) ." + 
 					"}" +
 				"}" + 
 				"UNION" + 
@@ -296,14 +296,76 @@ public class GetFocusItemsTest {
 						"OPTIONAL {" +
 							"{" +
 								"SERVICE <http://localhost:3030/test/query>{" + 
-									"?s <http://xmlns.com/foaf/0.1/nick> ?nick. " + 
+									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
 								"}" +
 							"}" +
 							"UNION" +
 							"{" +
-								"?s <http://xmlns.com/foaf/0.1/nick> ?nick. " +
+								"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
 							"}" +
-						"} FILTER (!bound(?nick)) ." + 
+						"} FILTER (!bound(?nick_v)) ." + 
+					"}" +
+				"}" + 
+		"} ORDER BY ?s OFFSET 0 LIMIT 10";
+
+		assertEquals(sparql, expectedSparql);
+	}
+	
+	@Test
+	public void selectedValueAndmissingSameFacet(){
+		Facet nickF = new Facet(new FacetFilter("<http://xmlns.com/foaf/0.1/nick>"),"nick","nick");
+		nickF.setMissingValueSelected(true);
+		nickF.addLiteralValue("sheer","http://localhost:3031/test/query");
+		facets.add(nickF);
+		String sparql = engine.getFocusItemsSparql(endpoints, mainFilter, facets, start, length);
+		String expectedSparql =
+			"SELECT DISTINCT ?s " +
+			"WHERE{" +
+				"{" +
+					"SERVICE <http://localhost:3030/test/query>{" + 
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
+						"OPTIONAL {" +
+							"{" +
+								"SERVICE <http://localhost:3031/test/query>{" +
+									"?s <http://xmlns.com/foaf/0.1/nick> ?nick. FILTER(str(?nick)=\"sheer\"). " +
+								"}" +
+							"}" +
+							"UNION" +
+							"{" + 
+								"{" +
+									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
+								"}" +
+								"UNION" +
+								"{" +
+									"SERVICE <http://localhost:3031/test/query>{" + 
+										"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
+									"}" +
+								"}" +
+							"}" +
+						"} FILTER (!bound(?nick_v)) ." + 
+					"}" +
+				"}" + 
+				"UNION" + 
+				"{" +
+					"SERVICE <http://localhost:3031/test/query>{" +
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
+						"OPTIONAL {" +
+							"{" +
+								"?s <http://xmlns.com/foaf/0.1/nick> ?nick. FILTER(str(?nick)=\"sheer\"). " +
+							"}" +
+							"UNION" +
+							"{" + 
+								"{" +
+									"SERVICE <http://localhost:3030/test/query>{" + 
+										"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
+									"}" +
+								"}" +
+								"UNION" +
+								"{" +
+									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
+								"}" +
+							"}" +
+						"} FILTER (!bound(?nick_v)) ." + 
 					"}" +
 				"}" + 
 		"} ORDER BY ?s OFFSET 0 LIMIT 10";

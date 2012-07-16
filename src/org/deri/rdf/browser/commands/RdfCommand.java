@@ -14,6 +14,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.deri.rdf.browser.BrowsingEngine;
 import org.deri.rdf.browser.RdfEngine;
 import org.deri.rdf.browser.sparql.NaiveFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
 import org.deri.rdf.browser.sparql.SparqlEngine;
 import org.deri.rdf.browser.util.ParsingUtilities;
 import org.json.JSONException;
@@ -29,7 +30,7 @@ public abstract class RdfCommand extends HttpServlet {
 	protected BrowsingEngine getRdfEngine(HttpServletRequest request) throws JSONException, XPathExpressionException {
 		String json = request.getParameter("rdf-engine");
 		JSONObject o = ParsingUtilities.evaluateJsonStringToObject(json);
-		BrowsingEngine engine = new BrowsingEngine(new NaiveFederatedSparqlEngine(), new SparqlEngine(), new RdfEngine());
+		BrowsingEngine engine = new BrowsingEngine(new OptimisedFederatedSparqlEngine(), new NaiveFederatedSparqlEngine(), new SparqlEngine(), new RdfEngine());
 		engine.initializeFromJSON(o);
 
 		return engine;

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.deri.rdf.browser.model.AnnotatedResultItem;
+import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.model.RdfResource;
 
@@ -93,6 +94,26 @@ public class RdfEngine {
 		}
 	}
 	
+	public void annotatePropertiesWithEndpoints(String[] propSparqls, String[] endpoints, List<AnnotatedResultItem> items, Facet facet) {
+		for(int i=0;i<endpoints.length;i++){
+			String sparql = propSparqls[i];
+			String ep = endpoints[i];
+			//execute sparql against ep
+			ResultSet result = execSparql(sparql, ep);
+			while(result.hasNext()){
+				QuerySolution sol = result.next();
+				RDFNode node = sol.get(facet.getVarname());
+				String v = getString(node);
+				byte valueType = node.canAs(Literal.class)?RdfDecoratedValue.LITERAL:RdfDecoratedValue.RESOURCE;
+				AnnotatedResultItem item = new AnnotatedResultItem(v,valueType);
+				//if items contain v the add endpoint to its endpoints
+				if(items.contains(item)){
+					items.get(items.indexOf(item)).addEndpoint(ep);
+				}
+			}
+		}
+	}
+
 	protected String getString(RDFNode node){
 		if(node==null) return null;
 		if(node.canAs(Literal.class)){

@@ -17,6 +17,7 @@ import org.deri.rdf.browser.model.MainFilter;
 import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.model.RdfResource;
 import org.deri.rdf.browser.sparql.NaiveFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
 import org.deri.rdf.browser.sparql.SparqlEngine;
 import org.deri.rdf.browser.util.ParsingUtilities;
 import org.json.JSONArray;
@@ -27,7 +28,8 @@ import org.json.JSONWriter;
 public class BrowsingEngine{
 
 	private SparqlEngine sparqlEngine;
-	private NaiveFederatedSparqlEngine naviveFedSparqlEngine;
+	private NaiveFederatedSparqlEngine naiveFedSparqlEngine;
+	private OptimisedFederatedSparqlEngine optimisedFedSparqlEngine;
 	private RdfEngine rdfEngine;
 	private List<Facet> facets;
 	
@@ -37,9 +39,10 @@ public class BrowsingEngine{
 	protected Set<String> properties;
 	private int mode;
 	
-	public BrowsingEngine(NaiveFederatedSparqlEngine fedSparqlEngine, SparqlEngine sparqlEngine, RdfEngine rdfEngine) {
+	public BrowsingEngine(OptimisedFederatedSparqlEngine optFedSparqlEngine, NaiveFederatedSparqlEngine fedSparqlEngine, SparqlEngine sparqlEngine, RdfEngine rdfEngine) {
 		this.sparqlEngine = sparqlEngine;
-		this.naviveFedSparqlEngine = fedSparqlEngine;
+		this.naiveFedSparqlEngine = fedSparqlEngine;
+		this.optimisedFedSparqlEngine = optFedSparqlEngine;
 		this.rdfEngine = rdfEngine;
 		facets = new LinkedList<Facet>();
 	}
@@ -48,8 +51,12 @@ public class BrowsingEngine{
         if (o == null) {
             return;
         }
-        if(o.has("mode") && o.getString("mode").equals("naive-federated")){
-        	mode = NAIVE_FEDERATED_MODE;
+        if(o.has("mode")){
+        	if(o.getString("mode").equals("naive-federated")){
+        		mode = NAIVE_FEDERATED_MODE;
+        	}else if(o.getString("mode").equals("optimised-federated")){
+        		mode = OPTIMISED_FEDERATED_MODE;
+        	}
         	endpoints = o.getString("endpoint").split("\\r?\\n");
         }else{
         	mode = NORMAL_MODE;
@@ -82,7 +89,9 @@ public class BrowsingEngine{
 		if(mode==NORMAL_MODE){
 			sparql = sparqlEngine.countFocusItemsSparql(mainFilter, facets);
 		}else if(mode==NAIVE_FEDERATED_MODE){
-			sparql = naviveFedSparqlEngine.countFocusItemsSparql(endpoints, mainFilter, facets);
+			sparql = naiveFedSparqlEngine.countFocusItemsSparql(endpoints, mainFilter, facets);
+		}else if(mode==OPTIMISED_FEDERATED_MODE){
+			sparql = optimisedFedSparqlEngine.countFocusItemsSparql(endpoints, mainFilter, facets);
 		}
 		return rdfEngine.getResourcesCount(sparql, endpoints[0]);
 	}
@@ -92,7 +101,7 @@ public class BrowsingEngine{
 		if(mode==NORMAL_MODE){
 			sparql = sparqlEngine.getFocusItemsSparql(mainFilter, facets, offset, limit);
 		}else if(mode==NAIVE_FEDERATED_MODE){
-			sparql = naviveFedSparqlEngine.getFocusItemsSparql(endpoints, mainFilter, facets, offset, limit);
+			sparql = naiveFedSparqlEngine.getFocusItemsSparql(endpoints, mainFilter, facets, offset, limit);
 		}
 		Set<RdfDecoratedValue> values = rdfEngine.getResources(sparql, endpoints[0], mainFilter.getVarname());
 		Set<String> uris = new HashSet<String>();
@@ -111,7 +120,9 @@ public class BrowsingEngine{
 		if(mode==NORMAL_MODE){
 			detailsSparql = sparqlEngine.resourcesDetailsSparql(uris, properties);
 		}else if(mode==NAIVE_FEDERATED_MODE){
-			detailsSparql = naviveFedSparqlEngine.resourcesDetailsSparql(endpoints,uris, properties);
+			detailsSparql = naiveFedSparqlEngine.resourcesDetailsSparql(endpoints,uris, properties);
+		}else if(mode==OPTIMISED_FEDERATED_MODE){
+			detailsSparql = optimisedFedSparqlEngine.resourcesDetailsSparql(endpoints,uris, properties);
 		}
 		
 		Collection<RdfResource> resources = rdfEngine.getRdfResources(detailsSparql, endpoints[0]);
@@ -125,11 +136,19 @@ public class BrowsingEngine{
 			sparql = sparqlEngine.getFacetValuesSparql(mainFilter, facets, focusFacet);
 			missingValSparql = sparqlEngine.countItemsMissingFacetSparql(mainFilter, facets, focusFacet);
 		}else if(mode==NAIVE_FEDERATED_MODE){
-			sparql = naviveFedSparqlEngine.getFacetValuesSparql(endpoints, mainFilter, facets, focusFacet);
-			missingValSparql = naviveFedSparqlEngine.countItemsMissingFacetSparql(endpoints, mainFilter, facets, focusFacet);
+			sparql = naiveFedSparqlEngine.getFacetValuesSparql(endpoints, mainFilter, facets, focusFacet);
+			missingValSparql = naiveFedSparqlEngine.countItemsMissingFacetSparql(endpoints, mainFilter, facets, focusFacet);
+		}else if(mode==OPTIMISED_FEDERATED_MODE){
+			sparql = optimisedFedSparqlEngine.getFacetValuesSparql(endpoints, mainFilter, facets, focusFacet);
+			missingValSparql = optimisedFedSparqlEngine.countItemsMissingFacetSparql(endpoints, mainFilter, facets, focusFacet);
 		}
 		List<AnnotatedResultItem> items = rdfEngine.getPropertiesWithCount(sparql, endpoints[0], focusFacet.getVarname());
 		
+		//for optimised federated browsing, annotate
+		if(mode==OPTIMISED_FEDERATED_MODE){
+			String[] propSparqls = optimisedFedSparqlEngine.propertiesSparql(endpoints, mainFilter, focusFacet);
+			rdfEngine.annotatePropertiesWithEndpoints(propSparqls, endpoints, items, focusFacet);
+		}
 		AnnotatedResultItem item = rdfEngine.countResourcesMissingProperty(missingValSparql, endpoints[0]);
 		if(item.getCount()>0){
 			items.add(item);
@@ -195,5 +214,6 @@ public class BrowsingEngine{
 	
 	private static final int NORMAL_MODE = 0;
 	private static final int NAIVE_FEDERATED_MODE = 1;
+	private static final int OPTIMISED_FEDERATED_MODE = 2;
 	
 }

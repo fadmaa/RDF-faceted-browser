@@ -8,6 +8,7 @@ public class AnnotatedResultItem {
 
 	private int count;
 	private final RdfDecoratedValue value;
+	private String[] endpoints;
 	
 	public AnnotatedResultItem(int count, String v, byte t){
 		this.count = count;
@@ -32,6 +33,19 @@ public class AnnotatedResultItem {
 	
 	public RdfDecoratedValue getValue(){
 		return this.value;
+	}
+	
+	public String[] getEndpoints(){
+		return endpoints;
+	}
+	
+	public void addEndpoint(String ep){
+		String[] newEndpoints = new String[endpoints.length + 1];
+		for(int i=0;i<endpoints.length;i++){
+			newEndpoints[i] = endpoints[i];
+		}
+		newEndpoints[endpoints.length] = ep;
+		this.endpoints = newEndpoints;
 	}
 	
 	@Override
@@ -64,6 +78,9 @@ public class AnnotatedResultItem {
 		writer.key("t"); writer.value(this.value.getType());
 		writer.key("ep"); 
 		writer.array();
+		for(String ep:endpoints){
+			writer.value(ep);
+		}
 		writer.endArray();
 		writer.endObject();
 		
