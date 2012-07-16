@@ -10,7 +10,6 @@
 	a foaf:Person
 	.
 <http://example.org/person/phil> foaf:name "Phil";
-	foaf:member <http://example.org/organisation/w3c> ;
-	
+	foaf:member <http://example.org/organisation/w3c> ;	
 	foaf:nick "philA"
 	.

@@ -1,7 +1,6 @@
 package org.deri.rdf.browser.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -11,25 +10,29 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+
 public class Facet {
 
 	private FacetFilter filter;
 	private String varname;//must be unique i.e. unambiguously identify a facet
 	private String name;
 	private boolean missingValueSelected;
-	private Set<RdfDecoratedValue> selections = new HashSet<RdfDecoratedValue>();
+	private SetMultimap<String, RdfDecoratedValue> selections;
 	protected List<AnnotatedResultItem> _choices = new LinkedList<AnnotatedResultItem>();
 	protected int _blankCount;
 	protected String _errorMessage;
 	
 	public Facet(FacetFilter f, String v,String n){
+		this();
 		this.filter = f;
 		this.varname = v;
 		this.name = n;
 	}
 	
 	public Facet(){
-		
+		this.selections = HashMultimap.create();
 	}
 	
 	public String getVarname(){
@@ -37,15 +40,23 @@ public class Facet {
 	}
 	
 	public void addResourceValue(String v){
-		this.selections.add(new RdfDecoratedValue(v, RdfDecoratedValue.RESOURCE));
+		this.selections.put(DEFAULT_ENDPOINT, new RdfDecoratedValue(v, RdfDecoratedValue.RESOURCE));
 	}
 	
 	public void addLiteralValue(String v){
-		this.selections.add(new RdfDecoratedValue(v, RdfDecoratedValue.LITERAL));
+		this.selections.put(DEFAULT_ENDPOINT, new RdfDecoratedValue(v, RdfDecoratedValue.LITERAL));
+	}
+	
+	public void addResourceValue(String v, String ep){
+		this.selections.put(ep ,new RdfDecoratedValue(v, RdfDecoratedValue.RESOURCE));
+	}
+	
+	public void addLiteralValue(String v, String ep){
+		this.selections.put(ep, new RdfDecoratedValue(v, RdfDecoratedValue.LITERAL));
 	}
 	
 	public Set<RdfDecoratedValue> getSelections(){
-		return selections;
+		return selections.get(DEFAULT_ENDPOINT);
 	}
 	
 	public FacetFilter getFilter(){
@@ -74,7 +85,7 @@ public class Facet {
         for (int i = 0; i < length; i++) {
             JSONObject oc = a.getJSONObject(i);
             JSONObject ocv = oc.getJSONObject("v");
-            selections.add(new RdfDecoratedValue(ocv.getString("v"), (byte)ocv.getInt("t")));
+            selections.get(DEFAULT_ENDPOINT).add(new RdfDecoratedValue(ocv.getString("v"), (byte)ocv.getInt("t")));
         }
         
         missingValueSelected = o.has("selectBlank") && o.getBoolean("selectBlank");
@@ -97,7 +108,7 @@ public class Facet {
             	if(choice.getValue().getType()==RdfDecoratedValue.NULL){
             		_blankCount = choice.getCount();
             	}else{
-            		choice.write(writer, selections.contains(choice.getValue()));
+            		choice.write(writer, selections.get(DEFAULT_ENDPOINT).contains(choice.getValue()));
             	}
             }
             writer.endArray();
@@ -120,6 +131,10 @@ public class Facet {
 	public String getName(){
 		return name;
 	}
+
+	public SetMultimap<String, RdfDecoratedValue> getEndpointValuesMap() {
+		return selections;
+	} 
 	
 	protected int getLimit() {
 		//TODO make this configurable
@@ -149,4 +164,6 @@ public class Facet {
 		return varname + selections;
 	}
 	
+	private static final String DEFAULT_ENDPOINT ="default";
+
 }
