@@ -10,12 +10,12 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
     this._filtered = 0;
     
     var dismissBusy = DialogSystem.showBusy();
-	this.configuration_URL = "configuration.json";
+	this.configuration_URL = "../configuration.json";
 	var self = this;
 	var configured = false;
-	if(params["endpoint"] && params["varname"] && params["main_selector"]){
+	if(params["endpoints"] && params["varname"] && params["main_selector"]){
 		configured = true;
-		self._sparqlEndpointUrl = unescape(params["endpoint"]);
+		self._sparqlEndpointUrls = unescape(params["endpoints"]);
 		self._mainResourcesSelector = myunescape(params["main_selector"]);
 		self._varname = unescape(params["varname"]);
 	}
@@ -28,7 +28,8 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
 RdfBrowsingEngine.prototype.getJSON = function() {
 	var self = this;
     var a = {
-    	endpoint: self._sparqlEndpointUrl,
+    	mode:'optimised-federated',
+    	endpoint: self._sparqlEndpointUrls,
     	graph: self.config.graph,
     	main_selector: {
     		pattern:unescape(self._mainResourcesSelector),
@@ -56,7 +57,7 @@ RdfBrowsingEngine.prototype.viewResources = function(resources){
 	this._resourcesDiv.empty();
 	for(var i=0;i<resources.length;i++){
 		var r = resources[i];
-		self.templateEngine.viewResource(r,this._resourcesDiv,this._sparqlEndpointUrl,self.config);
+		self.templateEngine.viewResource(r,this._resourcesDiv,this._sparqlEndpointUrls,self.config);
 	}
 	
 	self._pageSizeControls.empty().append($('<span></span>').html('Show: '));
@@ -167,10 +168,10 @@ RdfBrowsingEngine.prototype.update = function(onlyFacets) {
 		self._facets[i].facet.setLoadingState();
 	}
 	$.post(
-	        "compute-facets",
+	        "../compute-facets",
 	        { "rdf-engine": JSON.stringify(this.getJSON(true)) },
 	        function(data) {
-	        	self._sparqlEndpointUrl = data.endpoint;
+	        	self._sparqlEndpointUrls = data.endpoint;
 	        	var facetData = data.facets;
 	            for (var i = 0; i < facetData.length; i++) {
 	                self._facets[i].facet.updateState(facetData[i],i);
@@ -180,7 +181,7 @@ RdfBrowsingEngine.prototype.update = function(onlyFacets) {
 	        },"json");
 	if(onlyFacets!==true){
 		this.getResources(0);
-		$.post("count-resources",{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
+		$.post("../count-resources",{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
 			self._filtered = data.filtered;
 			self.viewHeader();
 		},"json");
@@ -190,8 +191,10 @@ RdfBrowsingEngine.prototype.update = function(onlyFacets) {
 
 
 RdfBrowsingEngine.prototype.refocus = function(refocusFacet) {
+	alert('refocus is not supported with federated browsing');
+	return;
 	var self = this;
-	$.post("refocus",{"rdf-engine": JSON.stringify(this.getJSON(true)), "refocus-facet":JSON.stringify(refocusFacet.getJSON())}, function(data){
+	$.post("../refocus",{"rdf-engine": JSON.stringify(this.getJSON(true)), "refocus-facet":JSON.stringify(refocusFacet.getJSON())}, function(data){
 		self._mainResourcesSelector = data.main_selector.pattern;
 		self._varname = data.main_selector.varname;
 		self.removeFacet(refocusFacet._index,true);
@@ -220,7 +223,7 @@ RdfBrowsingEngine.prototype.getResources = function(start,onDone) {
 	var self = this;
 	if(!start){start=0;}
 	var dismissBusy = DialogSystem.showBusy();
-	$.post("get-resources?limit=" + this._limit + "&offset=" + start,{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
+	$.post("../get-resources?limit=" + this._limit + "&offset=" + start,{"rdf-engine": JSON.stringify(this.getJSON(true))},function(data){
 		if(data.code==='error'){
 			alert(data.message);
 			dismissBusy();
@@ -240,7 +243,7 @@ RdfBrowsingEngine.prototype.__loadConfig = function(configured,callback1,callbac
 		        var data = JSON.parse(raw_data.replace(/\n|\t/g, ' '));
 				self.config = data ;
 				if(!configured){
-					self._sparqlEndpointUrl = self.config.endpoint;
+					self._sparqlEndpointUrls = self.config.endpoint;
 					self._mainResourcesSelector = self.config.main_selector.pattern;
 					self._varname = self.config.main_selector.varname;
 				}

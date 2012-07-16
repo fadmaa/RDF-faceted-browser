@@ -24,7 +24,7 @@ public class RefocusCommand extends RdfCommand{
 			String json = request.getParameter("refocus-facet");
 			JSONObject o = ParsingUtilities.evaluateJsonStringToObject(json);
 			Facet refocusFacet = new Facet();
-			refocusFacet.initializeFromJSON(o);
+			refocusFacet.initializeFromJSON(o,false);
 			
 			MainFilter newMainFilter = engine.refocus(refocusFacet);
 			

@@ -74,7 +74,7 @@ public class Facet {
 		this._choices = new ArrayList<AnnotatedResultItem>(items);
 	}
     
-    public void initializeFromJSON(JSONObject o) throws JSONException{
+    public void initializeFromJSON(JSONObject o, boolean endpointsTracked) throws JSONException{
     	name = o.getString("name");
     	varname = o.getString("varname");
         filter = new FacetFilter(o.getJSONObject("filter").getString("pattern"));
@@ -85,7 +85,15 @@ public class Facet {
         for (int i = 0; i < length; i++) {
             JSONObject oc = a.getJSONObject(i);
             JSONObject ocv = oc.getJSONObject("v");
-            selections.get(DEFAULT_ENDPOINT).add(new RdfDecoratedValue(ocv.getString("v"), (byte)ocv.getInt("t")));
+            if(endpointsTracked){
+            	JSONArray eps = ocv.getJSONArray("ep");
+            	for(int k=0;k<eps.length();k++){
+            		String ep = eps.getString(k);
+            		selections.put(ep,new RdfDecoratedValue(ocv.getString("v"), (byte)ocv.getInt("t")));
+            	}
+            }else{
+            	selections.put(DEFAULT_ENDPOINT,new RdfDecoratedValue(ocv.getString("v"), (byte)ocv.getInt("t")));
+            }
         }
         
         missingValueSelected = o.has("selectBlank") && o.getBoolean("selectBlank");
@@ -108,7 +116,7 @@ public class Facet {
             	if(choice.getValue().getType()==RdfDecoratedValue.NULL){
             		_blankCount = choice.getCount();
             	}else{
-            		choice.write(writer, selections.get(DEFAULT_ENDPOINT).contains(choice.getValue()));
+            		choice.write(writer, selections.containsValue(choice.getValue()));
             	}
             }
             writer.endArray();

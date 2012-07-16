@@ -13,6 +13,7 @@ public class AnnotatedResultItem {
 	public AnnotatedResultItem(int count, String v, byte t){
 		this.count = count;
 		this.value = new RdfDecoratedValue(v, t);
+		endpoints = new String[] {} ;
 	}
 	
 	public AnnotatedResultItem(String v,byte type){

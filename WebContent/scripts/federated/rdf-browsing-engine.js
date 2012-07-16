@@ -120,7 +120,7 @@ RdfBrowsingEngine.prototype.addFacet = function(f_config) {
 	var elmt = this._createFacetContainer();
 	var facet = new RdfPropertyListFacet(elmt, f_config,[],[],self._facets.length);
 	this._facets.push({ elmt: elmt, facet: facet });
-    this.update();
+    this.update(true);
 };
 
 RdfBrowsingEngine.prototype.addFacets = function(facets) {

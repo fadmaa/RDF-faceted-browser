@@ -76,7 +76,7 @@ public class BrowsingEngine{
                 Facet facet = new Facet();
                 
                 if (facet != null) {
-                    facet.initializeFromJSON(fo);
+                    facet.initializeFromJSON(fo,mode==OPTIMISED_FEDERATED_MODE);
                     facets.add(facet);
                 }
             }
@@ -102,6 +102,8 @@ public class BrowsingEngine{
 			sparql = sparqlEngine.getFocusItemsSparql(mainFilter, facets, offset, limit);
 		}else if(mode==NAIVE_FEDERATED_MODE){
 			sparql = naiveFedSparqlEngine.getFocusItemsSparql(endpoints, mainFilter, facets, offset, limit);
+		}else if(mode==OPTIMISED_FEDERATED_MODE){
+			sparql = optimisedFedSparqlEngine.getFocusItemsSparql(endpoints, mainFilter, facets, offset, limit);
 		}
 		Set<RdfDecoratedValue> values = rdfEngine.getResources(sparql, endpoints[0], mainFilter.getVarname());
 		Set<String> uris = new HashSet<String>();

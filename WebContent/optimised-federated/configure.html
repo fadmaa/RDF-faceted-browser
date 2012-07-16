@@ -1,0 +1,39 @@
+<html>
+<head>
+</head>
+<body>
+  <div id="header">
+    <h2>RDF browser</h2>    
+  </div>
+  <div>
+    <form method="get" action="index.html">
+      <table>
+        <tr>
+          <td><label for="endpoint">SPARQL endpoint URLs:</label></td>
+          <td>
+          	  <textarea name="endpoints" cols="40"></textarea>
+              <span>Separate by a new line</span>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="main_selector">Main resources selector:</label></td>
+          <td>
+            <textarea cols="40" name="main_selector"></textarea>
+            <br/>
+            <span>Example:a &lt;http://www.w3.org/ns/dcat#Dataset&gt;.</span>
+          </td>
+        </tr>
+        <tr>
+          <td><label for="varname">Variable name:</label></td>
+          <td><input type="text" name="varname" size="8" value="s"/></td>
+        </tr>
+        <tr>
+          <td colspan="2">
+      	    <input type="submit" value="Start browsing" />
+      	  </td>
+      	</tr>
+      </table>
+    </form>
+  </div>
+</body>
+</html>
