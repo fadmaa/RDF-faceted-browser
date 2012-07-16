@@ -89,32 +89,33 @@ public class GetFacetValusTest {
 		String expectedSparql = 
 			"SELECT ?org (COUNT(DISTINCT ?s) AS ?count) " +
 			"WHERE{" +
-			"{"+
-				"SERVICE <http://localhost:3030/test/query>{" +
-					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-					"{SERVICE <http://localhost:3031/test/query>{" +
+				"{"+
+					"SERVICE <http://localhost:3030/test/query>{" +
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
+					"}" +
+				"}" +
+				"UNION" +
+				"{" +
+					"SERVICE <http://localhost:3031/test/query>{" +
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
+					"}" +
+				"}" +
+				"{" +
+					"SERVICE <http://localhost:3031/test/query>{" +
 						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
-					"}}"  +
+					"}" +
 				"}" +
-			"}" +
-			"UNION" +
-			"{" +
-				"SERVICE <http://localhost:3031/test/query>{" +
-					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-					"{?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). }" +
+				"{" +
+					"SERVICE <http://localhost:3030/test/query>{" +
+						"?s <http://xmlns.com/foaf/0.1/member> ?org ." +
+					"}" +
 				"}" +
-			"}" +
-			"{" +
-				"SERVICE <http://localhost:3030/test/query>{" +
-					"?s <http://xmlns.com/foaf/0.1/member> ?org ." +
+				"UNION" +
+				"{" +
+					"SERVICE <http://localhost:3031/test/query>{" +
+						"?s <http://xmlns.com/foaf/0.1/member> ?org ." +
+					"}" +
 				"}" +
-			"}" +
-			"UNION" +
-			"{" +
-				"SERVICE <http://localhost:3031/test/query>{" +
-					"?s <http://xmlns.com/foaf/0.1/member> ?org ." +
-				"}" +
-			"}" +
 			"} GROUP BY ?org" 
 
 			;
@@ -136,26 +137,12 @@ public class GetFacetValusTest {
 			"{"+
 				"SERVICE <http://localhost:3030/test/query>{" +
 					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-					"{" +
-						"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
-					"}" +
-					"UNION" +
-					"{SERVICE <http://localhost:3031/test/query>{" +
-						"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
-					"}}"  +
 				"}" +
 			"}" +
 			"UNION" +
 			"{" +
 				"SERVICE <http://localhost:3031/test/query>{" +
 					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-					"{SERVICE <http://localhost:3030/test/query>{" +
-						"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
-					"}}" +
-					"UNION" + 
-					"{" +
-						"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." +
-					"}" +
 				"}" +
 			"}" +
 			"{" +
@@ -167,6 +154,17 @@ public class GetFacetValusTest {
 			"{" +
 				"SERVICE <http://localhost:3031/test/query>{" +
 					"?s <http://example.org/property/hobby> ?hobby ." +
+				"}" +
+			"}" +
+			"{" +
+				"SERVICE <http://localhost:3030/test/query>{" +
+					"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>. " +
+				"}" +
+			"}" +
+			"UNION" +
+			"{" +
+				"SERVICE <http://localhost:3031/test/query>{" +
+					"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>. " +
 				"}" +
 			"}" +
 			"} GROUP BY ?hobby" 
@@ -189,28 +187,25 @@ public class GetFacetValusTest {
 			"{"+
 				"SERVICE <http://localhost:3030/test/query>{" +
 					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-					"{" +
-						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " +
-					"}" +
-					"UNION" +
-					"{SERVICE <http://localhost:3031/test/query>{" +
-						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
-					"}}" +
 				"}" +
 			"}" +
 			"UNION" +
 			"{" +
 				"SERVICE <http://localhost:3031/test/query>{" +
 					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-					"{SERVICE <http://localhost:3030/test/query>{" +
-						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " +
-					"}}" +
-					"UNION" +
-					"{" +
-						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
-					"}" +
 				"}" +
 			"}" +
+			"{" +
+				"SERVICE <http://localhost:3030/test/query>{" +
+					"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " +
+				"}" +
+			"}" +
+			"UNION" +
+			"{" +
+				"SERVICE <http://localhost:3031/test/query>{" +
+					"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
+				"}" +
+			"}" +  
 			"{" +
 				"SERVICE <http://localhost:3030/test/query>{" +
 					"?s <http://xmlns.com/foaf/0.1/member> ?org ." +

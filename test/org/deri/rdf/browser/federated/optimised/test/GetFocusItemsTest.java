@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.FacetFilter;
 import org.deri.rdf.browser.model.MainFilter;
+import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -74,24 +75,23 @@ public class GetFocusItemsTest {
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" +
-				"{" +
+				"{" + 
 					"SERVICE <http://localhost:3030/test/query>{" + 
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
-						"{" +
-							"SERVICE <http://localhost:3031/test/query>{" + 
-								"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " + 
-							"}" +
-						"}" + 
-					"}" +
+					"}" + 
 				"}" + 
 				"UNION" + 
-				"{" +
-					"SERVICE <http://localhost:3031/test/query>{" +
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
-						"{?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). }" + 
+					"}" + 
+				"}" +
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
+						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " + 
 					"}" +
 				"}" + 
-		"} ORDER BY ?s OFFSET 0 LIMIT 10";
+			"} ORDER BY ?s OFFSET 0 LIMIT 10";
 
 		assertEquals(sparql, expectedSparql);
 	}
@@ -110,43 +110,33 @@ public class GetFocusItemsTest {
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" +
+				"{" + 
+					"SERVICE <http://localhost:3030/test/query>{" + 
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
+					"}" + 
+				"}" + 
+				"UNION" + 
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
+					"}" + 
+				"}" +	
+				"{" +
+					"SERVICE <http://localhost:3031/test/query>{" +
+						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
+					"}" +
+				"}" +
 				"{" +
 					"SERVICE <http://localhost:3030/test/query>{" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"{" +
-							"SERVICE <http://localhost:3031/test/query>{" +
-								"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
-							"}" +
-						"}" +
-						"{" +
-				 			"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." + 
-				 		"}" + 
-				 		"UNION" + 
-				 		"{" + 
-				 			"SERVICE <http://localhost:3031/test/query>{" + 
-				 				"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." + 
-				 			"}" + 
-				 		"}" +
-				 	"}" +
+						"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>. " +
+					"}" + 
 				 "}" + 
 				 "UNION" + 
 				 "{" + 
 				 	"SERVICE <http://localhost:3031/test/query>{" + 
-				    	"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
-				      	"{" + 
-				      		"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
-				      	"}" +
-			      		"{" +
-			      			"SERVICE <http://localhost:3030/test/query>{" +
-			      				"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>."+
-			      			"}" + 
-			      		"}" +
-			      		"UNION" +
-			      		"{" + 
-		      				"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." + 
-		      			"}" + 
-			      	"}" +
-			    "}" + 
+				 		"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>. " + 
+				 	"}" + 
+				 "}" +
 			"} ORDER BY ?s OFFSET 0 LIMIT 10"
 			;
 		assertEquals(sparql, expectedSparql);
@@ -154,7 +144,7 @@ public class GetFocusItemsTest {
 	
 	@Test
 	public void oneFilterTwoValues(){
-		Facet hobbyF = new Facet(new FacetFilter("<http://example.org/property/hobby>"),"hobby","hobby");
+		Facet hobbyF = new FacetWithPredictableOrderValues(new FacetFilter("<http://example.org/property/hobby>"),"hobby");
 		hobbyF.addLiteralValue("football","http://localhost:3031/test/query");
 		hobbyF.addLiteralValue("rugby", "http://localhost:3030/test/query");
 		facets.add(hobbyF);
@@ -163,33 +153,26 @@ public class GetFocusItemsTest {
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" + 
-				"{"+
+				"{" + 
 					"SERVICE <http://localhost:3030/test/query>{" + 
-						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"{" + 
-							"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " + 
-						"}" + 
-						"UNION" + 
-						"{" + 
-							"SERVICE <http://localhost:3031/test/query>{" + 
-								"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " + 
-							"}" + 
-						"}" + 
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
 					"}" + 
 				"}" + 
 				"UNION" + 
 				"{" + 
 					"SERVICE <http://localhost:3031/test/query>{" + 
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
-						"{" +
-							"SERVICE <http://localhost:3030/test/query>{"+
-								"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " +  
-							"}" + 
-						"}" + 
-						"UNION" +
-						"{" +
-							"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
-						"}" + 
+					"}" + 
+				"}" +	
+				"{"+
+					"SERVICE <http://localhost:3030/test/query>{" + 
+						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " + 
+					"}" + 
+				"}" + 
+				"UNION" + 
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
+						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
 					"}" + 
 				"}" + 
 			"} ORDER BY ?s OFFSET 0 LIMIT 10"
@@ -211,54 +194,40 @@ public class GetFocusItemsTest {
 		String sparql = engine.getFocusItemsSparql(endpoints, mainFilter, facets, start, length);
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
-			"WHERE{" + 
-				"{"+
+			"WHERE{" +
+				"{" + 
 					"SERVICE <http://localhost:3030/test/query>{" + 
-						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"{" + 
-							"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " + 
-						"}" + 
-						"UNION" + 
-						"{" + 
-							"SERVICE <http://localhost:3031/test/query>{" + 
-								"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " + 
-							"}" + 
-						"}" + 
-						"{" +
-							"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." + 
-						"}" + 
-						"UNION" + 
-						"{" + 
-							"SERVICE <http://localhost:3031/test/query>{" + 
-								"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." + 
-							"}" + 
-						"}" +
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
 					"}" + 
 				"}" + 
 				"UNION" + 
 				"{" + 
 					"SERVICE <http://localhost:3031/test/query>{" + 
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
-						"{" +
-							"SERVICE <http://localhost:3030/test/query>{"+
-								"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " +  
-							"}" + 
-						"}" +
-						"UNION" + 
-						"{" +
-							"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " +
-						"}" + 
-						"{" +
-							"SERVICE <http://localhost:3030/test/query>{" +
-								"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>."+
-							"}" + 
-						"}" +
-						"UNION" + 
-						"{" + 
-							"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>." + 
-						"}" + 
+					"}" + 
+				"}" +
+				"{"+
+					"SERVICE <http://localhost:3030/test/query>{" + 
+						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"rugby\"). " + 
+					"}" +
+				"}" + 
+				"UNION" + 
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
+						"?s <http://example.org/property/hobby> ?hobby. FILTER(str(?hobby)=\"football\"). " + 
 					"}" + 
 				"}" + 
+				"{" +
+					"SERVICE <http://localhost:3030/test/query>{" + 
+						"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>. " +
+					"}" + 
+				"}" + 
+				"UNION" + 
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
+						"?s <http://xmlns.com/foaf/0.1/member> <http://example.org/organisation/deri>. " + 
+					"}" + 
+				"}" +
 			"} ORDER BY ?s OFFSET 0 LIMIT 10"
 			;
 		assertEquals(sparql, expectedSparql);
@@ -273,40 +242,31 @@ public class GetFocusItemsTest {
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" +
-				"{" +
+				"{" + 
 					"SERVICE <http://localhost:3030/test/query>{" + 
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
-						"OPTIONAL {" +
-							"{" +
-								"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
-							"}" +
-							"UNION" +
-							"{" +
-								"SERVICE <http://localhost:3031/test/query>{" + 
-									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
-								"}" +
-							"}" +
-						"} FILTER (!bound(?nick_v)) ." + 
-					"}" +
+					"}" + 
 				"}" + 
 				"UNION" + 
-				"{" +
-					"SERVICE <http://localhost:3031/test/query>{" +
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
 						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
-						"OPTIONAL {" +
-							"{" +
-								"SERVICE <http://localhost:3030/test/query>{" + 
-									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
-								"}" +
-							"}" +
-							"UNION" +
-							"{" +
-								"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
-							"}" +
-						"} FILTER (!bound(?nick_v)) ." + 
+					"}" + 
+				"}" +
+				"OPTIONAL {" +
+					"{" +
+						"SERVICE <http://localhost:3030/test/query>{" + 
+							"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
+						"}" +
 					"}" +
-				"}" + 
-		"} ORDER BY ?s OFFSET 0 LIMIT 10";
+					"UNION" +
+					"{" +
+						"SERVICE <http://localhost:3031/test/query>{" + 
+							"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
+						"}" +
+					"}" +
+				"} FILTER (!bound(?nick_v)) ." + 
+			"} ORDER BY ?s OFFSET 0 LIMIT 10";
 
 		assertEquals(sparql, expectedSparql);
 	}
@@ -321,53 +281,38 @@ public class GetFocusItemsTest {
 		String expectedSparql =
 			"SELECT DISTINCT ?s " +
 			"WHERE{" +
-				"{" +
+				"{" + 
 					"SERVICE <http://localhost:3030/test/query>{" + 
-						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"OPTIONAL {" +
-							"{" +
-								"SERVICE <http://localhost:3031/test/query>{" +
-									"?s <http://xmlns.com/foaf/0.1/nick> ?nick. FILTER(str(?nick)=\"sheer\"). " +
-								"}" +
-							"}" +
-							"UNION" +
-							"{" + 
-								"{" +
-									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
-								"}" +
-								"UNION" +
-								"{" +
-									"SERVICE <http://localhost:3031/test/query>{" + 
-										"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
-									"}" +
-								"}" +
-							"}" +
-						"} FILTER (!bound(?nick_v)) ." + 
-					"}" +
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
+					"}" + 
 				"}" + 
 				"UNION" + 
-				"{" +
-					"SERVICE <http://localhost:3031/test/query>{" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"OPTIONAL {" +
-							"{" +
-								"?s <http://xmlns.com/foaf/0.1/nick> ?nick. FILTER(str(?nick)=\"sheer\"). " +
-							"}" +
-							"UNION" +
-							"{" + 
-								"{" +
-									"SERVICE <http://localhost:3030/test/query>{" + 
-										"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
-									"}" +
-								"}" +
-								"UNION" +
-								"{" +
-									"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
-								"}" +
-							"}" +
-						"} FILTER (!bound(?nick_v)) ." + 
+				"{" + 
+					"SERVICE <http://localhost:3031/test/query>{" + 
+						"?s a <http://xmlns.com/foaf/0.1/Person> ." + 
+					"}" + 
+				"}" +
+				"OPTIONAL {" +
+					"{" +
+						"SERVICE <http://localhost:3031/test/query>{" +
+							"?s <http://xmlns.com/foaf/0.1/nick> ?nick. FILTER(str(?nick)=\"sheer\"). " +
+						"}" +
 					"}" +
-				"}" + 
+					"UNION" +
+					"{" +
+						"{" + 
+							"SERVICE <http://localhost:3030/test/query>{" +
+								"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " +
+							"}" +
+						"}" +
+						"UNION" +
+						"{" +
+							"SERVICE <http://localhost:3031/test/query>{" + 
+								"?s <http://xmlns.com/foaf/0.1/nick> ?nick_v. " + 
+							"}" +
+						"}" +
+					"}" +
+				"} FILTER (!bound(?nick_v)) ." + 
 		"} ORDER BY ?s OFFSET 0 LIMIT 10";
 
 		assertEquals(sparql, expectedSparql);
@@ -375,3 +320,23 @@ public class GetFocusItemsTest {
 	
 }
 
+class FacetWithPredictableOrderValues extends Facet{
+
+	public FacetWithPredictableOrderValues(FacetFilter f, String v) {
+		super(f, v,"");
+	}
+
+	@Override
+	public Set<RdfDecoratedValue> getSelections() {
+		Set<RdfDecoratedValue> set = new TreeSet<RdfDecoratedValue>(new Comparator<RdfDecoratedValue>() {
+
+			@Override
+			public int compare(RdfDecoratedValue o1, RdfDecoratedValue o2) {
+				return o1.getValue().compareTo(o2.getValue());
+			}
+		});
+		
+		set.addAll(super.getSelections());
+		return set;
+	}
+}

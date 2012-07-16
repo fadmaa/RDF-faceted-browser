@@ -35,39 +35,30 @@ public class CountItemsMissingFacetTest {
 		String sparql = engine.countItemsMissingFacetSparql(endpoints, mainFilter,facets,memberFacet);
 		String expected = 
 			"SELECT (COUNT(DISTINCT ?s) AS ?count) WHERE{" +
+			"{"+
+				"SERVICE <http://localhost:3030/test/query>{" +
+					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
+				"}" +
+			"}" +
+			"UNION" +
+			"{" +
+				"SERVICE <http://localhost:3031/test/query>{" +
+					"?s a <http://xmlns.com/foaf/0.1/Person> ." +
+				"}" +
+			"}" +
+			"OPTIONAL {" +
 				"{" +
 					"SERVICE <http://localhost:3030/test/query>{" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"OPTIONAL {" +
-							"{" +
-								"?s <http://xmlns.com/foaf/0.1/member> ?org. " +
-							"}" +
-							"UNION" +
-							"{" +
-								"SERVICE <http://localhost:3031/test/query>{" +
-									"?s <http://xmlns.com/foaf/0.1/member> ?org. " +
-								"}" +
-							"}" +
-						"} FILTER (!bound(?org)) ." +
+						"?s <http://xmlns.com/foaf/0.1/member> ?org ." +
 					"}" +
 				"}" +
 				"UNION" +
 				"{" +
 					"SERVICE <http://localhost:3031/test/query>{" +
-						"?s a <http://xmlns.com/foaf/0.1/Person> ." +
-						"OPTIONAL {" +
-							"{" +
-								"SERVICE <http://localhost:3030/test/query>{" +
-									"?s <http://xmlns.com/foaf/0.1/member> ?org. " +
-								"}" +
-							"}" +
-							"UNION" +
-							"{" +
-								"?s <http://xmlns.com/foaf/0.1/member> ?org. " +
-							"}" +
-						"} FILTER (!bound(?org)) ." +
+						"?s <http://xmlns.com/foaf/0.1/member> ?org ." +
 					"}" +
 				"}" +
+			"} FILTER(!bound(?org)) ." +
 			"}";
 		assertEquals(sparql, expected);
 	}
