@@ -50,7 +50,7 @@ public class OptimisedFederatedSparqlEngine {
 		return builder.toString();	
 	}
 	
-	public String[] propertiesSparql(String[] endpoints,MainFilter mainFilter, Facet facet) {
+	public String[] annotateValuesSparql(String[] endpoints,MainFilter mainFilter, Facet facet) {
 		String[] sparqls = new String[endpoints.length]; 
 		for(int i=0; i<endpoints.length;i++){
 			StringBuilder builder = new StringBuilder();

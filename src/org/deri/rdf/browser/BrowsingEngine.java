@@ -106,6 +106,7 @@ public class BrowsingEngine{
 			sparql = optimisedFedSparqlEngine.getFocusItemsSparql(endpoints, mainFilter, facets, offset, limit);
 		}
 		Set<RdfDecoratedValue> values = rdfEngine.getResources(sparql, endpoints[0], mainFilter.getVarname());
+		
 		Set<String> uris = new HashSet<String>();
 		Set<RdfResource> literalResources = new HashSet<RdfResource>(); 
 		for(RdfDecoratedValue rd:values){
@@ -148,7 +149,7 @@ public class BrowsingEngine{
 		
 		//for optimised federated browsing, annotate
 		if(mode==OPTIMISED_FEDERATED_MODE){
-			String[] propSparqls = optimisedFedSparqlEngine.propertiesSparql(endpoints, mainFilter, focusFacet);
+			String[] propSparqls = optimisedFedSparqlEngine.annotateValuesSparql(endpoints, mainFilter, focusFacet);
 			rdfEngine.annotatePropertiesWithEndpoints(propSparqls, endpoints, items, focusFacet);
 		}
 		AnnotatedResultItem item = rdfEngine.countResourcesMissingProperty(missingValSparql, endpoints[0]);

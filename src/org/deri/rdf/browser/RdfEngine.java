@@ -30,7 +30,8 @@ public class RdfEngine {
 
 	public List<AnnotatedResultItem> getPropertiesWithCount(String sparql, String endpoint, String varname) {
 		List<AnnotatedResultItem> propsWithCount = new ArrayList<AnnotatedResultItem>();
-		ResultSet result = execSparql(sparql, endpoint);
+		QueryExecution qExec = execSparql(sparql, endpoint);
+		ResultSet result = qExec.execSelect();
 		while(result.hasNext()){
 			QuerySolution sol = result.next();
 			RDFNode node = sol.get(varname);
@@ -42,31 +43,36 @@ public class RdfEngine {
 			byte valueType = node.canAs(Literal.class)?RdfDecoratedValue.LITERAL:RdfDecoratedValue.RESOURCE;
 			propsWithCount.add(new AnnotatedResultItem(count,v,valueType));
 		}
+		qExec.close();
 		return propsWithCount;
 	}
 
 	public AnnotatedResultItem countResourcesMissingProperty(String sparql, String endpoint) {
-		ResultSet result = execSparql(sparql, endpoint);
-		QuerySolution sol = result.next();
+		QueryExecution qExec = execSparql(sparql, endpoint);
+		ResultSet res = qExec.execSelect();
+		QuerySolution sol = res.next();
 		int count = sol.getLiteral("count").getInt();
+		qExec.close();
 		return new AnnotatedResultItem(count);
 	}
 	
 	public Set<RdfDecoratedValue> getResources(String sparql, String endpoint, String varname) {
 		Set<RdfDecoratedValue> items = new HashSet<RdfDecoratedValue>();
 		
-		ResultSet result = execSparql(sparql, endpoint);
+		QueryExecution qExec = execSparql(sparql, endpoint);
+		ResultSet result = qExec.execSelect();
 		while(result.hasNext()){
 			QuerySolution sol = result.next();
 			items.add(getRdfDecoratedValue(sol,varname));
 		}
-		
+		qExec.close();
 		return items;
 	}
 	
 	public Collection<RdfResource> getRdfResources(String sparql, String endpoint) {
 		Map<String, RdfResource> resourcesMap = new HashMap<String, RdfResource>();
-		ResultSet res = execSparql(sparql, endpoint);
+		QueryExecution qExec = execSparql(sparql, endpoint);
+		ResultSet res = qExec.execSelect();
 		while(res.hasNext()){
 			QuerySolution sol = res.next();
 			String uri = sol.getResource("s").getURI();
@@ -80,18 +86,23 @@ public class RdfEngine {
 				resourcesMap.put(uri,item);
 			}
 		}
+		qExec.close();
 		//Map.values() gives immutable collection
 		return new HashSet<RdfResource>(resourcesMap.values());
 	}
 
 	public long getResourcesCount(String sparql, String endpoint){
-		ResultSet res = execSparql(sparql, endpoint);
+		long count;
+		QueryExecution qExec = execSparql(sparql, endpoint);
+		ResultSet res = qExec.execSelect();
 		if(res.hasNext()){
 			QuerySolution sol = res.next();
-			return sol.getLiteral("count").getLong();
+			count = sol.getLiteral("count").getLong();
 		}else{
-			return 0l;
+			count = 0l;
 		}
+		qExec.close();
+		return count;
 	}
 	
 	public void annotatePropertiesWithEndpoints(String[] propSparqls, String[] endpoints, List<AnnotatedResultItem> items, Facet facet) {
@@ -99,7 +110,8 @@ public class RdfEngine {
 			String sparql = propSparqls[i];
 			String ep = endpoints[i];
 			//execute sparql against ep
-			ResultSet result = execSparql(sparql, ep);
+			QueryExecution qExec = execSparql(sparql, ep);
+			ResultSet result = qExec.execSelect();
 			while(result.hasNext()){
 				QuerySolution sol = result.next();
 				RDFNode node = sol.get(facet.getVarname());
@@ -111,6 +123,7 @@ public class RdfEngine {
 					items.get(items.indexOf(item)).addEndpoint(ep);
 				}
 			}
+			qExec.close();
 		}
 	}
 
@@ -123,8 +136,9 @@ public class RdfEngine {
 		}
 	}
 	
-	private ResultSet execSparql(String sparql, String sparqlEndpointUrl) {
+	private QueryExecution execSparql(String sparql, String sparqlEndpointUrl) {
 		//we use QueryEngineHTTP to skip query validation as Virtuoso needs non-standardised extensions and will not pass ARQ validation
+		
 		logger.debug("executing SPARQL query:\n" + sparql + "\nagainst " + sparqlEndpointUrl);
 		Query query = QueryFactory.create(sparql,Syntax.syntaxARQ);
 		/*QueryEngineHTTP qExec = new QueryEngineHTTP(sparqlEndpointUrl, query);
@@ -132,8 +146,8 @@ public class RdfEngine {
 //		qExec.addParam("apikey", "KASAPI API KEY");
 		ResultSet res = qExec.execSelect();*/
 		QueryExecution qExec = QueryExecutionFactory.sparqlService(sparqlEndpointUrl, query);
-		ResultSet res = qExec.execSelect();
-		return res;
+		
+		return qExec;
 	}
 	
 	private RdfDecoratedValue getRdfDecoratedValue(QuerySolution sol, String varname) {
