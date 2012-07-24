@@ -1,6 +1,7 @@
 package org.deri.rdf.browser.util;
 
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -74,7 +75,7 @@ public class ParsingUtilities {
 	        NodeList nodes = (NodeList) xpath.evaluate(expression, inputSource, XPathConstants.NODESET);
 	        for(int i=0;i<nodes.getLength();i++){
 	        	Node n = nodes.item(i);
-	        	properties.add(n.getNodeValue());
+	        	properties.addAll(Arrays.asList(n.getNodeValue().split(" ")));
 	        }
 	        return properties;
 		}

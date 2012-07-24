@@ -5,11 +5,10 @@
   "varname":"per"
 },
 "template": "<div>
-<h2 sparql_content=\"http://xmlns.com/foaf/0.1/name\"></h2>
-<h2 sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label\"></h2>
-<span sparql_content=\"@\"></span>
+<h2 sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label http://example.org/title\"></h2>
 <div>
-description...
+published in: <span sparql_content=\"http://example.org/publication_year\"></span>
 </div>
+<a sparql_attribute=\"href:@\">link</a>
 </div>"
 }
