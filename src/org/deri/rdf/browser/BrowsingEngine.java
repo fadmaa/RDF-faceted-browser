@@ -63,7 +63,14 @@ public class BrowsingEngine{
         	endpoints = new String[] {o.getString("endpoint").trim()};
         }
         JSONObject f= o.getJSONObject("main_selector");
-        mainFilter = new MainFilter(f.getString("varname"), f.getString("pattern")); 
+        String fvarname = f.getString("varname");
+        String facetsVarname;
+        if(f.has("facetsVarname")){
+        	facetsVarname = f.getString("facetsVarname");
+        }else{
+        	facetsVarname = fvarname;
+        }
+        mainFilter = new MainFilter(fvarname, facetsVarname, f.getString("pattern")); 
         template = o.getString("template");
         properties = ParsingUtilities.getProperties(template);
         

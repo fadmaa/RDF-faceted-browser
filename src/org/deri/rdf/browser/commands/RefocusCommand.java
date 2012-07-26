@@ -39,10 +39,7 @@ public class RefocusCommand extends RdfCommand{
         	writer.key("code"); writer.value("ok");
         	
         	writer.key("main_selector");
-        	writer.object();
-        	writer.key("pattern"); writer.value(newMainFilter.getPattern());
-        	writer.key("varname"); writer.value(newMainFilter.getVarname());
-        	writer.endObject();
+        	newMainFilter.write(writer);
         	
         	writer.endObject();
         	

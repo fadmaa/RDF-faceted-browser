@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 public class CountItemsMissingFacetTest {
 
 	//fixture
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	OptimisedFederatedSparqlEngine engine;
 	String[] endpoints = new String[]{
 		"http://localhost:3030/test/query",

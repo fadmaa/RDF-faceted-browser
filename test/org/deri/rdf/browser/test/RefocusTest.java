@@ -15,7 +15,7 @@ import static org.testng.Assert.*;
 public class RefocusTest {
 
 	//fixture
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	SparqlEngine engine;
 	int start = 0;
 	int length = 10;

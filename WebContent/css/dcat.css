@@ -34,3 +34,7 @@ div.distribution{
 div.dataset-distributions, div.dataset-distributions div{
 	padding:3px;
 }
+
+div.book{
+	border-bottom: solid 1px #BBCCFF;
+}

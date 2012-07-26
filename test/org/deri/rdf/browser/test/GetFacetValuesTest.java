@@ -17,7 +17,7 @@ import static org.testng.Assert.*;
 public class GetFacetValuesTest {
 
 	//fixture
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	SparqlEngine engine;
 	Set<Facet> facets;
 	

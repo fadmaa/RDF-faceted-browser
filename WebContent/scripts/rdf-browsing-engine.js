@@ -18,6 +18,7 @@ function RdfBrowsingEngine(resourcesDiv, facetsDiv, summaryDiv, pageSizeControls
 		self._sparqlEndpointUrl = unescape(params["endpoint"]);
 		self._mainResourcesSelector = myunescape(params["main_selector"]);
 		self._varname = unescape(params["varname"]);
+		self._facetsVarname = self._varname;
 	}
     this.__loadConfig(configured,function(){
     	self.templateEngine = new TemplateEngine(self.config.template,self.config.script_template);
@@ -32,7 +33,8 @@ RdfBrowsingEngine.prototype.getJSON = function() {
     	graph: self.config.graph,
     	main_selector: {
     		pattern:unescape(self._mainResourcesSelector),
-    		varname:self._varname
+    		varname:self._varname,
+    		facetsVarname:self._facetsVarname
     	},
     	template:self.templateEngine.__template,
         facets: []
@@ -194,6 +196,7 @@ RdfBrowsingEngine.prototype.refocus = function(refocusFacet) {
 	$.post("refocus",{"rdf-engine": JSON.stringify(this.getJSON(true)), "refocus-facet":JSON.stringify(refocusFacet.getJSON())}, function(data){
 		self._mainResourcesSelector = data.main_selector.pattern;
 		self._varname = data.main_selector.varname;
+		self._facetsVarname = data.main_selector.facetsVarname; 
 		self.removeFacet(refocusFacet._index,true);
 	},"json");
 };
@@ -243,6 +246,7 @@ RdfBrowsingEngine.prototype.__loadConfig = function(configured,callback1,callbac
 					self._sparqlEndpointUrl = self.config.endpoint;
 					self._mainResourcesSelector = self.config.main_selector.pattern;
 					self._varname = self.config.main_selector.varname;
+					self._facetsVarname = self.config.main_selector.facetsVarname;
 				}
 				//load CSS
 				if(self.config.css){

@@ -35,7 +35,7 @@ public class SparqlEngine {
 		builder.append(mainFilter.getSparqlPattern());
 		for(Facet f:facets){
 			if(f.equals(focusFacet)){
-				builder.append("{?").append(mainFilter.getVarname()).append(" ").append(f.getFilter().getPattern()).append(" ?").append(f.getVarname()).append(" .}");
+				builder.append("{?").append(mainFilter.getFacetsVarname()).append(" ").append(f.getFilter().getPattern()).append(" ?").append(f.getVarname()).append(" .}");
 			}else{
 				builder.append(getFacetFilter(f, mainFilter.getVarname()));
 			}
@@ -53,7 +53,7 @@ public class SparqlEngine {
 		builder.append(mainFilter.getSparqlPattern());
 		for(Facet f:facets){
 			if(f.equals(focusFacet)){
-				builder.append("OPTIONAL {?").append(mainFilter.getVarname()).append(" ").append(f.getFilter().getPattern()).append(" ?").append(f.getVarname()).append(" .} FILTER(!bound(?")
+				builder.append("OPTIONAL {?").append(mainFilter.getFacetsVarname()).append(" ").append(f.getFilter().getPattern()).append(" ?").append(f.getVarname()).append(" .} FILTER(!bound(?")
 				.append(f.getVarname()).append(")) .");
 			}else{
 				builder.append(getFacetFilter(f, mainFilter.getVarname()));

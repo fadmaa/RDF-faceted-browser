@@ -19,7 +19,7 @@ public class GetFocusItemsTest {
 
 
 	//fixture
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	int start = 0;
 	int length = 10;
 	String[] endpoints = new String[]{

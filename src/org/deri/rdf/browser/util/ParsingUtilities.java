@@ -77,6 +77,16 @@ public class ParsingUtilities {
 	        	Node n = nodes.item(i);
 	        	properties.addAll(Arrays.asList(n.getNodeValue().split(" ")));
 	        }
+	        
+	        String attrExpression = "//*/@sparql_attribute";
+	        inputSource = new InputSource(new StringReader(template));
+	        nodes = (NodeList) xpath.evaluate(attrExpression, inputSource, XPathConstants.NODESET);
+	        for(int i=0;i<nodes.getLength();i++){
+	        	Node n = nodes.item(i);
+	        	String s = n.getNodeValue();
+	        	properties.addAll(Arrays.asList(s.substring(s.indexOf(":")+1).split(" ")));
+	        }
+	        
 	        return properties;
 		}
 	    

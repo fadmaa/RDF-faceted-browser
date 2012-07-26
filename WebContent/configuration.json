@@ -4,11 +4,14 @@
   "pattern": " a <http://localhost/vocabulary/bench/Article> .",
   "varname":"per"
 },
-"template": "<div>
-<h2 sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label http://example.org/title\"></h2>
+"template": "<div class=\"book\">
+<h2 sparql_content=\"http://www.w3.org/2000/01/rdf-schema#label http://example.org/title @\"></h2>
+<img sparql_attribute=\"src:http://dbpedia.org/ontology/thumbnail\" />
+<p sparql_content=\"http://www.w3.org/2000/01/rdf-schema#comment\"></p>
 <div>
-published in: <span sparql_content=\"http://example.org/publication_year\"></span>
+published in: <span sparql_content=\"http://dbpedia.org/property/releaseDate\"></span>
 </div>
-<a sparql_attribute=\"href:@\">link</a>
-</div>"
+</div>
+"
+
 }

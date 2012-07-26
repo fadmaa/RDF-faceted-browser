@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 public class GetFacetValusTest {
 
 	//fixture
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	OptimisedFederatedSparqlEngine engine;
 	Set<Facet> facets;
 	String[] endpoints = new String[] {

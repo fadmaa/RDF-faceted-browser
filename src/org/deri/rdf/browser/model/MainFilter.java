@@ -10,17 +10,13 @@ public class MainFilter {
 	private final String pattern;
 	private String sparqlPattern;
 
-	private MainFilter(String varname, String facetsVarname, String pattern) {
+	public MainFilter(String varname, String facetsVarname, String pattern) {
 		this.varname = varname;
 		this.facetsVarname = facetsVarname;
 		this.pattern = pattern;
 		sparqlPattern = "?" + varname + " " + pattern;
 	}
 	
-	public MainFilter(String varname, String pattern) {
-		this(varname,varname,pattern);
-	}
-
 	public String getVarname() {
 		return varname;
 	}
@@ -43,14 +39,14 @@ public class MainFilter {
 	}
 	
 	public MainFilter extend(String newvarname, String newPattern){
-		return new MainFilter(newvarname, newPattern + "?" + varname +". " + sparqlPattern); 
+		return new MainFilter(newvarname, facetsVarname, newPattern + "?" + varname +". " + sparqlPattern); 
 	}
 
 	public void write(JSONWriter writer) throws JSONException{
 		writer.object();
 		writer.key("varname"); writer.value(this.getVarname());
 		writer.key("facetsVarname"); writer.value(this.facetsVarname);
-		writer.key("pattern"); writer.value(this.getSparqlPattern());
+		writer.key("pattern"); writer.value(this.getPattern());
 		writer.endObject();
 	}
 	
