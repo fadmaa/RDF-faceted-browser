@@ -10,27 +10,28 @@ import org.apache.commons.lang3.StringUtils;
 import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.FacetFilter;
 import org.deri.rdf.browser.model.MainFilter;
-import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.EnhancedFederatedSparqlEngine;
 
 public class TagsAndCreatorExperimentOpt {
-	OptimisedFederatedSparqlEngine engine;
-	MainFilter mainFilter = new MainFilter("s", "a <http://www.w3.org/ns/dcat#Dataset> .");
+	EnhancedFederatedSparqlEngine engine;
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://www.w3.org/ns/dcat#Dataset> .");
 	String[] endpoints = new String[]{
 			"http://localhost:3030/test/query",
-			"http://localhost:3031/test/query"
+			"http://localhost:3031/test/query",
+			"http://localhost:3032/test/query"
 		};
 	int start = 0;
 	int length = 10;
 		
 	public void run(String[][] tags, String[] creators) throws Exception{
 		
-	    engine = new OptimisedFederatedSparqlEngine();
+	    engine = new EnhancedFederatedSparqlEngine();
 
 	    Set<String> set = new LinkedHashSet<String>();
 	    for(String[] t:tags){
 	    	set.add(t[0]);
 	    }
-	    String filename = "optimised/" + StringUtils.join(set,"-") + "-" + creators.length;
+	    String filename = "optimised/2/" + StringUtils.join(set,"-") + "-" + creators.length;
 		FileWriter outFile = new FileWriter(filename);
 		PrintWriter out = new PrintWriter(outFile);
 		

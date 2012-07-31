@@ -21,7 +21,7 @@ public class CountResourcesTest {
 			"http://localhost:3030/test/query",
 			"http://localhost:3031/test/query"
 	};
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	
 	@BeforeClass
 	public void init(){

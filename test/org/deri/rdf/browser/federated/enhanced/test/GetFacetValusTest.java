@@ -1,4 +1,4 @@
-package org.deri.rdf.browser.federated.optimised.test;
+package org.deri.rdf.browser.federated.enhanced.test;
 
 import static org.testng.Assert.assertEquals;
 
@@ -9,7 +9,7 @@ import java.util.TreeSet;
 import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.FacetFilter;
 import org.deri.rdf.browser.model.MainFilter;
-import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.EnhancedFederatedSparqlEngine;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -18,7 +18,7 @@ public class GetFacetValusTest {
 
 	//fixture
 	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
-	OptimisedFederatedSparqlEngine engine;
+	EnhancedFederatedSparqlEngine engine;
 	Set<Facet> facets;
 	String[] endpoints = new String[] {
 			"http://localhost:3030/test/query",
@@ -28,7 +28,7 @@ public class GetFacetValusTest {
 	
 	@BeforeClass
 	public void init(){
-		engine = new OptimisedFederatedSparqlEngine();
+		engine = new EnhancedFederatedSparqlEngine();
 	}
 	
 	@BeforeMethod

@@ -10,7 +10,7 @@ import org.deri.rdf.browser.util.SparqlUtil;
 
 import com.google.common.collect.SetMultimap;
 
-public class OptimisedFederatedSparqlEngine {
+public class EnhancedFederatedSparqlEngine {
 	
 	public String getFocusItemsSparql(String[] endpoints, MainFilter mainFilter, Collection<Facet> facets, int start, int length){
 		StringBuilder builder = new StringBuilder("SELECT DISTINCT ?");

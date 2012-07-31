@@ -17,7 +17,7 @@ import org.deri.rdf.browser.model.MainFilter;
 import org.deri.rdf.browser.model.RdfDecoratedValue;
 import org.deri.rdf.browser.model.RdfResource;
 import org.deri.rdf.browser.sparql.NaiveFederatedSparqlEngine;
-import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.EnhancedFederatedSparqlEngine;
 import org.deri.rdf.browser.sparql.SparqlEngine;
 import org.deri.rdf.browser.util.ParsingUtilities;
 import org.json.JSONArray;
@@ -29,7 +29,7 @@ public class BrowsingEngine{
 
 	private SparqlEngine sparqlEngine;
 	private NaiveFederatedSparqlEngine naiveFedSparqlEngine;
-	private OptimisedFederatedSparqlEngine optimisedFedSparqlEngine;
+	private EnhancedFederatedSparqlEngine optimisedFedSparqlEngine;
 	private RdfEngine rdfEngine;
 	private List<Facet> facets;
 	
@@ -39,7 +39,7 @@ public class BrowsingEngine{
 	protected Set<String> properties;
 	private int mode;
 	
-	public BrowsingEngine(OptimisedFederatedSparqlEngine optFedSparqlEngine, NaiveFederatedSparqlEngine fedSparqlEngine, SparqlEngine sparqlEngine, RdfEngine rdfEngine) {
+	public BrowsingEngine(EnhancedFederatedSparqlEngine optFedSparqlEngine, NaiveFederatedSparqlEngine fedSparqlEngine, SparqlEngine sparqlEngine, RdfEngine rdfEngine) {
 		this.sparqlEngine = sparqlEngine;
 		this.naiveFedSparqlEngine = fedSparqlEngine;
 		this.optimisedFedSparqlEngine = optFedSparqlEngine;

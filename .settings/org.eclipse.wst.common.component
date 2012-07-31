@@ -5,6 +5,8 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/test"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/functional_test"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/task2/experiment"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/experiment"/>
         <property name="context-root" value="rdf-f-browser"/>
         <property name="java-output-path" value="/rdf-f-browser/build/classes"/>
     </wb-module>

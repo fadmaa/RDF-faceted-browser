@@ -12,16 +12,14 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
 
-public class ExperimentExecutorOpt {
-	public void run(String filename, String sparqlEndpointUrl,boolean withAnnotationQueries) throws Exception {
+public class ExperimentExecutorTradedoff {
+
+	public void run(String filename, String sparqlEndpointUrl) throws Exception {
 		FileInputStream fstream = new FileInputStream(filename);
 		DataInputStream in = new DataInputStream(fstream);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		String sparql;
 		while ((sparql = br.readLine()) != null) {
-			if(sparql.startsWith("SELECT DISTINCT ?") && !"?s ".equals(sparql.substring(16, 19)) && !withAnnotationQueries){
-				continue;
-			}
 			System.out.println(sparql);
 			Query query = QueryFactory.create(sparql,Syntax.syntaxARQ);
 			QueryExecution qExec = QueryExecutionFactory.sparqlService(sparqlEndpointUrl, query);
@@ -33,13 +31,13 @@ public class ExperimentExecutorOpt {
 				res.next();
 			}
 			
-			Thread.sleep(1000*10);
+			Thread.sleep(1000*2);
 		}
 		in.close();
 	}
 	
 	public static void main(String[] args) throws Exception{
-		ExperimentExecutorOpt executor = new ExperimentExecutorOpt();
-		executor.run("optimised/2/format-rdf-2", "http://localhost:3033/test/query",false);
+		ExperimentExecutorTradedoff executor = new ExperimentExecutorTradedoff();
+		executor.run("tradedoff/2/format-rdf-2", "http://localhost:3033/test/query");
 	}
 }

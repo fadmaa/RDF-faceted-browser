@@ -9,23 +9,23 @@ import org.deri.rdf.browser.RdfEngine;
 import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.FacetFilter;
 import org.deri.rdf.browser.model.MainFilter;
-import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.EnhancedFederatedSparqlEngine;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class CountResourcesTest {
 
 	RdfEngine rdfEngine;
-	OptimisedFederatedSparqlEngine sparqlEngine;
+	EnhancedFederatedSparqlEngine sparqlEngine;
 	String[] endpoints = new String[] {
 			"http://localhost:3030/test/query",
 			"http://localhost:3031/test/query"
 	};
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	
 	@BeforeClass
 	public void init(){
-		sparqlEngine = new OptimisedFederatedSparqlEngine();
+		sparqlEngine = new EnhancedFederatedSparqlEngine();
 		rdfEngine = new RdfEngine();
 	}
 	

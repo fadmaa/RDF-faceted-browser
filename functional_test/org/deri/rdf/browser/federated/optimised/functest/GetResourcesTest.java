@@ -10,15 +10,15 @@ import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.FacetFilter;
 import org.deri.rdf.browser.model.MainFilter;
 import org.deri.rdf.browser.model.RdfDecoratedValue;
-import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.EnhancedFederatedSparqlEngine;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class GetResourcesTest {
 	RdfEngine rdfEngine;
-	OptimisedFederatedSparqlEngine sparqlEngine;
+	EnhancedFederatedSparqlEngine sparqlEngine;
 	String endpoint = "http://localhost:3030/test/query";
-	MainFilter mainFilter = new MainFilter("s", "a <http://xmlns.com/foaf/0.1/Person> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
 	int start = 0;
 	int length = 10;
 	String[] endpoints = new String[]{
@@ -28,7 +28,7 @@ public class GetResourcesTest {
 	
 	@BeforeClass
 	public void init(){
-		sparqlEngine = new OptimisedFederatedSparqlEngine();
+		sparqlEngine = new EnhancedFederatedSparqlEngine();
 		rdfEngine = new RdfEngine();
 	}
 	

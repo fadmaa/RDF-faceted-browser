@@ -15,7 +15,7 @@ public class TagsAndCreatorExperimentNaive {
 
 
 	NaiveFederatedSparqlEngine engine;
-	MainFilter mainFilter = new MainFilter("s", "a <http://www.w3.org/ns/dcat#Dataset> .");
+	MainFilter mainFilter = new MainFilter("s", "s", "a <http://www.w3.org/ns/dcat#Dataset> .");
 	String[] endpoints = new String[]{
 			"http://localhost:3030/test/query",
 			"http://localhost:3031/test/query"

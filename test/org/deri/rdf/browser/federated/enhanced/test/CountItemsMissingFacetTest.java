@@ -1,4 +1,4 @@
-package org.deri.rdf.browser.federated.optimised.test;
+package org.deri.rdf.browser.federated.enhanced.test;
 
 import static org.testng.Assert.assertEquals;
 
@@ -8,7 +8,7 @@ import java.util.Set;
 import org.deri.rdf.browser.model.Facet;
 import org.deri.rdf.browser.model.FacetFilter;
 import org.deri.rdf.browser.model.MainFilter;
-import org.deri.rdf.browser.sparql.OptimisedFederatedSparqlEngine;
+import org.deri.rdf.browser.sparql.EnhancedFederatedSparqlEngine;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -16,7 +16,7 @@ public class CountItemsMissingFacetTest {
 
 	//fixture
 	MainFilter mainFilter = new MainFilter("s", "s", "a <http://xmlns.com/foaf/0.1/Person> .");
-	OptimisedFederatedSparqlEngine engine;
+	EnhancedFederatedSparqlEngine engine;
 	String[] endpoints = new String[]{
 		"http://localhost:3030/test/query",
 		"http://localhost:3031/test/query"
@@ -24,7 +24,7 @@ public class CountItemsMissingFacetTest {
 	
 	@BeforeClass
 	public void init(){
-		engine = new OptimisedFederatedSparqlEngine();
+		engine = new EnhancedFederatedSparqlEngine();
 	}
 	
 	@Test
